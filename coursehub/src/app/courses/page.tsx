@@ -6,7 +6,7 @@ import CoursesPage from "@/components/courses"
 export default function MainCoursesPage() {
     return (
         <div>
-            {/* <CoursesPage /> */}
+            <CoursesPage />
         </div>
     )
 }
