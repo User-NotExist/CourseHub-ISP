@@ -16,4 +16,4 @@ A platform that centralizes course tasks, announcements, and FAQs to keep lectur
 Located in folder **/docs** of this project.
 
 # Diagram
-Located in folder **/docs/diagrams** of this project, require [draw.io](https://app.diagrams.net) to open.
+Located in folder **/docs/diagrams** of this project.
