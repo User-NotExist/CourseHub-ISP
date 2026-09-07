@@ -1,3 +1,5 @@
+"use client"
+
 import type { Metadata } from "next";
 import { Geist_Mono, Inria_Sans } from "next/font/google";
 import "../globals.css";
@@ -19,21 +21,13 @@ const inriaSans = Inria_Sans({
     weight: ["300", "400", "700"],
 });
 
-export const metadata: Metadata = {
-    title: "CourseHub",
-    description: "Project for yr2 ISP",
-};
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
     return (
-        <html
-            lang="en"
-            className={`${inriaSans.variable} ${geistMono.variable} h-full antialiased`}
-        >
-            <body className="min-h-full flex flex-col">
-                <Sidebar/>
+        <div className="flex flex-row min-h-full flex flex-col">
+            <Sidebar />
+            <div className="flex flex-col items-center justify-center w-full">
                 {children}
-            </body>
-        </html>
+            </div>
+        </div>
     );
 }
