@@ -12,15 +12,43 @@ import { mock_courses } from "@/lib/mock_data"
 import { Edit, Trash } from "lucide-react"
 
 export default function CoursesPage() {
+
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+
     const router = useRouter()
+
+    const handle_view = (course_id: number) => {
+        alert(`Viewing course -> ${course_id}`)
+    }
+
+    const handle_edit = (course_id: number) => {
+        alert(`Editing course -> ${course_id}`)
+    }
+
+    const handle_delete = (course_id: number) => {
+        try {
+            setIsLoading(true)
+            if (!confirm("Are you certain ?")) {
+                setIsLoading(false)
+                return;
+            }
+
+            alert("Course Deleted")
+        } catch (error) {
+            alert("Error while deleting course")
+            console.error(error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     return (
         <div className="flex flex-col justify-top items-center h-screen w-max pt-7 overflow-y-auto scrollbar-none gap-4 xl:w-250 lg:w-200 md:w-150 sm:w-100 min-w-90">
             <div className="flex flex-row justiffy-center items-center gap-4 w-full h-35">
-                <div className="bg-[#E8E8E8] w-full h-full rounded-xl">
+                <div className="bg-[#E8E8E8] w-full h-full rounded-xl drop-shadow-md">
                 </div>
 
-                <div className="bg-[#E8E8E8] w-full h-full rounded-xl">
+                <div className="bg-[#E8E8E8] w-full h-full rounded-xl drop-shadow-md">
                 </div>
             </div>
 
@@ -30,12 +58,13 @@ export default function CoursesPage() {
             </div>
 
             {mock_courses.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 w-full pb-10">
                     {mock_courses.map((course, index_) => (
-                        <div key={index_} className="pb-4 bg-[#006C67] rounded-xl">
+                        <div key={index_} className="pb-4 bg-[#006C67] rounded-xl drop-shadow-lg">
                             <Image
                                 alt="coursebg"
-                                src="/boardbg.png"
+                                // src={`/${course.course_thumbnail}.jpg` || '/black.jpg'}
+                                src={'/test.png'}
                                 width={10}
                                 height={10}
                                 className="w-full rounded-tr-xl rounded-tl-xl"
@@ -48,11 +77,11 @@ export default function CoursesPage() {
 
                             <div className="px-5 flex flex-row justify-between items-center mt-4">
                                 <div className="">
-                                    <Button><Trash /></Button>
-                                    <Button className="ml-1"><Edit /></Button>
+                                    <Button onClick={() => handle_delete(course.course_id)}><Trash /></Button>
+                                    <Button onClick={() => handle_edit(course.course_id)} className="ml-1"><Edit /></Button>
                                 </div>
 
-                                <Button className="w-25">View</Button>
+                                <Button onClick={() => handle_view(course.course_id)} className="w-25">View</Button>
                             </div>
                         </div>
                     ))}
