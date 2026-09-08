@@ -20,6 +20,44 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 JWT_ALGORITHM = "HS256"
 
 
+@router.get("/display-course")
+async def display_me_courses(access_token: str = Cookie(None), db: Session = Depends(get_db)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    memberships = (
+        db.query(CourseMember)
+        .filter(CourseMember.user_id == user.user_id)
+        .all()
+    )
+
+    courses = []
+    for i in memberships:
+        course = i.course
+        courses.append({
+            "course_id": course.course_id,
+            "course_unique_for_lecturer": course.course_unique_for_lecturer,
+            "course_unique_for_ta": course.course_unique_for_ta,
+            "course_unique_for_student": course.course_unique_for_student,
+            "course_name": course.course_name,
+            "course_description": course.course_description,
+            "course_thumbnail": course.course_thumbnail,
+            "createdAt": str(course.createdAt),
+            "role": i.role,
+        })
+
+    return courses
+
+
 class CourseCreate(BaseModel):
     course_name: str
     course_description: Optional[str] = None

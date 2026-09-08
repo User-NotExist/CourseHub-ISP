@@ -29,7 +29,7 @@ const vars_: Variants[] = [
     { label: "Variant 3", value: "/3.jpg" },
 ]
 
-const DESCRIPTION_MAX_LENGTH = 40
+const DESCRIPTION_MAX_LENGTH = 50
 
 export default function CreateCourse() {
     const router = useRouter()
@@ -67,15 +67,15 @@ export default function CreateCourse() {
                 alert("Failed to create course")
                 return
             }
+
+            alert(`Course "${courseName}" created successfully !`)
+            setCourseName("")
+            setCourseDescription("")
         }
         catch (error) {
             alert("Error while creating a course")
         }
         finally {
-            alert(`Course "${courseName}" created successfully !`)
-
-            setCourseName("")
-            setCourseDescription("")
             setIsLoading(false)
         }
     }
