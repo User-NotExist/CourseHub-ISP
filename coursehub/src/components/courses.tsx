@@ -58,16 +58,15 @@ export default function CoursesPage() {
             </div>
 
             {mock_courses.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 w-full pb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 w-full pb-6">
                     {mock_courses.map((course, index_) => (
                         <div key={index_} className="pb-4 bg-[#006C67] rounded-xl drop-shadow-lg">
                             <Image
                                 alt="coursebg"
-                                // src={`/${course.course_thumbnail}.jpg` || '/black.jpg'}
-                                src={'/test.png'}
-                                width={10}
-                                height={10}
-                                className="w-full rounded-tr-xl rounded-tl-xl"
+                                src={course.course_thumbnail}
+                                width={400}
+                                height={160}
+                                className="w-full h-40 object-cover rounded-tr-xl rounded-tl-xl"
                             />
 
                             <div className="w-full h-[2px] bg-[#FFFFFF] rounded-xl mb-3"></div>

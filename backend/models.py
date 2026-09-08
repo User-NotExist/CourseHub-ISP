@@ -30,6 +30,7 @@ class Course(base):
     course_unique_for_student = Column(Integer, nullable=True)
     course_name = Column(String, nullable=False)
     course_description = Column(Text)
+    course_thumbnail = Column(Text)
     createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     members = relationship("CourseMember", back_populates="course")
