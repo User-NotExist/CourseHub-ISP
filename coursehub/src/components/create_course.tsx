@@ -1,28 +1,68 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+
 import Image from "next/image"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+
+import {
+    Combobox,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxList,
+} from "@/components/ui/combobox"
+
+type Variants = {
+    label: string
+    value: string
+}
+
+const vars_: Variants[] = [
+    { label: "Variant 1", value: "/1.jpg" },
+    { label: "Variant 2", value: "/2.jpg" },
+    { label: "Variant 3", value: "/3.jpg" },
+]
+
+const DESCRIPTION_MAX_LENGTH = 40
 
 export default function CreateCourse() {
     const router = useRouter()
 
     const [courseName, setCourseName] = useState("")
     const [courseDescription, setCourseDescription] = useState("")
-    const [coursePicture, setCoursePicture] = useState<File | null>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [selectedVariant, setSelectedVariant] = useState<Variants | null>(vars_[0])
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] ?? null
-        setCoursePicture(file)
-        setPreviewUrl(file ? URL.createObjectURL(file) : null)
-    }
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const handleCreate = () => {
+        try {
+            if (!confirm("Submit the form ?")) {
+                return;
+            }
 
+            if (courseName.trim() === "" || courseDescription.trim() === "") {
+                alert("All forms must be filled !");
+                return
+            }
+
+            setIsLoading(true)
+            alert("Creating new course")
+        }
+        catch (error) {
+            alert("Error while creating a course")
+            setIsLoading(false)
+        }
+        finally {
+            setCourseName("")
+            setCourseDescription("")
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -35,23 +75,40 @@ export default function CreateCourse() {
 
                 <div className="flex flex-col gap-4">
                     <div>
-                        <label className="text-sm font-medium mb-1 block">Course Picture</label>
-                        {previewUrl ? (
+                        <label className="text-sm font-medium mb-1 block">Course Thumbnail</label>
+                        {selectedVariant ? (
                             <div className="relative w-full h-40 mb-2 rounded-lg overflow-hidden border">
-                                <Image src={previewUrl} alt="Course preview" fill className="object-cover" />
+                                <Image src={selectedVariant.value} alt="Course preview" fill className="object-cover" />
                             </div>
                         ) : (
                             <div className="w-full h-40 mb-2 rounded-lg border border-dashed flex items-center justify-center text-sm text-gray-400">
                                 No image selected
                             </div>
                         )}
-                        <Input type="file" accept="image/*" onChange={handleFileChange} />
+                        <Combobox
+                            items={vars_}
+                            itemToStringValue={(variant) => variant.label}
+                            value={selectedVariant}
+                            onValueChange={(variant) => setSelectedVariant(variant)}
+                        >
+                            <ComboboxInput placeholder="Select a thumbnail" />
+                            <ComboboxContent>
+                                <ComboboxEmpty>No items found.</ComboboxEmpty>
+                                <ComboboxList>
+                                    {(variant) => (
+                                        <ComboboxItem key={variant.value} value={variant}>
+                                            {variant.label}
+                                        </ComboboxItem>
+                                    )}
+                                </ComboboxList>
+                            </ComboboxContent>
+                        </Combobox>
                     </div>
 
                     <div>
                         <label className="text-sm font-medium mb-1 block">Course Name</label>
                         <Input
-                            placeholder="e.g. ISP-101"
+                            placeholder="Your desire course name"
                             value={courseName}
                             onChange={(e) => setCourseName(e.target.value)}
                         />
@@ -62,9 +119,13 @@ export default function CreateCourse() {
                         <Textarea
                             placeholder="Briefly describe this course..."
                             value={courseDescription}
-                            onChange={(e) => setCourseDescription(e.target.value)}
+                            onChange={(e) => setCourseDescription(e.target.value.slice(0, DESCRIPTION_MAX_LENGTH))}
+                            maxLength={DESCRIPTION_MAX_LENGTH}
                             rows={5}
                         />
+                        <p className="text-xs text-gray-400 text-right mt-1">
+                            {courseDescription.length}/{DESCRIPTION_MAX_LENGTH}
+                        </p>
                     </div>
                 </div>
 
