@@ -1,13 +1,11 @@
-
 import os
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import JSONResponse
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, Request, Cookie
+from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from authlib.integrations.starlette_client import OAuth
-from jose import jwt
+from jose import jwt, JWTError
 
 from database import get_db
 from models import User
@@ -24,6 +22,9 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_MINUTES = 60 * 24  # 1 day
 
 ALLOWED_DOMAIN = "ku.th"
+
+# set to True once deployed behind HTTPS
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 
 # Oauth setup
 oauth = OAuth()
@@ -44,7 +45,6 @@ def create_access_token(data: dict) -> str:
 
 @router.get("/login")
 async def login(request: Request):
-    # redict user to Oauth scene
     redirect_uri = GOOGLE_REDIRECT_URI
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
@@ -53,7 +53,7 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
     try:
         token = await oauth.google.authorize_access_token(request)
     except Exception:
-        raise HTTPException(status_code=400, detail="OAuth authorization failed") # ---------
+        raise HTTPException(status_code=400, detail="OAuth authorization failed")
 
     userinfo = token.get("userinfo")
     if not userinfo:
@@ -68,7 +68,10 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
 
     domain = email.split("@")[-1].lower()
     if domain != ALLOWED_DOMAIN:
-        raise HTTPException(status_code=403, detail=f"Only @{ALLOWED_DOMAIN} accounts are allowed to log in",)
+        raise HTTPException(
+            status_code=403,
+            detail=f"Only @{ALLOWED_DOMAIN} accounts are allowed to log in",
+        )
 
     user = db.query(User).filter(User.user_email == email).first()
     if not user:
@@ -79,10 +82,39 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
 
     access_token = create_access_token({"sub": str(user.user_id), "email": user.user_email})
 
-    response = RedirectResponse(url=f"{FRONTEND_URL}/auth/success?token={access_token}")
+    response = RedirectResponse(url=f"{FRONTEND_URL}/courses")
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite="lax",
+        max_age=JWT_EXPIRE_MINUTES * 60,
+        path="/",
+    )
     return response
 
-router.post("/logout")
+
+@router.get("/me")
+async def get_me(access_token: str = Cookie(None), db: Session = Depends(get_db)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    try:
+        payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    user = db.query(User).filter(User.user_id == int(payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    print(user.user_email)
+    return {"user_id": user.user_id, "email": user.user_email}
+
+
+@router.post("/logout")
 async def auth_logout(request: Request):
     request.session.clear()
 
