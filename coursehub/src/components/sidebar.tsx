@@ -8,16 +8,26 @@ export default function Sidebar() {
     const router = useRouter()
     const [email, setEmail] = useState<string | null>(null)
 
+    // useEffect(() => {
+    //     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
+    //     fetch(`${backendUrl}/auth/me`, { credentials: "include" })
+    //         .then((res) => {
+    //             if (!res.ok) throw new Error("Not authenticated")
+    //             return res.json()
+    //         })
+    //         .then((data) => {setEmail(data.email); alert(data.email)})
+    //         .catch(() => setEmail(null))
+    // }, [])
+
     useEffect(() => {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"
-        fetch(`${backendUrl}/auth/me`, { credentials: "include" })
+        fetch(`/api_auth/me`, { credentials: "include" })
             .then((res) => {
                 if (!res.ok) throw new Error("Not authenticated")
                 return res.json()
             })
-            .then((data) => {setEmail(data.email); alert(data.email)})
+            .then((data) => { setEmail(data.email) })
             .catch(() => setEmail(null))
-    }, [])
+    })
 
     const handle_logout = async () => {
         if (!confirm("Logout from the application ?")) {
@@ -26,7 +36,7 @@ export default function Sidebar() {
 
         await fetch("/api_auth/logout", { method: "POST", credentials: "include" })
         alert("Logout successfully!")
-        
+
         router.replace("/")
     }
 
@@ -58,7 +68,7 @@ export default function Sidebar() {
 
             <div>
                 <div className="bg-black/10 px-4 py-2 text-sm">
-                    Greetings, {email ?? "..."}
+                    Hi, {email ?? "..."}
                 </div>
                 <button
                     className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors px-4 py-3 w-full"

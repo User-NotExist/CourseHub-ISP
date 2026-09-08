@@ -110,7 +110,7 @@ async def get_me(access_token: str = Cookie(None), db: Session = Depends(get_db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    print(user.user_email)
+    # print(user.user_email)
     return {"user_id": user.user_id, "email": user.user_email}
 
 
