@@ -24,7 +24,6 @@ export default function Sidebar() {
         }
 
         await fetch("/api_auth/logout", { method: "POST", credentials: "include" })
-        alert("Logout successfully!")
 
         router.replace("/")
     }

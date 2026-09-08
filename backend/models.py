@@ -26,8 +26,9 @@ class Course(base):
     __tablename__ = "courses"
 
     course_id = Column(Integer, primary_key=True, autoincrement=True)
-    course_unique_for_ta = Column(Integer, nullable=True)
-    course_unique_for_student = Column(Integer, nullable=True)
+    course_unique_for_lecturer = Column(String(6), unique=True, nullable=False)
+    course_unique_for_ta = Column(String(6), unique=True, nullable=False)
+    course_unique_for_student = Column(String(6), unique=True, nullable=False)
     course_name = Column(String, nullable=False)
     course_description = Column(Text)
     course_thumbnail = Column(Text)
@@ -45,7 +46,7 @@ class CourseMember(base):
     member_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     course_id = Column(Integer, ForeignKey("courses.course_id"), nullable=False)
-    role = Column(String, nullable=False)  # "lecturer", "ta", "student"
+    role = Column(String, nullable=False)  # "ta", "student"
 
     user = relationship("User", back_populates="course_memberships")
     course = relationship("Course", back_populates="members")

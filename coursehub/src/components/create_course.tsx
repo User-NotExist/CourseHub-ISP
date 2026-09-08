@@ -40,25 +40,40 @@ export default function CreateCourse() {
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
         try {
             if (!confirm("Submit the form ?")) {
-                return;
+                return
             }
 
             if (courseName.trim() === "" || courseDescription.trim() === "") {
-                alert("All forms must be filled !");
+                alert("All forms must be filled !")
                 return
             }
 
             setIsLoading(true)
-            alert("Creating new course")
+
+            const res = await fetch(`/api_course/create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    course_name: courseName,
+                    course_description: courseDescription,
+                    course_thumbnail: selectedVariant?.value,
+                }),
+            })
+
+            if (!res.ok) {
+                alert("Failed to create course")
+                return
+            }
         }
         catch (error) {
             alert("Error while creating a course")
-            setIsLoading(false)
         }
         finally {
+            alert(`Course "${courseName}" created successfully !`)
+
             setCourseName("")
             setCourseDescription("")
             setIsLoading(false)
