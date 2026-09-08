@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from authlib.integrations.starlette_client import OAuth
@@ -79,4 +80,15 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
     access_token = create_access_token({"sub": str(user.user_id), "email": user.user_email})
 
     response = RedirectResponse(url=f"{FRONTEND_URL}/auth/success?token={access_token}")
+    return response
+
+router.post("/logout")
+async def auth_logout(request: Request):
+    request.session.clear()
+
+    response = JSONResponse({"message": "Logged out successfully"})
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+    )
     return response

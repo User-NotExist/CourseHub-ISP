@@ -6,16 +6,20 @@ import { useRouter } from "next/navigation"
 export default function Sidebar() {
     const router = useRouter();
 
-    const handle_logout = () => {
+    const handle_logout = async () => {
         if (!confirm("Logout from the application ?")) {
             return;
         }
+
+        localStorage.removeItem("access_token")
+        await fetch("/api_auth/logout", { method: "POST", credentials: "include" })
+        router.replace("/")
 
         alert("Logout successfully !")
     }
 
     return (
-        <div className="bg-[#006C67] flex flex-col justify-between w-64 h-screen text-white">
+        <div className="bg-[#006C67] flex flex-col justify-between w-55 h-screen text-white">
             <div>
                 <div className="p-6">
                     <h1 className="text-2xl font-bold border-white/30 pb-3">CourseHub</h1>
@@ -26,7 +30,7 @@ export default function Sidebar() {
 
                 <nav className="flex flex-col gap-1 px-3">
                     <button className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                    onClick={() => router.push('/courses')}>
+                        onClick={() => router.push('/courses')}>
                         <FiGrid />
                         <span>Courses</span>
                     </button>
