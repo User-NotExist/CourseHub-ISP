@@ -46,7 +46,7 @@ class CourseMember(base):
     member_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     course_id = Column(Integer, ForeignKey("courses.course_id"), nullable=False)
-    role = Column(String, nullable=False)  # "lecturer, ta", "student"
+    role = Column(String, nullable=False)  # "lecturer, ta, student"
 
     user = relationship("User", back_populates="course_memberships")
     course = relationship("Course", back_populates="members")
