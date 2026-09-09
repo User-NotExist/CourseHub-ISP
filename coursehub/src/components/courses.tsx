@@ -7,31 +7,60 @@ import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-import { mock_courses } from "@/lib/mock_data"
+import { Edit, Trash, Loader2 } from "lucide-react"
 
-import { Edit, Trash } from "lucide-react"
+type Course = {
+    course_id: number
+    course_unique_for_lecturer: string
+    course_unique_for_ta: string
+    course_unique_for_student: string
+    course_name: string
+    course_description: string
+    course_thumbnail: string
+    createdAt: string
+    role: string
+}
 
 export default function CoursesPage() {
-
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [courses, setCourses] = useState<Course[]>([])
+    const [isLoading, setIsLoading] = useState<boolean>(true)
 
     const router = useRouter()
 
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const res = await fetch("/api_course/read")
+                if (!res.ok) throw new Error("Failed to fetch courses")
+                const data = await res.json()
+                setCourses(data)
+            } catch (error) {
+                console.error(error)
+                setCourses([])
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchCourses()
+    }, [])
+
     const handle_view = (course_id: number) => {
-        alert(`Viewing course -> ${course_id}`)
+        router.push(`/courses/${course_id}`)
     }
 
     const handle_edit = (course_id: number) => {
         alert(`Editing course -> ${course_id}`)
     }
 
-    const handle_delete = (course_id: number) => {
+    const handle_delete = async (course_id: number) => {
         try {
-            setIsLoading(true)
             if (!confirm("Are you certain ?")) {
-                setIsLoading(false)
-                return;
+                return
             }
+
+            setIsLoading(true)
+
 
             alert("Course Deleted")
         } catch (error) {
@@ -57,28 +86,35 @@ export default function CoursesPage() {
                 <Button className="w-25">Search</Button>
             </div>
 
-            {mock_courses.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 w-full pb-10">
-                    {mock_courses.map((course, index_) => (
-                        <div key={index_} className="pb-4 bg-[#006C67] rounded-xl drop-shadow-lg">
+            {isLoading ? (
+                <div className="flex items-center justify-center py-10">
+                    <Loader2 className="animate-spin mt-10" size={45} />
+                </div>
+            ) : courses.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 w-full pb-6">
+                    {courses.map((course) => (
+                        <div key={course.course_id} className="pb-4 bg-[#006C67] rounded-xl drop-shadow-lg">
                             <Image
                                 alt="coursebg"
-                                // src={`/${course.course_thumbnail}.jpg` || '/black.jpg'}
-                                src={'/test.png'}
-                                width={10}
-                                height={10}
-                                className="w-full rounded-tr-xl rounded-tl-xl"
+                                src={course.course_thumbnail}
+                                width={400}
+                                height={160}
+                                className="w-full h-40 object-cover rounded-tr-xl rounded-tl-xl"
                             />
 
                             <div className="w-full h-[2px] bg-[#FFFFFF] rounded-xl mb-3"></div>
 
                             <h1 className="px-5 text-white">{course.course_name}</h1>
-                            <h2 className="px-5 text-white text-[13px]">{course.course_description}</h2>
+                            <h2 className="px-5 text-white text-[13px] h-11">{course.course_description}</h2>
 
                             <div className="px-5 flex flex-row justify-between items-center mt-4">
                                 <div className="">
-                                    <Button onClick={() => handle_delete(course.course_id)}><Trash /></Button>
-                                    <Button onClick={() => handle_edit(course.course_id)} className="ml-1"><Edit /></Button>
+                                    {course.role === "lecturer" && (
+                                        <div>
+                                            <Button onClick={() => handle_delete(course.course_id)}><Trash className="text-red-500"/></Button>
+                                            <Button onClick={() => handle_edit(course.course_id)} className="ml-1"><Edit /></Button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <Button onClick={() => handle_view(course.course_id)} className="w-25">View</Button>
@@ -87,7 +123,7 @@ export default function CoursesPage() {
                     ))}
                 </div>
             ) : (
-                <h1>No Assigned Courses</h1>
+                <h1 className="flex flex-col items-center justify-center pt-30">No Assigned Courses</h1>
             )}
         </div>
     )

@@ -1,11 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
-
-import CalendarPage from "@/components/calendar"
-
-export default function CalendarScreen() {
+export default function CalendarPage() {
     return (
-        <CalendarPage />
+        <div>
+            Calendar page
+        </div>
     )
 }

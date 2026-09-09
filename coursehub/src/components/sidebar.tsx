@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { FiGrid, FiCalendar, FiLogOut } from "react-icons/fi"
+import { FiGrid, FiCalendar, FiLogOut, FiPlusCircle } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -60,9 +60,20 @@ export default function Sidebar() {
                         <span>Courses</span>
                     </button>
 
-                    <button className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3">
+                    <button
+                        className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
+                        onClick={() => router.push("/courses/create")}
+                    >
+                        <FiPlusCircle />
+                        <span>Create Course</span>
+                    </button>
+
+                    <button
+                        className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
+                        onClick={() => router.push("/schedule")}
+                    >
                         <FiCalendar />
-                        <span>Calendar</span>
+                        <span>Schedule</span>
                     </button>
                 </nav>
             </div>

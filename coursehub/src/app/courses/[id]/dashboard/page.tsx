@@ -1,11 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
-
-import DashboardPage from "@/components/dashboard"
-
-export default function DashboardScreen() {
+export default function DashboardPage() {
     return (
-        <DashboardPage />
+        <div>
+            Dashboard page
+        </div>
     )
 }

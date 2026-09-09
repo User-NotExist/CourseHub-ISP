@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 export async function POST() {
-    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8000"
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:8000"
 
     const backendRes = await fetch(`${backendUrl}/auth/logout`, {
         method: "POST",
