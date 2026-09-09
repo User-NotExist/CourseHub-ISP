@@ -25,7 +25,7 @@ class User(base):
 class Course(base):
     __tablename__ = "courses"
 
-    course_id = Column(Integer, primary_key=True, autoincrement=True)
+    course_id = Column(String(12), primary_key=True)
     course_unique_for_lecturer = Column(String(10), unique=True, nullable=False)
     course_unique_for_ta = Column(String(10), unique=True, nullable=False)
     course_unique_for_student = Column(String(10), unique=True, nullable=False)
@@ -45,7 +45,7 @@ class CourseMember(base):
 
     member_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.course_id"), nullable=False)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
     role = Column(String, nullable=False)  # "lecturer, ta, student"
 
     user = relationship("User", back_populates="course_memberships")
@@ -57,7 +57,7 @@ class Task(base):
 
     task_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.course_id"), nullable=False)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
 
     task_name = Column(String, nullable=False)
     task_description = Column(Text)
@@ -75,7 +75,7 @@ class Activity(base):
 
     activity_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.course_id"), nullable=False)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
 
     activity_name = Column(String, nullable=False)
     activity_description = Column(Text)
@@ -92,7 +92,7 @@ class Faq(base):
 
     faq_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.course_id"), nullable=False)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
 
     faq_name = Column(String, nullable=False)
     faq_description = Column(Text)
@@ -107,7 +107,7 @@ class Comments(base):
 
     comment_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    course_id = Column(Integer, ForeignKey("courses.course_id"), nullable=True)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=True)
 
     comment = Column(Text, nullable=False)
     createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())

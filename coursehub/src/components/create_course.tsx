@@ -29,7 +29,7 @@ const vars_: Variants[] = [
     { label: "Variant 3", value: "/3.jpg" },
 ]
 
-const DESCRIPTION_MAX_LENGTH = 60
+const DESCRIPTION_MAX_LENGTH = 70
 
 export default function CreateCourse() {
     const router = useRouter()
