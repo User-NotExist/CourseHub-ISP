@@ -2,7 +2,7 @@
 
 import Schedule from "@/components/schedule"
 
-export default function CreateCoursePage() {
+export default function ScheduePage() {
     return (
         <Schedule />
     )
