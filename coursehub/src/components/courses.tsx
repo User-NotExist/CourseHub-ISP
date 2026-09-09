@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Edit, Trash, Loader2 } from "lucide-react"
 
 type Course = {
-    course_id: number
+    course_id: string
     course_unique_for_lecturer: string
     course_unique_for_ta: string
     course_unique_for_student: string
@@ -45,15 +45,15 @@ export default function CoursesPage() {
         fetchCourses()
     }, [])
 
-    const handle_view = (course_id: number) => {
+    const handle_view = (course_id: string) => {
         router.push(`/courses/${course_id}`)
     }
 
-    const handle_edit = (course_id: number) => {
+    const handle_edit = (course_id: string) => {
         alert(`Editing course -> ${course_id}`)
     }
 
-    const handle_delete = async (course_id: number) => {
+    const handle_delete = async (course_id: string) => {
         try {
             if (!confirm("Are you certain ?")) {
                 return
