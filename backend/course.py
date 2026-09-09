@@ -81,11 +81,14 @@ async def create_course(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
+    course_id_here = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+
     lecturer_unq = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(10))
     ta_unq = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(10))
     student_unq = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(10))
 
     new_course = Course(
+        course_id=course_id_here,
         course_unique_for_lecturer=lecturer_unq,
         course_unique_for_ta=ta_unq,
         course_unique_for_student=student_unq,
