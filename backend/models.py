@@ -26,9 +26,9 @@ class Course(base):
     __tablename__ = "courses"
 
     course_id = Column(Integer, primary_key=True, autoincrement=True)
-    course_unique_for_lecturer = Column(String(6), unique=True, nullable=False)
-    course_unique_for_ta = Column(String(6), unique=True, nullable=False)
-    course_unique_for_student = Column(String(6), unique=True, nullable=False)
+    course_unique_for_lecturer = Column(String(10), unique=True, nullable=False)
+    course_unique_for_ta = Column(String(10), unique=True, nullable=False)
+    course_unique_for_student = Column(String(10), unique=True, nullable=False)
     course_name = Column(String, nullable=False)
     course_description = Column(Text)
     course_thumbnail = Column(Text)
