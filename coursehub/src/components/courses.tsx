@@ -61,8 +61,18 @@ export default function CoursesPage() {
 
             setIsLoading(true)
 
+            const response = await fetch(`/api_course/delete/${course_id}`, {
+                method: "DELETE",
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Failed to delete course")
+            }
 
             alert("Course Deleted")
+
         } catch (error) {
             alert("Error while deleting course")
             console.error(error)

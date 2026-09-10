@@ -114,3 +114,63 @@ async def create_course(
         "course_description": new_course.course_description,
         "course_picture_path": new_course.course_thumbnail,
     }
+
+@router.delete("/delete/{course_id}")
+async def delete_course(
+    course_id: str,
+    access_token: str = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(
+            access_token,
+            JWT_SECRET_KEY,
+            algorithms=[JWT_ALGORITHM]
+        )
+    except JWTError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token !"
+        )
+
+    user = db.query(User).filter(
+        User.user_id == int(token_payload["sub"])
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found !"
+        )
+
+    course = db.query(Course).filter(
+        Course.course_id == course_id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found !"
+        )
+
+    membership = db.query(CourseMember).filter(
+        CourseMember.course_id == course_id,
+        CourseMember.user_id == user.user_id,
+        CourseMember.role == "lecturer"
+    ).first()
+
+    if not membership:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not the lecturer of this course !"
+        )
+
+    db.delete(course)
+    db.commit()
+
+    return {
+        "message": "Course deleted successfully"
+    }
