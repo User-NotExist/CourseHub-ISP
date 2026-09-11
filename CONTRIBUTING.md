@@ -2,19 +2,18 @@
 
 ## Project structure
 
-- `backend/` — Python API service
-- `coursehub/` — Next.js frontend app
-- `docker-compose.yml` — Container setup for deployment
+- `course/backend/` — Python API service
+- `course/coursehub/` — Next.js frontend app
+- `course/docker-compose.yml` — Container setup for deployment
 - `Jenkinsfile` — Instructions for deployment pipeline
-- `requirements.txt` — backend dependencies
-- `README.md` — setup and local development instructions
+- `README.md` — project information.
 
 ## Local development
 
 ### Backend
 
 ```bash
-cd backend
+cd course/backend
 python -m venv venv
 
 # Windows PowerShell
@@ -30,7 +29,7 @@ python -m uvicorn main:app --reload
 ### Frontend
 
 ```bash
-cd coursehub
+cd course/coursehub
 npm install
 npm run dev
 ```
