@@ -27,13 +27,14 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    pip install --no-cache-dir -r requirements.txt
-                    cd backend
-                    # pytest will just report "no tests ran" until a test suite exists
-                    pip install --no-cache-dir pytest
-                    python -m pytest --maxfail=1 || true
-                '''
+                dir('backend'){
+                    sh '''
+                        pip install --no-cache-dir -r requirements.txt
+                        # pytest will just report "no tests ran" until a test suite exists
+                        pip install --no-cache-dir pytest
+                        python -m pytest --maxfail=1 || true
+                    '''
+                }
             }
         }
         stage('Frontend: install, lint & build') {
@@ -66,13 +67,13 @@ pipeline {
 					file(credentialsId: 'coursehub-frontend-env', variable: 'FRONTEND_ENV')
 				]) {
 					sh '''
-						cp "$BACKEND_ENV" backend/.env
-						cp "$FRONTEND_ENV" coursehub/.env
+						cp "$BACKEND_ENV" source/backend/.env
+						cp "$FRONTEND_ENV" source/coursehub/.env
 
 						docker compose build
 						docker compose up -d --remove-orphans
 
-						rm -f backend/.env coursehub/.env
+						rm -f source/backend/.env source/coursehub/.env
 					'''
 				}
 			}

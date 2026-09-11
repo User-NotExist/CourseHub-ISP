@@ -15,6 +15,3 @@ env/
 # Docker
 **/Dockerfile
 **/.dockerignore
-
-# Frontend (not needed for backend build)
-coursehub/
