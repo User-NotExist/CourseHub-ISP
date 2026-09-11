@@ -27,7 +27,7 @@ pipeline {
                 }
             }
             steps {
-                dir('backend'){
+                dir('source/backend'){
                     sh '''
                         pip install --no-cache-dir -r requirements.txt
                         # pytest will just report "no tests ran" until a test suite exists
@@ -45,7 +45,7 @@ pipeline {
                 }
             }
             steps {
-                dir('coursehub') {
+                dir('source/coursehub') {
                     sh '''
                         npm ci
                         npm run lint
@@ -67,13 +67,15 @@ pipeline {
 					file(credentialsId: 'coursehub-frontend-env', variable: 'FRONTEND_ENV')
 				]) {
 					sh '''
-						cp "$BACKEND_ENV" source/backend/.env
-						cp "$FRONTEND_ENV" source/coursehub/.env
+					    cd source
+
+						cp "$BACKEND_ENV" backend/.env
+						cp "$FRONTEND_ENV" coursehub/.env
 
 						docker compose build
 						docker compose up -d --remove-orphans
 
-						rm -f source/backend/.env source/coursehub/.env
+						rm -f backend/.env coursehub/.env
 					'''
 				}
 			}
