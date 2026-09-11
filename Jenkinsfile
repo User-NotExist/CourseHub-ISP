@@ -27,7 +27,7 @@ pipeline {
                 }
             }
             steps {
-                dir('backend'){
+                dir('source/backend'){
                     sh '''
                         pip install --no-cache-dir -r requirements.txt
                         # pytest will just report "no tests ran" until a test suite exists
@@ -45,7 +45,7 @@ pipeline {
                 }
             }
             steps {
-                dir('coursehub') {
+                dir('source/coursehub') {
                     sh '''
                         npm ci
                         npm run lint
