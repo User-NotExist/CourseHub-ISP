@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies()
     const cookieHeader = cookieStore.toString()
 
-    const backendRes = await fetch(`${backendUrl}/course/create`, {
+    const backendRes = await fetch(`${backendUrl}/course/edit`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
