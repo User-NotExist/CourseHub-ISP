@@ -67,13 +67,15 @@ pipeline {
 					file(credentialsId: 'coursehub-frontend-env', variable: 'FRONTEND_ENV')
 				]) {
 					sh '''
-						cp "$BACKEND_ENV" source/backend/.env
-						cp "$FRONTEND_ENV" source/coursehub/.env
+					    cd source
+
+						cp "$BACKEND_ENV" backend/.env
+						cp "$FRONTEND_ENV" coursehub/.env
 
 						docker compose build
 						docker compose up -d --remove-orphans
 
-						rm -f source/backend/.env source/coursehub/.env
+						rm -f backend/.env coursehub/.env
 					'''
 				}
 			}
