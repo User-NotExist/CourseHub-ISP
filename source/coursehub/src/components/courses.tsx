@@ -107,7 +107,18 @@ export default function CoursesPage() {
 
             setIsLoading(true)
 
+            const res = await fetch("/api_course/delete", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ course_id }),
+            })
 
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}))
+                throw new Error(errorData.detail || "Failed to delete course")
+            }
+
+            setCourses((prev) => prev.filter((course) => course.course_id !== course_id))
             alert("Course Deleted")
         } catch (error) {
             alert("Error while deleting course")
