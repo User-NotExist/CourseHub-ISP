@@ -1,10 +1,21 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, redirect } from "next/navigation"
 
 import Image from "next/image"
 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -17,6 +28,7 @@ import {
     ComboboxItem,
     ComboboxList,
 } from "@/components/ui/combobox"
+import {toast} from "sonner";
 
 type Variants = {
     label: string
@@ -38,16 +50,16 @@ export default function CreateCourse() {
     const [courseDescription, setCourseDescription] = useState("")
     const [selectedVariant, setSelectedVariant] = useState<Variants | null>(vars_[0])
 
+    const [isOpen, setIsOpen] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const handleCreate = async () => {
+        const toastId = toast.loading("Creating course...", {position: "top-right"})
         try {
-            if (!confirm("Submit the form ?")) {
-                return
-            }
+            setIsOpen(false)
 
             if (courseName.trim() === "" || courseDescription.trim() === "") {
-                alert("All forms must be filled !")
+                toast.error("All form must be filled.", { id: toastId })
                 return
             }
 
@@ -64,18 +76,20 @@ export default function CreateCourse() {
             })
 
             if (!res.ok) {
-                alert("Failed to create course")
+                toast.error(`Failed to crease course: ${res.status} - ${res.statusText}`, { id: toastId })
+                setIsLoading(false)
                 return
             }
 
-            alert(`Course "${courseName}" created successfully !`)
-            setCourseName("")
-            setCourseDescription("")
+            const data = await res.json()
+
+            toast.success(`Course ${data.course_name} created successfully.`, { id: toastId })
+            setTimeout(() => {
+                redirect(`/courses/${data.course_id}`)
+            }, 1200)
         }
         catch (error) {
-            alert("Error while creating a course")
-        }
-        finally {
+            toast.error(`Error while creating course: ${error}`, { id: toastId })
             setIsLoading(false)
         }
     }
@@ -145,7 +159,23 @@ export default function CreateCourse() {
                 </div>
 
                 <div className="flex flex-row justify-end gap-2 mt-6">
-                    <Button className="px-5" onClick={handleCreate}>Create Course</Button>
+                    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+                        <AlertDialogTrigger render={<Button disabled={isLoading} className="px-5" />}>
+                            Create Course
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Submit this course?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will create a new course with the form details.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleCreate}>Create</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </div>
         </div>
