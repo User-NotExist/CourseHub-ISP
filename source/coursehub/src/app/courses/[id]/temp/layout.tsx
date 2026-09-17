@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inria_Sans } from "next/font/google";
-import "../../globals.css";
+import "../../../globals.css";
 
 import Sidebar from "@/components/sidebar";
 
