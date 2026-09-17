@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
-export async function POST(request: NextRequest) {
+export async function PUT(request: NextRequest) {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8000"
 
     const body = await request.json()
@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies()
     const cookieHeader = cookieStore.toString()
 
-    const backendRes = await fetch(`${backendUrl}/course/create`, {
-        method: "POST",
+    const backendRes = await fetch(`${backendUrl}/course/edit`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json",
             cookie: cookieHeader,
