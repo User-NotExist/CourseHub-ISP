@@ -122,7 +122,7 @@ async def create_course(
     }
 
 
-@router.post("/edit")
+@router.put("/edit")
 async def edit_course(
     payload: CourseEdit,
     access_token: str = Cookie(None),

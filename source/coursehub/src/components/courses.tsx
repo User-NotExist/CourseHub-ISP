@@ -74,7 +74,7 @@ export default function CoursesPage() {
         try {
             setIsSaving(true)
             const response = await fetch("/api_course/edit", {
-                method: "POST",
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     course_id: courseToEdit.course_id,
