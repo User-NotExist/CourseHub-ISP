@@ -6,8 +6,20 @@ import Image from "next/image"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogMedia
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
 
-import { Edit, Trash, Loader2, X } from "lucide-react"
+import { Edit, Trash, Loader2, X, Trash2Icon } from "lucide-react"
 
 type Course = {
     course_id: string
@@ -28,6 +40,8 @@ export default function CoursesPage() {
     const [editName, setEditName] = useState("")
     const [editDescription, setEditDescription] = useState("")
     const [isSaving, setIsSaving] = useState(false)
+    const [courseToDelete, setCourseToDelete] = useState<string | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const router = useRouter()
 
@@ -67,9 +81,11 @@ export default function CoursesPage() {
 
     const handle_save_edit = async () => {
         if (!courseToEdit || editName.trim() === "" || editDescription.trim() === "") {
-            alert("All forms must be filled !")
+            toast.error("All forms must be filled !", { position: "top-right" })
             return
         }
+
+        const toastId = toast.loading("Saving changes...", { position: "top-right" })
 
         try {
             setIsSaving(true)
@@ -83,7 +99,9 @@ export default function CoursesPage() {
                 }),
             })
 
-            if (!response.ok) throw new Error("Failed to update course")
+            if (!response.ok) {
+                throw new Error("Failed to update course")
+            }
 
             setCourses((currentCourses) => currentCourses.map((course) => (
                 course.course_id === courseToEdit.course_id
@@ -93,24 +111,25 @@ export default function CoursesPage() {
             setCourseToEdit(null)
         } catch (error) {
             console.error(error)
-            alert("Error while updating course")
+            toast.error(`${error}`, { id: toastId })
         } finally {
             setIsSaving(false)
+            toast.success("Course updated successfully.", { id: toastId })
         }
     }
 
-    const handle_delete = async (course_id: string) => {
-        try {
-            if (!confirm("Are you certain ?")) {
-                return
-            }
+    const handle_delete = async () => {
+        if (!courseToDelete) return
 
+        const toastId = toast.loading("Deleting course...", { position: "top-right" })
+
+        try {
             setIsLoading(true)
 
             const res = await fetch("/api_course/delete", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ course_id }),
+                body: JSON.stringify({ course_id: courseToDelete }),
             })
 
             if (!res.ok) {
@@ -118,13 +137,14 @@ export default function CoursesPage() {
                 throw new Error(errorData.detail || "Failed to delete course")
             }
 
-            setCourses((prev) => prev.filter((course) => course.course_id !== course_id))
-            alert("Course Deleted")
+            setCourses((prev) => prev.filter((course) => course.course_id !== courseToDelete))
+            setCourseToDelete(null)
         } catch (error) {
-            alert("Error while deleting course")
+            toast.error(`Error while deleting course: ${error}`, { id: toastId })
             console.error(error)
         } finally {
             setIsLoading(false)
+            toast.success("Course deleted", { id: toastId })
         }
     }
 
@@ -168,7 +188,7 @@ export default function CoursesPage() {
                                 <div className="">
                                     {course.role === "lecturer" && (
                                         <div>
-                                            <Button onClick={() => handle_delete(course.course_id)}><Trash className="text-red-500"/></Button>
+                                            <Button onClick={() => setCourseToDelete(course.course_id)}><Trash className="text-red-500"/></Button>
                                             <Button onClick={() => handle_edit(course)} className="ml-1"><Edit /></Button>
                                         </div>
                                     )}
@@ -226,6 +246,24 @@ export default function CoursesPage() {
                     </div>
                 </div>
             )}
+
+            <AlertDialog open={!!courseToDelete} onOpenChange={(isOpen) => !isOpen && setCourseToDelete(null)}>
+                <AlertDialogContent size="sm">
+                    <AlertDialogHeader>
+                        <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                            <Trash2Icon />
+                        </AlertDialogMedia>
+                        <AlertDialogTitle>Delete this course?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel variant="outline" disabled={isDeleting} >Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={handle_delete} disabled={isDeleting}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
