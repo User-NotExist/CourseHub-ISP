@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
-export async function PUT(request: NextRequest) {
+export async function DELETE(request: NextRequest) {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8000"
 
-    const body = await request.json()
+    const { course_id } = await request.json()
 
     const cookieStore = await cookies()
     const cookieHeader = cookieStore.toString()
 
-    const backendRes = await fetch(`${backendUrl}/course/edit`, {
-        method: "PUT",
+    const backendRes = await fetch(`${backendUrl}/course/delete/${course_id}`, {
+        method: "DELETE",
         headers: {
-            "Content-Type": "application/json",
             cookie: cookieHeader,
         },
-        body: JSON.stringify(body),
     })
 
     if (!backendRes.ok) {

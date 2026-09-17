@@ -12,7 +12,7 @@ from typing import Optional
 import string, secrets
 
 from database import get_db
-from models import User, Course, CourseMember
+from models import User, Course, CourseMember, Task, Activity, Faq, Comments
 
 router = APIRouter(prefix="/course", tags=["course"])
 
@@ -62,6 +62,12 @@ class CourseCreate(BaseModel):
     course_name: str
     course_description: Optional[str] = None
     course_thumbnail: Optional[str] = None
+
+
+class CourseEdit(BaseModel):
+    course_id: str
+    course_name: str
+    course_description: Optional[str] = None
 
 @router.post("/create")
 async def create_course(
@@ -114,3 +120,92 @@ async def create_course(
         "course_description": new_course.course_description,
         "course_picture_path": new_course.course_thumbnail,
     }
+
+
+@router.put("/edit")
+async def edit_course(
+    payload: CourseEdit,
+    access_token: str = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    membership = (
+        db.query(CourseMember)
+        .filter(
+            CourseMember.user_id == user.user_id,
+            CourseMember.course_id == payload.course_id,
+            CourseMember.role == "lecturer",
+        )
+        .first()
+    )
+    if not membership:
+        raise HTTPException(status_code=403, detail="Only the course lecturer can edit this course !")
+
+    course = db.query(Course).filter(Course.course_id == payload.course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found !")
+
+    course.course_name = payload.course_name
+    course.course_description = payload.course_description
+    db.commit()
+    db.refresh(course)
+
+    return {
+        "course_id": course.course_id,
+        "course_name": course.course_name,
+        "course_description": course.course_description,
+        "course_picture_path": course.course_thumbnail,
+    }
+  
+
+@router.delete("/delete/{course_id}")
+async def delete_course(
+    course_id: str,
+    access_token: str = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found !")
+
+    membership = (
+        db.query(CourseMember)
+        .filter(CourseMember.user_id == user.user_id, CourseMember.course_id == course_id)
+        .first()
+    )
+    if not membership or membership.role != "lecturer":
+        raise HTTPException(status_code=403, detail="Only the lecturer can delete this course !")
+
+    db.query(Task).filter(Task.course_id == course_id).delete()
+    db.query(Activity).filter(Activity.course_id == course_id).delete()
+    db.query(Faq).filter(Faq.course_id == course_id).delete()
+    db.query(Comments).filter(Comments.course_id == course_id).delete()
+    db.query(CourseMember).filter(CourseMember.course_id == course_id).delete()
+
+    db.delete(course)
+    db.commit()
+
+    return {"course_id": course_id, "deleted": True}
