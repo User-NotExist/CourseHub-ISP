@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 
-import { Edit, Trash, Loader2, X, Trash2Icon } from "lucide-react"
+import { Edit, Trash, Loader2, Trash2Icon } from "lucide-react"
 
 type Course = {
     course_id: string
@@ -30,16 +30,13 @@ type Course = {
     course_description: string
     course_thumbnail: string
     createdAt: string
+    can_edit?: boolean
     role: string
 }
 
 export default function CoursesPage() {
     const [courses, setCourses] = useState<Course[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [courseToEdit, setCourseToEdit] = useState<Course | null>(null)
-    const [editName, setEditName] = useState("")
-    const [editDescription, setEditDescription] = useState("")
-    const [isSaving, setIsSaving] = useState(false)
     const [courseToDelete, setCourseToDelete] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
 
@@ -65,57 +62,6 @@ export default function CoursesPage() {
 
     const handle_view = (course_id: string) => {
         router.push(`/courses/${course_id}`)
-    }
-
-    const handle_edit = (course: Course) => {
-        setCourseToEdit(course)
-        setEditName(course.course_name)
-        setEditDescription(course.course_description ?? "")
-    }
-
-    const close_edit = () => {
-        if (!isSaving) {
-            setCourseToEdit(null)
-        }
-    }
-
-    const handle_save_edit = async () => {
-        if (!courseToEdit || editName.trim() === "" || editDescription.trim() === "") {
-            toast.error("All forms must be filled !", { position: "top-right" })
-            return
-        }
-
-        const toastId = toast.loading("Saving changes...", { position: "top-right" })
-
-        try {
-            setIsSaving(true)
-            const response = await fetch("/api_course/edit", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    course_id: courseToEdit.course_id,
-                    course_name: editName.trim(),
-                    course_description: editDescription.trim(),
-                }),
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to update course")
-            }
-
-            setCourses((currentCourses) => currentCourses.map((course) => (
-                course.course_id === courseToEdit.course_id
-                    ? { ...course, course_name: editName.trim(), course_description: editDescription.trim() }
-                    : course
-            )))
-            setCourseToEdit(null)
-        } catch (error) {
-            console.error(error)
-            toast.error(`${error}`, { id: toastId })
-        } finally {
-            setIsSaving(false)
-            toast.success("Course updated successfully.", { id: toastId })
-        }
     }
 
     const handle_delete = async () => {
@@ -185,13 +131,13 @@ export default function CoursesPage() {
                             <h2 className="px-5 text-white text-[13px] h-11">{course.course_description}</h2>
 
                             <div className="px-5 flex flex-row justify-between items-center mt-4">
-                                <div className="">
+                                <div className="flex items-center">
                                     {course.role === "lecturer" && (
                                         <div>
                                             <Button onClick={() => setCourseToDelete(course.course_id)}><Trash className="text-red-500"/></Button>
-                                            <Button onClick={() => handle_edit(course)} className="ml-1"><Edit /></Button>
                                         </div>
                                     )}
+                                    {(course.role === "lecturer" || course.can_edit) && <Button aria-label={`Edit ${course.course_name}`} onClick={() => router.push(`/courses/${course.course_id}/edit`)} className="ml-1"><Edit /></Button>}
                                 </div>
 
                                 <Button onClick={() => handle_view(course.course_id)} className="w-25">View</Button>
@@ -201,50 +147,6 @@ export default function CoursesPage() {
                 </div>
             ) : (
                 <h1 className="flex flex-col items-center justify-center pt-30">No Assigned Courses</h1>
-            )}
-
-            {courseToEdit && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onMouseDown={close_edit}>
-                    <div
-                        className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="edit-course-title"
-                        onMouseDown={(event) => event.stopPropagation()}
-                    >
-                        <div className="mb-5 flex items-center justify-between">
-                            <h2 id="edit-course-title" className="text-xl font-bold">Edit Course</h2>
-                            <Button variant="ghost" size="icon" onClick={close_edit} disabled={isSaving} aria-label="Close edit dialog">
-                                <X />
-                            </Button>
-                        </div>
-
-                        <div className="flex flex-col gap-4">
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">Course Name</label>
-                                <Input value={editName} onChange={(event) => setEditName(event.target.value)} />
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-sm font-medium">Description</label>
-                                <textarea
-                                    className="border-input min-h-28 w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                    value={editDescription}
-                                    maxLength={70}
-                                    onChange={(event) => setEditDescription(event.target.value)}
-                                />
-                                <p className="mt-1 text-right text-xs text-gray-400">{editDescription.length}/70</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 flex justify-end gap-2">
-                            <Button variant="outline" onClick={close_edit} disabled={isSaving}>Cancel</Button>
-                            <Button onClick={handle_save_edit} disabled={isSaving}>
-                                {isSaving ? "Saving..." : "Save Changes"}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
             )}
 
             <AlertDialog open={!!courseToDelete} onOpenChange={(isOpen) => !isOpen && setCourseToDelete(null)}>
