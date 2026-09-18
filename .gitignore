@@ -21,4 +21,4 @@ ENV/
 *.swp
 
 # Model weights (too large for git, use Git LFS or external hosting)
-# *.pkl
+# *.pkl.next/
