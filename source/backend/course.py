@@ -67,7 +67,7 @@ class CourseCreate(BaseModel):
 
 class MemberEdit(BaseModel):
     email: str
-    role: Literal["lecturer", "ta", "student"]
+    role: Literal["lecturer", "ta"]
 
 
 class CourseEdit(BaseModel):
