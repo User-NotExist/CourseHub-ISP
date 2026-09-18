@@ -1,0 +1,38 @@
+name: coursehub-dev
+
+services:
+  backend:
+    dns:
+      - 1.1.1.1
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    init: true
+
+  frontend:
+    dns:
+      - 1.1.1.1
+    build:
+      context: ./coursehub
+      dockerfile: Dockerfile.dev
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - ./coursehub/.env
+    volumes:
+      - ./coursehub:/app
+      - node_modules:/app/node_modules
+      - next_cache:/app/.next
+    depends_on:
+      - backend
+    init: true
+
+volumes:
+  node_modules:
+  next_cache:
