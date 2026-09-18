@@ -28,8 +28,11 @@ export default function Sidebar() {
                 return res.json()
             })
             .then((data) => { setEmail(data.email) })
-            .catch(() => setEmail(null))
-    }, [])
+            .catch(() => {
+                setEmail(null)
+                router.replace("/")
+            })
+    }, [router])
 
     const handle_logout = async () => {
         setIsLoggingOut(true)
