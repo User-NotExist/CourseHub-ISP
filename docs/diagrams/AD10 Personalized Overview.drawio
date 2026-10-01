@@ -1,0 +1,82 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="jGm3_hmUXgGf22DIXlSo">
+    <mxGraphModel dx="3207" dy="2352" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-4" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="aoHy1yuTiVJTtXi4SW1Q-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-1" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_2;whiteSpace=wrap;fillColor=light-dark(#000000,#000000);" value="" vertex="1">
+          <mxGeometry height="50" width="50" x="-540" y="-60" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;perimeterSpacing=0;spacingLeft=10;spacingRight=10;" value="Lecturers / TAs are directed to the Overview page" vertex="1">
+          <mxGeometry height="80" width="220" x="-625" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-5" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="aoHy1yuTiVJTtXi4SW1Q-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;perimeterSpacing=0;spacingLeft=10;spacingRight=10;" value="Lecturers / TAs access the web application" vertex="1">
+          <mxGeometry height="80" width="220" x="-625" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-7" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-515" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;perimeterSpacing=0;spacingLeft=10;spacingRight=10;" value="System displays information in upcoming tasks" vertex="1">
+          <mxGeometry height="80" width="220" x="-625" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-35" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aoHy1yuTiVJTtXi4SW1Q-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-18" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;perimeterSpacing=0;spacingLeft=10;spacingRight=10;" value="System retrieves all tasks, activities, and milestones from user&#39;s courses" vertex="1">
+          <mxGeometry height="100" width="255" x="-642.5" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-37" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aoHy1yuTiVJTtXi4SW1Q-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;perimeterSpacing=0;spacingLeft=10;spacingRight=10;" value="System filters out activities and milestones scheduled far in the future" vertex="1">
+          <mxGeometry height="80" width="220" x="-625" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-40" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="aoHy1yuTiVJTtXi4SW1Q-39">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;perimeterSpacing=0;spacingLeft=10;spacingRight=10;" value="System filters out tasks that are not assigned to the user" vertex="1">
+          <mxGeometry height="80" width="220" x="-625" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-38" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aoHy1yuTiVJTtXi4SW1Q-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-21" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;perimeterSpacing=0;spacingLeft=10;spacingRight=10;" value="System filters out non-at-risk tasks that are scheduled far in the future" vertex="1">
+          <mxGeometry height="80" width="255" x="-642.5" y="795" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-41" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aoHy1yuTiVJTtXi4SW1Q-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-44" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aoHy1yuTiVJTtXi4SW1Q-43">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-39" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_2;whiteSpace=wrap;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="50" width="50" x="-540" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-43" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;perimeterSpacing=0;spacingLeft=10;spacingRight=10;" value="System displays the user&#39;s assigned tasks and all course activities/milestones in a calendar view" vertex="1">
+          <mxGeometry height="120" width="270" x="-320" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-47" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_2;whiteSpace=wrap;fillColor=light-dark(#000000,#000000);" value="" vertex="1">
+          <mxGeometry height="50" width="50" x="-370" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-50" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-11" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;edgeStyle=orthogonalEdgeStyle;libavoidRouting=1;" target="aoHy1yuTiVJTtXi4SW1Q-47">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-515" y="1125" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aoHy1yuTiVJTtXi4SW1Q-51" edge="1" parent="1" source="aoHy1yuTiVJTtXi4SW1Q-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="aoHy1yuTiVJTtXi4SW1Q-47">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
