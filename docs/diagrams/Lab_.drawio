@@ -1,0 +1,159 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="sU-AJKOALpYhgSMFKEcG">
+    <mxGraphModel dx="1157" dy="1323" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#FFFFFF,#000000);" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Lecturer / TA&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="10" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#fdd8ed, #ff90f3);fontColor=#ffffff;strokeColor=#000000;" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&lt;font style=&quot;font-size: 18px;&quot;&gt;View&lt;/font&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="230" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDD8ED;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Controller&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="210" x="439" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDD8ED;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Model&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="210" x="730" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FD7A9B;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Database&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="190" x="1020" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-6" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="RyaBK3T_OveHKmKy_RRV-1" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="90" y="210" as="sourcePoint" />
+            <mxPoint x="70" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-7" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="314" y="210" as="sourcePoint" />
+            <mxPoint x="314" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" value="" vertex="1">
+          <mxGeometry height="20" width="480" x="-150" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" value="" vertex="1">
+          <mxGeometry height="20" width="480" x="73" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-10" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;exitX=0.973;exitY=1.15;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.958;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="102" y="212.80000000000007" as="sourcePoint" />
+            <mxPoint x="303" y="212.0000000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="1.Create activity and milestone" vertex="1">
+          <mxGeometry height="50" width="149" x="120" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-12" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;exitX=0.973;exitY=1.15;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.958;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="323" y="270.96000000000004" as="sourcePoint" />
+            <mxPoint x="524" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-13" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="2. Send create / update / delete activity and milestone" vertex="1">
+          <mxGeometry height="50" width="149" x="350" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-14" edge="1" parent="1" source="RyaBK3T_OveHKmKy_RRV-15" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="535.58" y="210" as="sourcePoint" />
+            <mxPoint x="535.58" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" value="" vertex="1">
+          <mxGeometry height="20" width="380" x="346" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" value="" vertex="1">
+          <mxGeometry height="20" width="80" x="510" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-17" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;exitX=0.973;exitY=1.15;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" target="RyaBK3T_OveHKmKy_RRV-16" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="546.01" y="300" />
+              <mxPoint x="590.01" y="300" />
+              <mxPoint x="590.01" y="350" />
+            </Array>
+            <mxPoint x="546" y="290.96000000000004" as="sourcePoint" />
+            <mxPoint x="610" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-18" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="3. Check authentication&lt;div&gt;(lecturer / TA role)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="149" x="590" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-19" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;exitX=0.973;exitY=1.15;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="546" y="420.96000000000004" as="sourcePoint" />
+            <mxPoint x="830" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-20" edge="1" parent="1" source="RyaBK3T_OveHKmKy_RRV-21" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="838.71" y="400" as="sourcePoint" />
+            <mxPoint x="838.71" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" value="" vertex="1">
+          <mxGeometry height="20" width="200" x="739" y="504" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="4. Validate activity and milestone data" vertex="1">
+          <mxGeometry height="50" width="190" x="590" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-23" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1114.5" y="470" as="sourcePoint" />
+            <mxPoint x="1114.5" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-24" parent="1" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" value="" vertex="1">
+          <mxGeometry height="20" width="120" x="1054" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-25" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;exitX=0.973;exitY=1.15;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="850" y="470.96000000000004" as="sourcePoint" />
+            <mxPoint x="1101" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-26" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="5. Create / Update / Delete activity and milestone" vertex="1">
+          <mxGeometry height="50" width="190" x="881" y="414" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-27" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;exitX=0.973;exitY=1.15;exitDx=0;exitDy=0;exitPerimeter=0;startArrow=classic;startFill=1;endFill=0;dashed=1;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="849" y="570" as="sourcePoint" />
+            <mxPoint x="1100" y="569.04" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-28" edge="1" parent="1" source="RyaBK3T_OveHKmKy_RRV-15" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;exitX=0.099;exitY=1.2;exitDx=0;exitDy=0;exitPerimeter=0;startArrow=classic;startFill=1;endFill=0;dashed=1;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="578" y="613.5300000000001" as="sourcePoint" />
+            <mxPoint x="829" y="612.57" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-29" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;startArrow=classic;startFill=1;endFill=0;dashed=1;exitX=0.083;exitY=0.85;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="324" y="650.1600000000001" as="sourcePoint" />
+            <mxPoint x="523" y="649.1400000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-30" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;startArrow=classic;startFill=1;endFill=0;dashed=1;exitX=0.083;exitY=0.85;exitDx=0;exitDy=0;exitPerimeter=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="104" y="690" as="sourcePoint" />
+            <mxPoint x="303" y="688.98" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-31" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="6. Comfirm operation success" vertex="1">
+          <mxGeometry height="50" width="190" x="881" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-32" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="7. Return saved&amp;nbsp;&lt;div&gt;activity and milestone&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="190" x="590" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-33" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="8. Render result if success" vertex="1">
+          <mxGeometry height="50" width="190" x="336" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="RyaBK3T_OveHKmKy_RRV-34" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=14;" value="9. Show updated&amp;nbsp;&lt;div&gt;activity and milestone&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="190" x="107" y="630" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
