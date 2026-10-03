@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="VMjZbZN-GplrY-nZqgGo">
+    <mxGraphModel dx="1377" dy="959" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-2" parent="1" style="swimlane;whiteSpace=wrap;html=1;gradientColor=none;swimlaneFillColor=#FFCCCC;" value="Course Hub" vertex="1">
+          <mxGeometry height="930" width="380" x="270" y="100" as="geometry">
+            <mxRectangle height="30" width="90" x="274" y="100" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-17" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Create and manage tasks, activity, milestones, as well as assign to TAs on individual courses" vertex="1">
+          <mxGeometry height="40" width="213" x="87" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-20" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Login via @ku.th" vertex="1">
+          <mxGeometry height="40" width="162" x="87" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-27" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Create/Manage FAQ logs for individual courses" vertex="1">
+          <mxGeometry height="40" width="203" x="87" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--10" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Display personalize overview" vertex="1">
+          <mxGeometry height="40" width="162" x="87" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-16" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Create and manage courses" vertex="1">
+          <mxGeometry height="40" width="162" x="87" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-18" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Add TAs account to individual &amp;nbsp;courses" vertex="1">
+          <mxGeometry height="40" width="162" x="87" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-19" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="View/Create/Comment on course announcement" vertex="1">
+          <mxGeometry height="40" width="162" x="87" y="416" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--30" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="View/Create/Edit/Delete appointment available date" vertex="1">
+          <mxGeometry height="40" width="162" x="87" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--31" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Create consultation appointment log manually after finish consulting with student" vertex="1">
+          <mxGeometry height="40" width="213" x="87" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--28" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--29" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-30" parent="C7VpgiTkaEZodyPzZ5-0-2" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Students" vertex="1">
+          <mxGeometry height="60" width="30" x="-73.5" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-43" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-29">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="70" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-22" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="View courses that have been added to be TA by the Lecturer" vertex="1">
+          <mxGeometry height="40" width="203" x="87" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-24" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Mark task as to-do, in-progress, done, else if leave them for long, TAs will receive notification" vertex="1">
+          <mxGeometry height="50" width="203" x="87" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--24" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="View/Comment on course announcement" vertex="1">
+          <mxGeometry height="40" width="162" x="87" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-29" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="View available course&#39;s FAQ" vertex="1">
+          <mxGeometry height="40" width="203" x="87" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--26" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="View available/unavailable&amp;nbsp;consultation interval" vertex="1">
+          <mxGeometry height="40" width="203" x="87" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--27" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="Mark consultation appointment to course lecturer" vertex="1">
+          <mxGeometry height="40" width="203" x="87" y="870" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--35" parent="C7VpgiTkaEZodyPzZ5-0-2" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=1;strokeColor=default;" value="View consultation appointment, and consultation available dates" vertex="1">
+          <mxGeometry height="40" width="162" x="87" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--36" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--35">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="580" />
+              <mxPoint x="360" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-5" parent="C7VpgiTkaEZodyPzZ5-0-2" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="TAs" vertex="1">
+          <mxGeometry height="60" width="30" x="410" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--12" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--10">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="580" />
+              <mxPoint x="360" y="210" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--25" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--24">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="580" />
+              <mxPoint x="360" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-39" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-24">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360.03" y="580.03" />
+              <mxPoint x="360.03" y="615" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-41" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-22">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="580" />
+              <mxPoint x="360" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--14" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-27">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="580" />
+              <mxPoint x="360" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--16" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-17">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="580" />
+              <mxPoint x="360" y="110" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--17" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-20">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="580" />
+              <mxPoint x="360" y="60" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--38" edge="1" parent="C7VpgiTkaEZodyPzZ5-0-2" source="C7VpgiTkaEZodyPzZ5-0-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--31">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="580" />
+              <mxPoint x="360" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--32" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--37" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-4" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="&lt;span style=&quot;white-space: normal;&quot;&gt;Lecturer/Ad&lt;/span&gt;&lt;span style=&quot;white-space: normal;&quot;&gt;min&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="200" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-36" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="C7VpgiTkaEZodyPzZ5-0-32" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--18" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--19" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="RmYXgoh3R986LRJfIqX--10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--20" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-27">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="360" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--22" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="RmYXgoh3R986LRJfIqX--23" edge="1" parent="1" source="C7VpgiTkaEZodyPzZ5-0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="C7VpgiTkaEZodyPzZ5-0-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

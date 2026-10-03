@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="Q9WLpbFR2U7C5r1Z_HGk">
+    <mxGraphModel dx="1928" dy="2511" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="4BSlFw087xWsQPVu0i4h-4" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-2" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;labelBackgroundColor=none;fillColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="399" y="-1110" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-8" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="Lecturer/TAs&amp;nbsp;open the task creation page" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="-1040" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-12" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-11" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="Lecturer/TAs&amp;nbsp;fill in the form, including, task title, task description, task due date, and TAs id to assign task" vertex="1">
+          <mxGeometry height="40" width="500" x="164" y="-720" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-26" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-25" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="Lecturer/TAs&amp;nbsp;choose the course to create task" vertex="1">
+          <mxGeometry height="40" width="250" x="289" y="-940" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-14" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-13" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-15" connectable="0" parent="4BSlFw087xWsQPVu0i4h-14" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="Confirm" vertex="1">
+          <mxGeometry relative="1" x="-0.2" y="3" as="geometry">
+            <mxPoint x="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-20" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-25">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="-595" />
+              <mxPoint x="680" y="-850" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-21" connectable="0" parent="4BSlFw087xWsQPVu0i4h-20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="Cancel" vertex="1">
+          <mxGeometry relative="1" x="-0.87" y="-3" as="geometry">
+            <mxPoint x="12" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-11" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;labelBackgroundColor=none;" value="Confirm create task" vertex="1">
+          <mxGeometry height="70" width="196" x="316" y="-630" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-23" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-22" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-28" connectable="0" parent="4BSlFw087xWsQPVu0i4h-23" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="Invalid" vertex="1">
+          <mxGeometry relative="1" x="0.1739" as="geometry">
+            <mxPoint x="11" y="15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-30" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-29" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-31" connectable="0" parent="4BSlFw087xWsQPVu0i4h-30" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;" value="Valid" vertex="1">
+          <mxGeometry relative="1" x="-0.35" y="3" as="geometry">
+            <mxPoint x="12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-13" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;labelBackgroundColor=none;" value="Is form valid ?" vertex="1">
+          <mxGeometry height="70" width="196" x="316" y="-510" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-19" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="System display course&#39;s task creation page" vertex="1">
+          <mxGeometry height="40" width="250" x="289" y="-800" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-24" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-25">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="-475" />
+              <mxPoint x="120" y="-850" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="Alert error message" vertex="1">
+          <mxGeometry height="40" width="120" x="150" y="-495" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-27" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-17" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-25" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="399" y="-865" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-33" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-32" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-29" parent="1" style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="Fetch log into tasks database" vertex="1">
+          <mxGeometry height="40" width="120" x="354" y="-400" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-35" edge="1" parent="1" source="4BSlFw087xWsQPVu0i4h-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=default;" target="4BSlFw087xWsQPVu0i4h-34" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="Alert task log successfully push into database" vertex="1">
+          <mxGeometry height="40" width="190" x="319" y="-320" as="geometry" />
+        </mxCell>
+        <mxCell id="4BSlFw087xWsQPVu0i4h-34" parent="1" style="ellipse;whiteSpace=wrap;html=1;shapeInside=1;aspect=fixed;labelBackgroundColor=none;fillColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="399" y="-240" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
