@@ -85,7 +85,7 @@ export default function CreateCourse() {
 
             toast.success(`Course ${data.course_name} created successfully.`, { id: toastId })
             setTimeout(() => {
-                redirect(`/courses/${data.course_id}`)
+                redirect(`/courses/${data.course_id}/main`)
             }, 1200)
         }
         catch (error) {
