@@ -7,6 +7,7 @@ from database import base, engine
 import models
 from auth import router as auth_router
 from course import router as course_router
+from activity import router as activity_router
 
 app = FastAPI()
 
@@ -24,3 +25,4 @@ base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router)
 app.include_router(course_router)
+app.include_router(activity_router)
