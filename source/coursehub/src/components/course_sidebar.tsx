@@ -19,7 +19,8 @@ import {
 import { useParams } from "next/navigation"
 
 export default function CourseSidebar() {
-    const param = useParams()
+    const params = useParams()
+    const courseId = params.id as string
 
     const router = useRouter()
     const [email, setEmail] = useState<string | null>(null)
@@ -58,7 +59,7 @@ export default function CourseSidebar() {
                 <nav className="flex flex-col gap-1 px-3">
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push(`/courses/${param}/main`)}
+                        onClick={() => router.push(`/courses/${courseId}/main`)}
                     >
                         <FiGrid />
                         <span>Main</span>
@@ -66,7 +67,7 @@ export default function CourseSidebar() {
 
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push(`/courses/${param}/task`)}
+                        onClick={() => router.push(`/courses/${courseId}/task`)}
                     >
                         <FiGrid />
                         <span>Task</span>
@@ -74,7 +75,7 @@ export default function CourseSidebar() {
 
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push(`/courses/${param}/acmil`)}
+                        onClick={() => router.push(`/courses/${courseId}/acmil`)}
                     >
                         <FiGrid />
                         <span>Activity & Milestone</span>
@@ -82,7 +83,7 @@ export default function CourseSidebar() {
 
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push(`/courses/${param}/announcement`)}
+                        onClick={() => router.push(`/courses/${courseId}/announcement`)}
                     >
                         <FiGrid />
                         <span>Announcement</span>
@@ -90,7 +91,7 @@ export default function CourseSidebar() {
 
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push(`/courses/${param}/faq`)}
+                        onClick={() => router.push(`/courses/${courseId}/faq`)}
                     >
                         <FiGrid />
                         <span>FAQ</span>
@@ -98,7 +99,7 @@ export default function CourseSidebar() {
 
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push(`/courses/${param}/consultation`)}
+                        onClick={() => router.push(`/courses/${courseId}/consultation`)}
                     >
                         <FiGrid />
                         <span>Consultations</span>
