@@ -1,7 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { FiGrid, FiCalendar, FiLogOut, FiPlusCircle } from "react-icons/fi"
+import {
+    FiHome,
+    FiCheckSquare,
+    FiTrendingUp,
+    FiBell,
+    FiHelpCircle,
+    FiUsers,
+    FiLogOut,
+} from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -61,7 +69,7 @@ export default function CourseSidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push(`/courses/${courseId}/main`)}
                     >
-                        <FiGrid />
+                        <FiHome />
                         <span>Main</span>
                     </button>
 
@@ -69,7 +77,7 @@ export default function CourseSidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push(`/courses/${courseId}/task`)}
                     >
-                        <FiGrid />
+                        <FiCheckSquare />
                         <span>Task</span>
                     </button>
 
@@ -77,7 +85,7 @@ export default function CourseSidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push(`/courses/${courseId}/acmil`)}
                     >
-                        <FiGrid />
+                        <FiTrendingUp />
                         <span>Activity & Milestone</span>
                     </button>
 
@@ -85,7 +93,7 @@ export default function CourseSidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push(`/courses/${courseId}/announcement`)}
                     >
-                        <FiGrid />
+                        <FiBell />
                         <span>Announcement</span>
                     </button>
 
@@ -93,7 +101,7 @@ export default function CourseSidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push(`/courses/${courseId}/faq`)}
                     >
-                        <FiGrid />
+                        <FiHelpCircle />
                         <span>FAQ</span>
                     </button>
 
@@ -101,7 +109,7 @@ export default function CourseSidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push(`/courses/${courseId}/consultation`)}
                     >
-                        <FiGrid />
+                        <FiUsers />
                         <span>Consultations</span>
                     </button>
                 </nav>
