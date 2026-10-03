@@ -9,6 +9,7 @@ import {
     FiHelpCircle,
     FiUsers,
     FiLogOut,
+    FiChevronDown,
 } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -33,6 +34,7 @@ export default function CourseSidebar() {
     const router = useRouter()
     const [email, setEmail] = useState<string | null>(null)
     const [isLoggingOut, setIsLoggingOut] = useState(false)
+    const [isConsultationOpen, setIsConsultationOpen] = useState(false)
 
     useEffect(() => {
         fetch(`/api_auth/me`, { credentials: "include" })
@@ -105,13 +107,37 @@ export default function CourseSidebar() {
                         <span>FAQ</span>
                     </button>
 
-                    <button
-                        className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push(`/courses/${courseId}/consultation`)}
-                    >
-                        <FiUsers />
-                        <span>Consultations</span>
-                    </button>
+                    <div className="flex flex-col">
+                        <button
+                            className="flex items-center justify-between gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
+                            onClick={() => setIsConsultationOpen((prev) => !prev)}
+                        >
+                            <div className="flex items-center gap-5">
+                                <FiUsers />
+                                <span>Consultation</span>
+                            </div>
+                            <FiChevronDown
+                                className={`transition-transform ${isConsultationOpen ? "rotate-180" : ""}`}
+                            />
+                        </button>
+
+                        {isConsultationOpen && (
+                            <div className="flex flex-col mt-1 gap-1">
+                                <button
+                                    className="bg-black/5 hover:bg-black/20 transition-colors rounded-lg px-4 py-2 text-sm text-left"
+                                    onClick={() => router.push(`/courses/${courseId}/consultation/appointments`)}
+                                >
+                                    Appointments
+                                </button>
+                                <button
+                                    className="bg-black/5 hover:bg-black/20 transition-colors rounded-lg px-4 py-2 text-sm text-left"
+                                    onClick={() => router.push(`/courses/${courseId}/consultation/logs`)}
+                                >
+                                    Consultation Logs
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </nav>
             </div>
 
