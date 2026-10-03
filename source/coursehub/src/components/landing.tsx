@@ -13,7 +13,7 @@ export default function LandingPage() {
             window.location.href = "/api_auth/auth"
         }
         catch (error) {
-            alert("Error while trting to login")
+            alert("Error while trying to login")
             console.error(error)
         }
     }
