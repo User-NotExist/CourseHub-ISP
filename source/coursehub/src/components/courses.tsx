@@ -61,7 +61,7 @@ export default function CoursesPage() {
     }, [])
 
     const handle_view = (course_id: string) => {
-        router.push(`/courses/${course_id}`)
+        router.push(`/courses/${course_id}/main`)
     }
 
     const handle_delete = async () => {
