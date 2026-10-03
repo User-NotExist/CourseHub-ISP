@@ -29,7 +29,7 @@ export default function LandingPage() {
                     Continue with Google
                 </Button>
             </div>
-            <div className="relative h-screen flex-1 ml-25">
+            <div className="relative h-screen flex-1 ml-70">
                 <Image
                     src="/classroom_img.jpeg"
                     alt="classroom"

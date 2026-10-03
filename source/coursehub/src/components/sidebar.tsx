@@ -37,10 +37,41 @@ export default function Sidebar() {
     const handle_logout = async () => {
         setIsLoggingOut(true)
         await fetch("/api_auth/logout", { method: "POST", credentials: "include" })
-        toast.success("Logout successful.", {position: "top-right"})
+        toast.success("Logout successful.", { position: "top-right" })
         setTimeout(() => {
             router.replace("/")
         }, 1200)
+    }
+
+    const check_auth = async () => {
+        try {
+            const res = await fetch("/api_auth/me", {
+                credentials: "include",
+                cache: "no-store",
+            })
+
+            return res.ok
+        } catch {
+            return false
+        }
+    }
+
+    const handle_routing = async (goto: number) => {
+        const authenticated = await check_auth()
+
+        if (!authenticated) {
+            alert("Session expired. Please login again.")
+            router.replace("/")
+            return
+        }
+
+        if (goto === 1) {
+            router.push("/courses")
+        } else if (goto === 2) {
+            router.push("/courses/create")
+        } else if (goto === 3) {
+            router.push("/schedule")
+        }
     }
 
     return (
@@ -57,7 +88,7 @@ export default function Sidebar() {
                 <nav className="flex flex-col gap-1 px-3">
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push("/courses")}
+                        onClick={() => handle_routing(1)}
                     >
                         <FiGrid />
                         <span>Courses</span>
@@ -65,7 +96,7 @@ export default function Sidebar() {
 
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push("/courses/create")}
+                        onClick={() => handle_routing(2)}
                     >
                         <FiPlusCircle />
                         <span>Create Course</span>
@@ -73,7 +104,7 @@ export default function Sidebar() {
 
                     <button
                         className="flex items-center gap-3 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push("/schedule")}
+                        onClick={() => handle_routing(3)}
                     >
                         <FiCalendar />
                         <span>Schedule</span>
