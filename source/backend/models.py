@@ -78,6 +78,7 @@ class Activity(base):
     course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
 
     activity_name = Column(String, nullable=False)
+    activity_type = Column(String, nullable=False) # Activities, Milestones
     activity_description = Column(Text)
     activity_date = Column(Date)
     activity_time = Column(Time)
