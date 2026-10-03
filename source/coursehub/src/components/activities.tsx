@@ -2,11 +2,22 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { useParams } from "next/navigation"
-import { Loader2, Plus } from "lucide-react"
+import { Edit, Loader2, Plus, Trash, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogMedia,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 // Shape returned by backend activity.py (ActivityResponse)
 type ActivityType = "Activities" | "Milestones"
@@ -23,7 +34,7 @@ type Activity = {
     createdAt: string
 }
 
-// Fields the form sends to the API (activity.py ActivityCreate)
+// Fields the form sends to the API (activity.py ActivityCreate / ActivityEdit)
 type ActivityInput = {
     activity_name: string
     activity_type: ActivityType
@@ -55,20 +66,21 @@ function errorMessage(data: { detail?: unknown }, fallback: string) {
     return fallback
 }
 
-const columns = "grid grid-cols-[3fr_2fr_2fr_2fr_2fr] gap-2 px-5"
-
-// Create form (Figma: Title / Type / Date / Assigned / Detail + Cancel / Save)
+// Create / edit form (Figma: Title / Type / Date / Assigned / Detail + Cancel / Save)
+// When "initial" is given, the form opens with that activity's data (edit mode).
 function ActivityForm({
+    initial,
     onCancel,
     onSave,
 }: {
+    initial?: Activity
     onCancel: () => void
     onSave: (input: ActivityInput) => Promise<void>
 }) {
-    const [name, setName] = useState("")
-    const [type, setType] = useState<ActivityType | "">("")
-    const [date, setDate] = useState("")
-    const [description, setDescription] = useState("")
+    const [name, setName] = useState(initial?.activity_name ?? "")
+    const [type, setType] = useState<ActivityType | "">(initial?.activity_type ?? "")
+    const [date, setDate] = useState(initial?.activity_date ?? "")
+    const [description, setDescription] = useState(initial?.activity_description ?? "")
     const [isSaving, setIsSaving] = useState(false)
     const [formError, setFormError] = useState<string | null>(null)
 
@@ -174,10 +186,15 @@ export default function ActivitiesPage() {
     const [tab, setTab] = useState<Tab>("All")
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [isFormOpen, setIsFormOpen] = useState(false)
+    // null = form closed, "new" = create, Activity = edit that activity
+    const [formTarget, setFormTarget] = useState<Activity | "new" | null>(null)
+    const [activityToDelete, setActivityToDelete] = useState<Activity | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     // Figma: only lecturers can create / edit / delete
     const canEdit = course?.role === "lecturer"
+    // Extra column for the edit / delete icons (lecturer only)
+    const columns = `grid ${canEdit ? "grid-cols-[3fr_2fr_2fr_2fr_2fr_80px]" : "grid-cols-[3fr_2fr_2fr_2fr_2fr]"} gap-2 px-5`
 
     useEffect(() => {
         const load = async () => {
@@ -217,8 +234,46 @@ export default function ActivitiesPage() {
             return
         }
         setActivities((prev) => [...prev, data])
-        setIsFormOpen(false)
+        setFormTarget(null)
         toast.success("Activity created.", { position: "top-right" })
+    }
+
+    const handle_update = async (activityId: number, input: ActivityInput) => {
+        const res = await fetch("/api_activity/edit", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ course_id: courseId, activity_id: activityId, ...input }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+            toast.error(errorMessage(data, "Failed to update activity"), { position: "top-right" })
+            return
+        }
+        setActivities((prev) => prev.map((a) => (a.activity_id === activityId ? data : a)))
+        setFormTarget(null)
+        toast.success("Activity updated.", { position: "top-right" })
+    }
+
+    const handle_delete = async () => {
+        if (!activityToDelete) return
+        setIsDeleting(true)
+        try {
+            const query = new URLSearchParams({
+                course_id: courseId,
+                activity_id: String(activityToDelete.activity_id),
+            })
+            const res = await fetch(`/api_activity/delete?${query}`, { method: "DELETE" })
+            const data = await res.json()
+            if (!res.ok) {
+                toast.error(errorMessage(data, "Failed to delete activity"), { position: "top-right" })
+                return
+            }
+            setActivities((prev) => prev.filter((a) => a.activity_id !== activityToDelete.activity_id))
+            setActivityToDelete(null)
+            toast.success("Activity deleted.", { position: "top-right" })
+        } finally {
+            setIsDeleting(false)
+        }
     }
 
     const shown = tab === "All" ? activities : activities.filter((a) => a.activity_type === tab)
@@ -230,7 +285,7 @@ export default function ActivitiesPage() {
             <div className="flex flex-row items-center justify-between">
                 <h2 className="text-xl font-bold">{course?.course_name}</h2>
                 {canEdit && (
-                    <Button onClick={() => setIsFormOpen(true)} className="bg-[#006C67] px-5 text-white hover:bg-[#006C67]/90">
+                    <Button onClick={() => setFormTarget("new")} className="bg-[#006C67] px-5 text-white hover:bg-[#006C67]/90">
                         <Plus />
                         New
                     </Button>
@@ -258,6 +313,7 @@ export default function ActivitiesPage() {
                     <span>Date</span>
                     <span>Assigned</span>
                     <span>Status</span>
+                    {canEdit && <span />}
                 </div>
 
                 {isLoading ? (
@@ -277,12 +333,62 @@ export default function ActivitiesPage() {
                             {/* Not in the API yet - waiting for the team */}
                             <span>—</span>
                             <span>—</span>
+                            {canEdit && (
+                                <span className="flex justify-end gap-1">
+                                    <Button
+                                        size="icon-sm"
+                                        variant="ghost"
+                                        aria-label={`Edit ${activity.activity_name}`}
+                                        onClick={() => setFormTarget(activity)}
+                                        className="text-white hover:bg-white/20 hover:text-white"
+                                    >
+                                        <Edit />
+                                    </Button>
+                                    <Button
+                                        size="icon-sm"
+                                        variant="ghost"
+                                        aria-label={`Delete ${activity.activity_name}`}
+                                        onClick={() => setActivityToDelete(activity)}
+                                        className="text-red-300 hover:bg-white/20 hover:text-red-200"
+                                    >
+                                        <Trash />
+                                    </Button>
+                                </span>
+                            )}
                         </div>
                     ))
                 )}
             </div>
 
-            {isFormOpen && <ActivityForm onCancel={() => setIsFormOpen(false)} onSave={handle_create} />}
+            {formTarget && (
+                <ActivityForm
+                    key={formTarget === "new" ? "new" : formTarget.activity_id}
+                    initial={formTarget === "new" ? undefined : formTarget}
+                    onCancel={() => setFormTarget(null)}
+                    onSave={(input) =>
+                        formTarget === "new" ? handle_create(input) : handle_update(formTarget.activity_id, input)
+                    }
+                />
+            )}
+
+            {/* Same confirmation style as deleting a course (courses.tsx) */}
+            <AlertDialog open={!!activityToDelete} onOpenChange={(isOpen) => !isOpen && setActivityToDelete(null)}>
+                <AlertDialogContent size="sm">
+                    <AlertDialogHeader>
+                        <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                            <Trash2Icon />
+                        </AlertDialogMedia>
+                        <AlertDialogTitle>Delete this activity?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            &quot;{activityToDelete?.activity_name}&quot; will be removed. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel variant="outline" disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction variant="destructive" onClick={handle_delete} disabled={isDeleting}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
