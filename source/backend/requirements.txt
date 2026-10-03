@@ -9,3 +9,5 @@ psycopg2-binary # behind the scene of sqalchemy
 authlib
 itsdangerous
 python-jose
+
+psycopg[binary]
