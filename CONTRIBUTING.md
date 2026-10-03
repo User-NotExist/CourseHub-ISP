@@ -10,6 +10,30 @@
 
 ## Local development
 
+
+### Docker development
+
+From the repository root, run:
+
+```bash
+docker compose -f source/docker-compose.dev.yml up --build
+```
+
+After editing either `.env`, rerun `docker compose -f
+source/docker-compose.dev.yml up -d --force-recreate` to reload its values.
+
+After changing Python dependencies, rerun `up --build`. After changing
+`package.json` or `package-lock.json`, restart the frontend service to rerun
+`npm ci`:
+
+```bash
+docker compose -f source/docker-compose.dev.yml restart frontend
+```
+
+Stop the stack with `docker compose -f source/docker-compose.dev.yml down`.
+Adding `--volumes` deletes the dependency/cache volumes.
+
+
 ### Backend
 
 ```bash

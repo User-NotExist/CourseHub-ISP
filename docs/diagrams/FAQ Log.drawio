@@ -1,0 +1,95 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="jGm3_hmUXgGf22DIXlSo">
+    <mxGraphModel dx="2870" dy="2173" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-8" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ehlPGsKTG5HUg0qMJs1T-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-9" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_2;whiteSpace=wrap;fillColor=light-dark(#000000,#000000);" value="" vertex="1">
+          <mxGeometry height="50" width="50" x="30" y="-60" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;" value="Students open Student&#39;s Main Page" vertex="1">
+          <mxGeometry height="80" width="180" x="-35" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;" value="System displays FAQs" vertex="1">
+          <mxGeometry height="80" width="180" x="-35" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-18" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="55" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-24" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ehlPGsKTG5HUg0qMJs1T-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-25" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_2;whiteSpace=wrap;fillColor=light-dark(#000000,#000000);" value="" vertex="1">
+          <mxGeometry height="50" width="50" x="345" y="-60" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-26" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;" value="Lecturers / TAs opens the course&#39;s FAQ page" vertex="1">
+          <mxGeometry height="80" width="180" x="280" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-35" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ehlPGsKTG5HUg0qMJs1T-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-27" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_2;whiteSpace=wrap;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="50" width="50" x="345" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;" value="System displays the FAQs" vertex="1">
+          <mxGeometry height="80" width="200" x="270" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-37" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ehlPGsKTG5HUg0qMJs1T-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-40" connectable="0" parent="ehlPGsKTG5HUg0qMJs1T-37" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;" value="Yes" vertex="1">
+          <mxGeometry relative="1" x="-0.2286" y="-4" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-30" parent="1" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fontSize=15;" value="Press &quot;New&quot; button ?" vertex="1">
+          <mxGeometry height="100" width="190" x="275" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-38" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ehlPGsKTG5HUg0qMJs1T-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-31" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;" value="Enter information for a new FAQ entry" vertex="1">
+          <mxGeometry height="80" width="200" x="270" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-42" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="ehlPGsKTG5HUg0qMJs1T-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-43" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="ehlPGsKTG5HUg0qMJs1T-28">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="210" y="780" />
+              <mxPoint x="210" y="320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=15;strokeWidth=2;" value="Save FAQ entry into the system" vertex="1">
+          <mxGeometry height="80" width="200" x="270" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-34" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="ehlPGsKTG5HUg0qMJs1T-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-36" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="ehlPGsKTG5HUg0qMJs1T-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-39" edge="1" parent="1" source="ehlPGsKTG5HUg0qMJs1T-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="ehlPGsKTG5HUg0qMJs1T-27">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="480" />
+              <mxPoint x="520" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ehlPGsKTG5HUg0qMJs1T-41" connectable="0" parent="ehlPGsKTG5HUg0qMJs1T-39" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;" value="No" vertex="1">
+          <mxGeometry relative="1" x="-0.5217" y="3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

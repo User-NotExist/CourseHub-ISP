@@ -1,0 +1,15 @@
+ARG NODE_VERSION=24.14.0
+FROM node:${NODE_VERSION}-alpine
+
+WORKDIR /app
+ENV NODE_ENV=development \
+    WATCHPACK_POLLING=true \
+    NEXT_TELEMETRY_DISABLED=1
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Source is bind-mounted; npm ci also refreshes an existing dependency volume.
+# Webpack enables Watchpack polling for Docker Desktop/WSL bind mounts.
+EXPOSE 3000
+CMD ["sh", "-c", "npm ci && exec npm run dev -- --webpack"]

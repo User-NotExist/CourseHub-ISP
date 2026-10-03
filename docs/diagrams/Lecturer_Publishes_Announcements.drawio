@@ -1,0 +1,120 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Announcement Flow" id="announcementFlow">
+    <mxGraphModel dx="1702" dy="1309" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="150" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="box1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;" value="Lecturer opens&#xa;&quot;New Announcement&quot;" vertex="1">
+          <mxGeometry height="60" width="190" x="70" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="box2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;" value="Lecturer enters title &amp; body" vertex="1">
+          <mxGeometry height="60" width="190" x="70" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="diamond1" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Fields complete?" vertex="1">
+          <mxGeometry height="90" width="160" x="85" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="box3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;" value="Lecturer clicks&#xa;&quot;Publish&quot;" vertex="1">
+          <mxGeometry height="60" width="190" x="70" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="box4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="System saves announcement" vertex="1">
+          <mxGeometry height="60" width="190" x="70" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="box5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="System displays announcement&#xa;on TA&#39;s dashboard" vertex="1">
+          <mxGeometry height="60" width="190" x="70" y="690" as="geometry" />
+        </mxCell>
+        <mxCell id="diamond2" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="TA has email on file?" vertex="1">
+          <mxGeometry height="90" width="160" x="85" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="box6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;" value="System sends email notification" vertex="1">
+          <mxGeometry height="60" width="220" x="55" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="box7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Lecturer / TA views&#xa;announcement" vertex="1">
+          <mxGeometry height="60" width="180" x="400" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="diamond3" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Wants to comment?" vertex="1">
+          <mxGeometry height="90" width="160" x="650" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="box8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=25;" value="Enter comment text &amp; click&#xa;&quot;Submit&quot;" vertex="1">
+          <mxGeometry height="60" width="200" x="630" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="box9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="System posts comment&#xa;under announcement" vertex="1">
+          <mxGeometry height="60" width="200" x="630" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="end" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="150" y="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="box1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="box1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="box2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="box2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="diamond1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="diamond1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;entryX=1;entryY=0.5;" target="box2" value="No">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="330" y="375" />
+              <mxPoint x="330" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="diamond1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="box3" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="box3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="box4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="box4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="box5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="box5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="diamond2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="diamond2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="box6" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="diamond2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="box7" value="No">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="box6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;entryX=0.5;entryY=1;" target="box7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="970" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="box7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="diamond3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="diamond3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="box8" value="Yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="box8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" target="box9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="diamond3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;entryX=1;entryY=0.5;" target="end" value="No">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900.04" y="845.04" />
+              <mxPoint x="900.04" y="1175.04" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GBIgrT8pkrgG34nfKBc5-1" edge="1" parent="1" source="box9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.669;entryY=1.014;entryDx=0;entryDy=0;entryPerimeter=0;" target="box7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520.41" y="1080" />
+            </Array>
+            <mxPoint x="580" y="1155" as="sourcePoint" />
+            <mxPoint x="520.04" y="900" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
