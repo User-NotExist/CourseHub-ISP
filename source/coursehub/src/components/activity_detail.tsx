@@ -145,7 +145,7 @@ export default function ActivityDetailPage() {
                             </div>
                             <div className="min-w-48 rounded-xl bg-[#69928F] px-4 py-3">
                                 <p className="font-bold">Created by</p>
-                                <p>—</p>
+                                <p>{activity.creator_name}</p>
                             </div>
                         </div>
 

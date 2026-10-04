@@ -4,7 +4,7 @@ from typing import Literal, Optional
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException
 from jose import JWTError, jwt
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import AliasPath, BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -64,6 +64,7 @@ class ActivityResponse(BaseModel):
     activity_date: Optional[date]
     activity_time: Optional[time]
     createdAt: datetime
+    creator_name: str = Field(validation_alias=AliasPath("user", "name"))
 
 
 def activity_member(course_id: str, access_token: Optional[str], db: Session):

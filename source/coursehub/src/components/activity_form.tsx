@@ -19,6 +19,7 @@ export type Activity = {
     activity_date: string | null // "YYYY-MM-DD"
     activity_time: string | null
     createdAt: string
+    creator_name: string
 }
 
 export type ActivityInput = {
