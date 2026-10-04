@@ -5,11 +5,14 @@ from fastapi import Query
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Cookie
 from fastapi.responses import RedirectResponse, JSONResponse
-from sqlalchemy.orm import Session
 from authlib.integrations.starlette_client import OAuth
 from jose import jwt, JWTError
 from pydantic import BaseModel, Field
 from typing import Optional, Literal, List
+
+from sqlalchemy import or_, cast, String
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Session
 
 import string, secrets
 
@@ -42,7 +45,6 @@ async def create_task(
     access_token: Optional[str] = Query(None),
     db: Session = Depends(get_db),
 ):
-    print(access_token)
     if not access_token:
         raise HTTPException(status_code=401, detail="Not authenticated !")
 
@@ -74,3 +76,45 @@ async def create_task(
         "task_due_date": str(new_task.task_due_date),
         "tasks": new_task.tasks,
     }
+
+
+@router.get("/read")
+async def display_me_tasks(
+        # access_token: str = Cookie(None),
+        access_token: Optional[str] = Query(None),
+        db: Session = Depends(get_db)
+    ):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    user_tasks = (
+            db.query(Task)
+            .filter(
+                or_(
+                    Task.user_id == user.user_id,
+                    cast(Task.tasks, JSONB).contains([{"task_assignee_gmail": user.user_email}])
+                )
+            )
+            .all()
+        )
+
+    taskss = []
+    for t in user_tasks:
+        taskss.append({
+            "task_id": t.task_id,
+            "task_name": t.task_name,
+            "task_description": t.task_description,
+            "task_due_date": str(t.task_due_date),
+            "tasks": t.tasks,
+        })
+
+    return taskss
