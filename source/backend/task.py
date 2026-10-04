@@ -1,6 +1,8 @@
 import os
 from datetime import datetime, timedelta
 
+from fastapi import Query
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Cookie
 from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
@@ -21,14 +23,14 @@ JWT_ALGORITHM = "HS256"
 
 
 class TaskAssignee(BaseModel):
-    task_assignee_id: int
+    task_assignee_gmail: str
     status: Literal["To-Do", "In-Progress", "Done"]
 
 
 class TaskCreate(BaseModel):
     task_name: str
     task_description: Optional[str] = None
-    task_duedate: Optional[str] = None
+    task_due_date: Optional[str] = None
     task_assignee: List[TaskAssignee] = []
 
 
@@ -36,9 +38,11 @@ class TaskCreate(BaseModel):
 async def create_task(
     course_id: str,
     payload: TaskCreate,
-    access_token: str = Cookie(None),
+    # access_token: str = Cookie(None),
+    access_token: Optional[str] = Query(None),
     db: Session = Depends(get_db),
 ):
+    print(access_token)
     if not access_token:
         raise HTTPException(status_code=401, detail="Not authenticated !")
 
@@ -56,7 +60,7 @@ async def create_task(
         course_id=course_id,
         task_name=payload.task_name,
         task_description=payload.task_description,
-        task_due_date=payload.task_duedate,
+        task_due_date=payload.task_due_date,
         tasks=[assignee.model_dump() for assignee in payload.task_assignee],
     )
     db.add(new_task)
