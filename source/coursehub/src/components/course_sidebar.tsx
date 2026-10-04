@@ -25,6 +25,9 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
+
 import { useParams } from "next/navigation"
 
 export default function CourseSidebar() {
@@ -142,6 +145,12 @@ export default function CourseSidebar() {
             </div>
 
             <div>
+                <div className="w-full px-4 py-4">
+                    <Button className="w-full py-5 text-md gap-2 bg-black/10 hover:bg-black/20 transition-colors" onClick={() => router.push("/courses")}>
+                        <ArrowLeft />
+                        Back to courses
+                    </Button>
+                </div>
                 <div className="bg-black/10 px-4 py-2 text-sm">
                     Hi, {email ?? "..."}
                 </div>

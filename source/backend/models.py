@@ -61,9 +61,8 @@ class Task(base):
 
     task_name = Column(String, nullable=False)
     task_description = Column(Text)
-    task_assigned = Column(String)
     task_due_date = Column(Date)
-    tasks = Column(JSON)  # sub-tasks: [{ "name": str, "done": bool }, ...]
+    tasks = Column(JSON)
     createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="tasks")
