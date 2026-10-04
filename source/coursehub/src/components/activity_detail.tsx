@@ -107,7 +107,7 @@ export default function ActivityDetailPage() {
                 </Link>
             </div>
 
-            <div className="flex flex-col flex-1 gap-5 rounded-2xl bg-[#054A46] p-6 mb-6 text-white overflow-y-auto">
+            <div className="flex flex-col gap-5 rounded-2xl bg-[#054A46] p-6 mb-6 text-white overflow-y-auto">
                 {isLoading ? (
                     <div className="flex justify-center py-10">
                         <Loader2 className="animate-spin" size={40} />
@@ -131,7 +131,7 @@ export default function ActivityDetailPage() {
                                     <Button onClick={() => setIsFormOpen(true)} className="bg-[#E8E8E8] px-5 font-bold text-black hover:bg-white">
                                         Edit
                                     </Button>
-                                    <Button variant="destructive" onClick={() => setIsDeleteOpen(true)} className="px-5 font-bold">
+                                    <Button onClick={() => setIsDeleteOpen(true)} className="bg-red-600 px-5 font-bold text-white hover:bg-red-700">
                                         Delete
                                     </Button>
                                 </div>
@@ -149,7 +149,7 @@ export default function ActivityDetailPage() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col flex-1 gap-2 rounded-xl bg-[#69928F] px-4 py-3">
+                        <div className="flex flex-col gap-2 rounded-xl bg-[#69928F] px-4 py-3">
                             <p className="font-bold">Description</p>
                             <p className="whitespace-pre-wrap">{activity.activity_description || "—"}</p>
                         </div>

@@ -126,7 +126,7 @@ export function ActivityForm({
                         <select
                             value={type}
                             onChange={(event) => setType(event.target.value as ActivityType | "")}
-                            className="h-8 rounded-lg border border-input bg-white px-2 font-normal"
+                            className="h-8 rounded-lg border border-input bg-white px-2 text-base font-normal md:text-sm"
                         >
                             <option value="">Select type</option>
                             <option value="Activities">Activities</option>

@@ -97,7 +97,7 @@ export default function ActivitiesPage() {
                 ))}
             </div>
 
-            <div className="flex flex-col flex-1 gap-3 rounded-2xl bg-[#054A46] p-4 mb-6 overflow-y-auto">
+            <div className="flex flex-col gap-3 rounded-2xl bg-[#054A46] p-4 mb-6 overflow-y-auto">
                 <div className={`${columns} rounded-xl bg-[#69928F] py-3 font-bold text-white`}>
                     <span>Title</span>
                     <span>Type</span>
