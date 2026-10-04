@@ -5,9 +5,12 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox"
 
 
 export type ActivityType = "Activities" | "Milestones"
+
+const activityTypes: ActivityType[] = ["Activities", "Milestones"]
 
 export type Activity = {
     activity_id: number
@@ -124,15 +127,18 @@ export function ActivityForm({
                 <div className="grid grid-cols-2 gap-4">
                     <label className="flex flex-col gap-1 font-bold">
                         Type
-                        <select
-                            value={type}
-                            onChange={(event) => setType(event.target.value as ActivityType | "")}
-                            className="h-8 rounded-lg border border-input bg-white px-2 text-base font-normal md:text-sm"
-                        >
-                            <option value="">Select type</option>
-                            <option value="Activities">Activities</option>
-                            <option value="Milestones">Milestones</option>
-                        </select>
+                        <Combobox items={activityTypes} value={type || null} onValueChange={(value) => setType(value ?? "")}>
+                            <ComboboxInput readOnly placeholder="Select type" className="w-full bg-white font-normal" />
+                            <ComboboxContent>
+                                <ComboboxList>
+                                    {(item: ActivityType) => (
+                                        <ComboboxItem key={item} value={item}>
+                                            {item}
+                                        </ComboboxItem>
+                                    )}
+                                </ComboboxList>
+                            </ComboboxContent>
+                        </Combobox>
                     </label>
 
                     <label className="flex flex-col gap-1 font-bold">
