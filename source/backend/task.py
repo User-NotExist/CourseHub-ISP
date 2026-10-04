@@ -81,6 +81,7 @@ async def create_task(
 
 @router.get("/read")
 async def display_me_tasks(
+        course_id: str,
         # access_token: str = Cookie(None),
         access_token: Optional[str] = Query(None),
         db: Session = Depends(get_db)
@@ -102,6 +103,7 @@ async def display_me_tasks(
             .filter(
                 or_(
                     Task.user_id == user.user_id,
+                    Task.course_id == course_id,
                     cast(Task.tasks, JSONB).contains([{"task_assignee_gmail": user.user_email}])
                 )
             )
