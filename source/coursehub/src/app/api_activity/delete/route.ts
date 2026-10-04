@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
-// DELETE /api_activity/delete?course_id=...&activity_id=...
-// -> backend DELETE /course/{course_id}/activities/{activity_id}
 export async function DELETE(request: NextRequest) {
     const courseId = request.nextUrl.searchParams.get("course_id")
     const activityId = request.nextUrl.searchParams.get("activity_id")

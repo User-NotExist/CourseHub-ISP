@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
-// POST /api_activity/create  body: { course_id, activity_name, activity_type, ... }
-// -> backend POST /course/{course_id}/activities
 export async function POST(request: NextRequest) {
     const { course_id, ...activity } = await request.json()
     if (!course_id) return NextResponse.json({ detail: "Course ID is required" }, { status: 400 })

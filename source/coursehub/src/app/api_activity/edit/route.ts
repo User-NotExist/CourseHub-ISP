@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
-// PUT /api_activity/edit  body: { course_id, activity_id, activity_name, ... }
-// -> backend PUT /course/{course_id}/activities/{activity_id}
+
 export async function PUT(request: NextRequest) {
     const { course_id, activity_id, ...activity } = await request.json()
     if (!course_id || !activity_id) {

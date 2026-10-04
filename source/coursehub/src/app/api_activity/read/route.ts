@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
-// GET /api_activity/read?course_id=... -> backend GET /course/{course_id}/activities
 export async function GET(request: NextRequest) {
     const courseId = request.nextUrl.searchParams.get("course_id")
     if (!courseId) return NextResponse.json({ detail: "Course ID is required" }, { status: 400 })
