@@ -1,9 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { Loader2, Trash2Icon } from "lucide-react"
+import { ArrowLeft, Loader2, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -98,14 +97,14 @@ export default function ActivityDetailPage() {
 
     return (
         <div className="flex flex-col h-screen pt-7 gap-4 xl:w-250 lg:w-200 md:w-150 sm:w-100 min-w-90">
+            <Button variant="outline" onClick={() => router.push(listUrl)} className="self-start gap-2 px-4 py-4 text-md">
+                <ArrowLeft />
+                Back to activities
+            </Button>
+
             <h1 className="text-center text-3xl font-bold text-[#054A46] underline">Activities and Milestones Details</h1>
 
-            <div className="flex flex-row items-center justify-between">
-                <h2 className="text-xl font-bold">{course?.course_name}</h2>
-                <Link href={listUrl} className="font-bold text-[#054A46] underline">
-                    ← Back to activities
-                </Link>
-            </div>
+            <h2 className="text-xl font-bold">{course?.course_name}</h2>
 
             <div className="flex flex-col gap-5 rounded-2xl bg-[#054A46] p-6 mb-6 text-white overflow-y-auto">
                 {isLoading ? (
