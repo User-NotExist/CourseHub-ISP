@@ -70,6 +70,7 @@ async def create_task(
     db.refresh(new_task)
 
     return {
+        "task_owner_id": new_task.user_id,
         "task_id": new_task.task_id,
         "task_name": new_task.task_name,
         "task_description": new_task.task_description,
@@ -110,6 +111,7 @@ async def display_me_tasks(
     taskss = []
     for t in user_tasks:
         taskss.append({
+            "task_owner_id": t.user_id,
             "task_id": t.task_id,
             "task_name": t.task_name,
             "task_description": t.task_description,
@@ -118,3 +120,83 @@ async def display_me_tasks(
         })
 
     return taskss
+
+
+@router.get("/read/{task_id}")
+async def display_task(
+    course_id: str,
+    task_id: int,
+    # access_token: str = Cookie(None),
+    access_token: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found !")
+
+    return {
+        "task_owner_id": task.user_id,
+        "task_id": task.task_id,
+        "task_name": task.task_name,
+        "task_description": task.task_description,
+        "task_due_date": str(task.task_due_date),
+        "tasks": task.tasks,
+    }
+
+
+@router.put("/edit/{task_id}")
+async def edit_task(
+    course_id: str,
+    task_id: int,
+    payload: TaskCreate,
+    # access_token: str = Cookie(None),
+    access_token: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found !")
+
+    if task.user_id != user.user_id:
+        raise HTTPException(status_code=403, detail="You are not the owner of this task !")
+
+    task.task_name = payload.task_name
+    task.task_description = payload.task_description
+    task.task_due_date = payload.task_due_date
+    task.tasks = [assignee.model_dump() for assignee in payload.task_assignee]
+
+    db.commit()
+    db.refresh(task)
+
+    return {
+        "task_owner_id": task.user_id,
+        "task_id": task.task_id,
+        "task_name": task.task_name,
+        "task_description": task.task_description,
+        "task_due_date": str(task.task_due_date),
+        "tasks": task.tasks,
+    }
