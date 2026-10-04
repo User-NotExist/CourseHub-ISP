@@ -200,3 +200,36 @@ async def edit_task(
         "task_due_date": str(task.task_due_date),
         "tasks": task.tasks,
     }
+
+
+@router.delete("/delete/{task_id}")
+async def delete_task(
+    course_id: str,
+    task_id: int,
+    # access_token: str = Cookie(None),
+    access_token: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found !")
+
+    if task.user_id != user.user_id:
+        raise HTTPException(status_code=403, detail="You are not the owner of this task !")
+
+    db.delete(task)
+    db.commit()
+
+    return {"task_id": task_id, "deleted": True}
