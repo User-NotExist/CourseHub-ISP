@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { Edit, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 
 type TaskStatus = "todo" | "in_progress" | "done"
 
@@ -14,8 +15,8 @@ type Task = {
   description: string
   due_date: string | null
   status: TaskStatus
-  assignee: string
-  can_edit?: boolean
+  assignee: string | null
+  can_edit: boolean
   can_update_status: boolean
 }
 
@@ -33,6 +34,7 @@ type ApiTask = {
   task_description: string | null
   task_due_date: string | null
   tasks: { task_assignee_gmail: string; status: string }[] | null
+  can_edit: boolean
 }
 
 type CurrentUser = {
@@ -109,23 +111,33 @@ export default function TasksBoard() {
         ])
         const currentCourse = courses.find((item) => item.course_id === courseId) ?? null
         setCourse(currentCourse)
-        const canManageTasks = currentCourse?.can_edit === true || currentCourse?.role === "ta"
-        setTasks(apiTasks.map((task) => {
+        setTasks(apiTasks.flatMap<Task>((task) => {
           const assignments = task.tasks ?? []
-          const myAssignment = assignments.find(
-            (assignment) => assignment.task_assignee_gmail.toLowerCase() === user.email.toLowerCase(),
-          )
-          return {
+          const taskDetails = {
             task_id: String(task.task_id),
             title: task.task_name,
             description: task.task_description ?? "",
             due_date: task.task_due_date === "None" ? null : task.task_due_date,
-            status: normalizeStatus(myAssignment?.status),
-            assignee: myAssignment?.task_assignee_gmail
-              ?? assignments.map((assignment) => assignment.task_assignee_gmail).join(", "),
-            can_edit: task.task_owner_id === user.user_id || canManageTasks,
-            can_update_status: Boolean(myAssignment),
+            can_edit: task.can_edit,
           }
+          if (assignments.length === 0) {
+            return [{
+              ...taskDetails,
+              status: "todo",
+              assignee: null,
+              can_update_status: false,
+            }]
+          }
+
+          return assignments.map((assignment) => {
+            const isSelfAssignee = assignment.task_assignee_gmail.toLowerCase() === user.email.toLowerCase()
+            return {
+              ...taskDetails,
+              status: normalizeStatus(assignment.status),
+              assignee: assignment.task_assignee_gmail,
+              can_update_status: task.can_edit || isSelfAssignee,
+            }
+          })
         }))
       } catch {
         toast.error("Couldn't load this course's tasks")
@@ -136,15 +148,22 @@ export default function TasksBoard() {
     load()
   }, [courseId])
 
-  async function updateTaskStatus(taskId: string, status: TaskStatus) {
+  async function updateTaskStatus(taskId: string, assignee: string | null, status: TaskStatus) {
+    if (!assignee) return
     const prev = tasks
-    // Optimistic update so the card moves instantly
-    setTasks((t) => t.map((task) => (task.task_id === taskId ? { ...task, status } : task)))
+    setTasks((current) => current.map((task) => (
+      task.task_id === taskId && task.assignee === assignee ? { ...task, status } : task
+    )))
     try {
       const res = await fetch("/api_task/read", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ course_id: courseId, task_id: taskId, status: toApiStatus(status) }),
+        body: JSON.stringify({
+          course_id: courseId,
+          task_id: taskId,
+          task_assignee_gmail: assignee,
+          status: toApiStatus(status),
+        }),
       })
       if (!res.ok) throw new Error()
     } catch {
@@ -156,13 +175,22 @@ export default function TasksBoard() {
   return (
     <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10">
       {/* Page header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#054a46] underline underline-offset-4">
-          Course Tasks
-        </h1>
-        <p className="text-xl font-semibold mt-1">
-          {course?.course_name ?? (isLoading ? "Loading..." : "Untitled course")}
-        </p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-[#054a46] underline underline-offset-4">
+            Course Tasks
+          </h1>
+          <p className="mt-1 text-xl font-semibold">
+            {course?.course_name ?? (isLoading ? "Loading..." : "Untitled course")}
+          </p>
+        </div>
+        <Button
+          type="button"
+          className="h-12 shrink-0 gap-2 rounded-full bg-[#006c67] px-6 text-base font-semibold text-white shadow-md transition hover:bg-[#054a46] hover:shadow-lg"
+        >
+          <Plus className="size-5" />
+          Create Task
+        </Button>
       </div>
 
       {/* Board */}
@@ -178,15 +206,6 @@ export default function TasksBoard() {
                 {label}
               </h2>
 
-              {key === "todo" && (
-                <Link
-                  href={`/courses/${courseId}/tasks/create`}
-                  className="inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap bg-white/10 hover:bg-white/20 text-white rounded-full h-12 text-lg font-semibold px-6"
-                >
-                  <Plus className="size-5 shrink-0" /> New
-                </Link>
-              )}
-
               <div className="flex flex-1 flex-col gap-4 overflow-y-auto">
                 {isLoading ? (
                   <p className="text-white/70 text-sm">Loading...</p>
@@ -194,7 +213,7 @@ export default function TasksBoard() {
                   <p className="text-white/50 text-sm">No tasks here yet.</p>
                 ) : (
                   columnTasks.map((task) => (
-                    <div key={task.task_id} className="bg-white/10 rounded-2xl p-4 flex flex-col gap-2">
+                    <div key={`${task.task_id}:${task.assignee ?? "unassigned"}`} className="bg-white/10 rounded-2xl p-4 flex flex-col gap-2">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="text-white font-bold">{task.title}</h3>
                         {task.can_edit && (
@@ -218,7 +237,7 @@ export default function TasksBoard() {
                       {/* Move between columns */}
                       <div className="flex items-center gap-1 mt-1">
                         <button
-                          onClick={() => updateTaskStatus(task.task_id, moveStatus(key, "leftmost"))}
+                          onClick={() => updateTaskStatus(task.task_id, task.assignee, moveStatus(key, "leftmost"))}
                           disabled={key === "todo" || !task.can_update_status}
                           className="text-white/70 hover:text-white disabled:opacity-30"
                           aria-label="Move to first column"
@@ -226,7 +245,7 @@ export default function TasksBoard() {
                           <ChevronsLeft className="size-5" />
                         </button>
                         <button
-                          onClick={() => updateTaskStatus(task.task_id, moveStatus(key, "left"))}
+                          onClick={() => updateTaskStatus(task.task_id, task.assignee, moveStatus(key, "left"))}
                           disabled={key === "todo" || !task.can_update_status}
                           className="text-white/70 hover:text-white disabled:opacity-30"
                           aria-label="Move left"
@@ -235,7 +254,7 @@ export default function TasksBoard() {
                         </button>
                         <div className="flex-1" />
                         <button
-                          onClick={() => updateTaskStatus(task.task_id, moveStatus(key, "right"))}
+                          onClick={() => updateTaskStatus(task.task_id, task.assignee, moveStatus(key, "right"))}
                           disabled={key === "done" || !task.can_update_status}
                           className="text-white/70 hover:text-white disabled:opacity-30"
                           aria-label="Move right"
@@ -243,7 +262,7 @@ export default function TasksBoard() {
                           <ChevronRight className="size-5" />
                         </button>
                         <button
-                          onClick={() => updateTaskStatus(task.task_id, moveStatus(key, "rightmost"))}
+                          onClick={() => updateTaskStatus(task.task_id, task.assignee, moveStatus(key, "rightmost"))}
                           disabled={key === "done" || !task.can_update_status}
                           className="text-white/70 hover:text-white disabled:opacity-30"
                           aria-label="Move to last column"

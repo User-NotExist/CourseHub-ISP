@@ -36,7 +36,10 @@ export async function PATCH(request: NextRequest) {
     !("task_id" in body) ||
     (typeof body.task_id !== "number" && typeof body.task_id !== "string") ||
     !("status" in body) ||
-    !["To-Do", "In-Progress", "Done"].includes(String(body.status))
+    !["To-Do", "In-Progress", "Done"].includes(String(body.status)) ||
+    ("task_assignee_gmail" in body &&
+      body.task_assignee_gmail !== null &&
+      typeof body.task_assignee_gmail !== "string")
   ) {
     return NextResponse.json({ detail: "Course, task, and valid status are required" }, { status: 400 })
   }
@@ -49,13 +52,20 @@ export async function PATCH(request: NextRequest) {
 
   const courseId = body.course_id
   const taskId = String(body.task_id)
+  const assigneeEmail =
+    "task_assignee_gmail" in body && typeof body.task_assignee_gmail === "string"
+      ? body.task_assignee_gmail
+      : null
   try {
     const response = await fetch(
       `${backendUrl}/course/${encodeURIComponent(courseId)}/tasks/${encodeURIComponent(taskId)}`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json", cookie: cookieHeader },
-        body: JSON.stringify({ status: body.status }),
+        body: JSON.stringify({
+          status: body.status,
+          task_assignee_gmail: assigneeEmail,
+        }),
       },
     )
     return NextResponse.json(await response.json(), { status: response.status })

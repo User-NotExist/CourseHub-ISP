@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
 const backendUrl = process.env.BACKEND_URL || "http://localhost:8000"
+const taskStatuses = ["To-Do", "In-Progress", "Done"]
+
+function isTaskAssigneeList(value: unknown): value is { task_assignee_gmail: string; status: string }[] {
+  return Array.isArray(value) && value.every((assignee) =>
+    typeof assignee === "object" &&
+    assignee !== null &&
+    "task_assignee_gmail" in assignee &&
+    typeof assignee.task_assignee_gmail === "string" &&
+    "status" in assignee &&
+    taskStatuses.includes(String(assignee.status)),
+  )
+}
 
 export async function GET(request: NextRequest) {
   const courseId = request.nextUrl.searchParams.get("course_id")
@@ -41,7 +53,9 @@ export async function PUT(request: NextRequest) {
     !("task_description" in body) ||
     (typeof body.task_description !== "string" && body.task_description !== null) ||
     !("task_due_date" in body) ||
-    (typeof body.task_due_date !== "string" && body.task_due_date !== null)
+    (typeof body.task_due_date !== "string" && body.task_due_date !== null) ||
+    !("task_assignee" in body) ||
+    !isTaskAssigneeList(body.task_assignee)
   ) {
     return NextResponse.json({ detail: "Valid task title, description, and due date are required" }, { status: 400 })
   }
@@ -64,6 +78,7 @@ export async function PUT(request: NextRequest) {
           task_name: body.task_name,
           task_description: body.task_description,
           task_due_date: body.task_due_date,
+          task_assignee: body.task_assignee,
         }),
       },
     )
