@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
 import Link from "next/link"
 import { Edit, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { useParams, useRouter } from "next/navigation"
 
 type TaskStatus = "todo" | "in_progress" | "done"
 
@@ -87,6 +87,7 @@ function moveStatus(
 
 export default function TasksBoard() {
   const { id: courseId } = useParams<{ id: string }>()
+  const router = useRouter()
   const [course, setCourse] = useState<Course | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -186,6 +187,7 @@ export default function TasksBoard() {
         </div>
         <Button
           type="button"
+          onClick={() => router.push(`/courses/${courseId}/task/create`)}
           className="h-12 shrink-0 gap-2 rounded-full bg-[#006c67] px-6 text-base font-semibold text-white shadow-md transition hover:bg-[#054a46] hover:shadow-lg"
         >
           <Plus className="size-5" />
@@ -218,7 +220,7 @@ export default function TasksBoard() {
                         <h3 className="text-white font-bold">{task.title}</h3>
                         {task.can_edit && (
                           <Link
-                            href={`/courses/${courseId}/tasks/${task.task_id}/edit`}
+                            href={`/courses/${courseId}/task/${task.task_id}/edit`}
                             className="bg-white/60 rounded-lg p-1.5 hover:bg-white/80 transition"
                             aria-label="Edit task"
                           >
