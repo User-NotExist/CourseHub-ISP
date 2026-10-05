@@ -60,7 +60,7 @@ export default function CourseSidebar() {
 
     return (
 
-        <div className="bg-[#006C67] flex flex-col justify-between w-65 min-h-screen text-white">
+        <div className="bg-[#006C67] flex flex-col justify-between w-65 h-screen text-white">
             <div>
                 <div className="p-6">
                     <h1 className="text-2xl font-bold border-white/30 pb-3">CourseHub</h1>
