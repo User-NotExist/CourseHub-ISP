@@ -37,6 +37,8 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
     const [email, setEmail] = useState("")
     const [removing, setRemoving] = useState<Assignee | null>(null)
     const [leaving, setLeaving] = useState(false)
+    const [deleting, setDeleting] = useState(false)
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const dirty = !!task && JSON.stringify(task) !== original
     const validDetails = !!task?.task_name.trim()
 
@@ -129,6 +131,45 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
         } finally { setSaving(false) }
     }
 
+    async function deleteTask() {
+        if (!isEdit || !taskId || deleting) return
+
+        setDeleting(true)
+
+        try {
+            const response = await fetch("/api_task/delete", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    course_id: courseId,
+                    task_id: taskId,
+                }),
+            })
+
+            const data = await response.json().catch(() => ({}))
+
+            if (!response.ok) {
+                throw new Error(
+                    typeof data.detail === "string"
+                        ? data.detail
+                        : "Unable to delete the task. Please try again."
+                )
+            }
+
+            toast.success("Task deleted successfully")
+            router.push(tasksUrl)
+            router.refresh()
+        } catch (err) {
+            toast.error(
+                err instanceof Error
+                    ? err.message
+                    : "Unable to delete the task"
+            )
+        } finally {
+            setDeleting(false)
+        }
+    }
+
     if (error) return <div className="mx-auto w-full max-w-3xl p-8"><p role="alert" className="mb-4 text-destructive">{error}</p><Button onClick={() => { setError(""); setReload((value) => value + 1) }}>Try again</Button><Button variant="ghost" onClick={() => router.push(tasksUrl)}>Back to tasks</Button></div>
     if (!task) return <div role="status" className="flex min-h-64 items-center gap-2"><Loader2 className="size-5 animate-spin" />Loading task…</div>
 
@@ -178,11 +219,81 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                     )}
                 </CardContent>
             </Card>
+            {isEdit && (
+                <Card className="border-destructive/50">
+                    <CardHeader>
+                        <CardTitle className="text-destructive">
+                            Danger Zone
+                        </CardTitle>
+                        <CardDescription>
+                            Permanently delete this task. This action cannot be undone.
+                        </CardDescription>
+                    </CardHeader>
+
+                    <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p className="font-medium">Delete this task</p>
+                            <p className="text-sm text-muted-foreground">
+                                All data associated with this task will be deleted.
+                            </p>
+                        </div>
+
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={saving || deleting}
+                            onClick={() => setDeleteDialogOpen(true)}
+                        >
+                            <Trash2 className="size-4" />
+                            Delete task
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
             <div className="flex flex-wrap items-center justify-end gap-3">
                 <p role="status" className="mr-auto text-sm text-muted-foreground">{dirty ? "You have unsaved changes" : isEdit ? "All changes saved" : ""}</p>
                 <Button variant="outline" onClick={back} disabled={saving}>Cancel</Button>
                 <Button form="task-details" type="submit" disabled={saving || !validDetails || (isEdit && !dirty)}>{saving && <Loader2 className="size-4 animate-spin" />}{saving ? "Saving…" : isEdit ? "Save" : "Confirm"}</Button>
             </div>
+            {isEdit && (
+                <AlertDialog
+                    open={deleteDialogOpen}
+                    onOpenChange={setDeleteDialogOpen}
+                >
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Delete this task?
+                            </AlertDialogTitle>
+
+                            <AlertDialogDescription>
+                                This will permanently delete "{task.task_name}".
+                                This action cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                            <AlertDialogCancel disabled={deleting}>
+                                Cancel
+                            </AlertDialogCancel>
+
+                            <AlertDialogAction
+                                variant="destructive"
+                                disabled={deleting}
+                                onClick={(event) => {
+                                    event.preventDefault()
+                                    void deleteTask()
+                                }}
+                            >
+                                {deleting && (
+                                    <Loader2 className="size-4 animate-spin" />
+                                )}
+                                {deleting ? "Deleting…" : "Delete task"}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
             <AlertDialog open={!!removing} onOpenChange={(open) => !open && setRemoving(null)}>
                 <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Remove assigned user?</AlertDialogTitle><AlertDialogDescription>{removing?.task_assignee_gmail} will no longer be assigned to this task when you save.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction variant="destructive" onClick={() => { setTask({ ...task, task_assignee: task.task_assignee.filter((assignee) => assignee.task_assignee_gmail !== removing?.task_assignee_gmail) }); setRemoving(null) }}>Remove user</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
             </AlertDialog>
