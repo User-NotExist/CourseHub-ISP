@@ -37,6 +37,10 @@ class TaskCreate(BaseModel):
     task_assignee: List[TaskAssignee] = []
 
 
+class TaskStatusUpdate(BaseModel):
+    status: Literal["To-Do", "In-Progress", "Done"]
+
+
 @router.post("/create")
 async def create_task(
     course_id: str,
@@ -101,9 +105,9 @@ async def display_me_tasks(
     user_tasks = (
             db.query(Task)
             .filter(
+                Task.course_id == course_id,
                 or_(
                     Task.user_id == user.user_id,
-                    Task.course_id == course_id,
                     cast(Task.tasks, JSONB).contains([{"task_assignee_gmail": user.user_email}])
                 )
             )
@@ -122,6 +126,54 @@ async def display_me_tasks(
         })
 
     return taskss
+
+
+@router.patch("/{task_id}")
+async def update_task_status(
+    course_id: str,
+    task_id: int,
+    payload: TaskStatusUpdate,
+    access_token: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        user_id = int(token_payload["sub"])
+    except (JWTError, KeyError, ValueError, TypeError):
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found !")
+
+    assignments = task.tasks if isinstance(task.tasks, list) else []
+    matching_assignment = next(
+        (
+            assignment
+            for assignment in assignments
+            if isinstance(assignment, dict)
+            and str(assignment.get("task_assignee_gmail", "")).lower() == user.user_email.lower()
+        ),
+        None,
+    )
+    if not matching_assignment:
+        raise HTTPException(status_code=403, detail="You are not assigned to this task !")
+
+    updated_assignments = [dict(assignment) for assignment in assignments if isinstance(assignment, dict)]
+    for assignment in updated_assignments:
+        if str(assignment.get("task_assignee_gmail", "")).lower() == user.user_email.lower():
+            assignment["status"] = payload.status
+    task.tasks = updated_assignments
+    db.commit()
+
+    return {"task_id": task.task_id, "status": payload.status}
 
 
 @router.get("/read/{task_id}")
