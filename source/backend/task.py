@@ -1,8 +1,6 @@
 import os
 from datetime import datetime, timedelta
 
-from fastapi import Query
-
 from fastapi import APIRouter, Depends, HTTPException, Request, Cookie
 from fastapi.responses import RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
@@ -45,8 +43,7 @@ class TaskStatusUpdate(BaseModel):
 async def create_task(
     course_id: str,
     payload: TaskCreate,
-    # access_token: str = Cookie(None),
-    access_token: Optional[str] = Query(None),
+    access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
     if not access_token:
@@ -86,8 +83,7 @@ async def create_task(
 @router.get("/read")
 async def display_me_tasks(
         course_id: str,
-        # access_token: str = Cookie(None),
-        access_token: Optional[str] = Query(None),
+        access_token: Optional[str] = Cookie(None),
         db: Session = Depends(get_db)
     ):
     if not access_token:
@@ -102,17 +98,23 @@ async def display_me_tasks(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    user_tasks = (
-            db.query(Task)
-            .filter(
-                Task.course_id == course_id,
-                or_(
-                    Task.user_id == user.user_id,
-                    cast(Task.tasks, JSONB).contains([{"task_assignee_gmail": user.user_email}])
-                )
+    membership = db.query(CourseMember).filter(
+        CourseMember.course_id == course_id,
+        CourseMember.user_id == user.user_id,
+    ).first()
+    can_manage_tasks = user.is_admin or (
+        membership is not None and membership.role in ("ta", "lecturer")
+    )
+
+    task_query = db.query(Task).filter(Task.course_id == course_id)
+    if not can_manage_tasks:
+        task_query = task_query.filter(
+            or_(
+                Task.user_id == user.user_id,
+                cast(Task.tasks, JSONB).contains([{"task_assignee_gmail": user.user_email}]),
             )
-            .all()
         )
+    user_tasks = task_query.all()
 
     taskss = []
     for t in user_tasks:
@@ -128,12 +130,12 @@ async def display_me_tasks(
     return taskss
 
 
-@router.patch("/{task_id}")
+@router.patch("/{task_id}") #The router already includes /course/{course_id}/tasks, so using {task_id} to distinct from existing task endpoints
 async def update_task_status(
     course_id: str,
     task_id: int,
     payload: TaskStatusUpdate,
-    access_token: Optional[str] = Query(None),
+    access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
     if not access_token:
@@ -180,8 +182,7 @@ async def update_task_status(
 async def display_task(
     course_id: str,
     task_id: int,
-    # access_token: str = Cookie(None),
-    access_token: Optional[str] = Query(None),
+    access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
     if not access_token:
@@ -215,8 +216,7 @@ async def edit_task(
     course_id: str,
     task_id: int,
     payload: TaskCreate,
-    # access_token: str = Cookie(None),
-    access_token: Optional[str] = Query(None),
+    access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
     if not access_token:
@@ -235,13 +235,19 @@ async def edit_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
 
-    if task.user_id != user.user_id:
-        raise HTTPException(status_code=403, detail="You are not the owner of this task !")
+    membership = db.query(CourseMember).filter(
+        CourseMember.course_id == course_id,
+        CourseMember.user_id == user.user_id,
+    ).first()
+    can_edit = user.is_admin or task.user_id == user.user_id or (
+        membership is not None and membership.role in ("ta", "lecturer")
+    )
+    if not can_edit:
+        raise HTTPException(status_code=403, detail="Only the task owner, course TAs, and lecturers can edit this task !")
 
     task.task_name = payload.task_name
     task.task_description = payload.task_description
     task.task_due_date = payload.task_due_date
-    task.tasks = [assignee.model_dump() for assignee in payload.task_assignee]
 
     db.commit()
     db.refresh(task)
@@ -260,8 +266,7 @@ async def edit_task(
 async def delete_task(
     course_id: str,
     task_id: int,
-    # access_token: str = Cookie(None),
-    access_token: Optional[str] = Query(None),
+    access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
     if not access_token:

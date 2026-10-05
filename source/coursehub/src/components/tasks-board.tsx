@@ -22,6 +22,8 @@ type Task = {
 type Course = {
   course_id: string
   course_name: string
+  role?: string
+  can_edit?: boolean
 }
 
 type ApiTask = {
@@ -105,7 +107,9 @@ export default function TasksBoard() {
           tasksRes.json(),
           userRes.json(),
         ])
-        setCourse(courses.find((item) => item.course_id === courseId) ?? null)
+        const currentCourse = courses.find((item) => item.course_id === courseId) ?? null
+        setCourse(currentCourse)
+        const canManageTasks = currentCourse?.can_edit === true || currentCourse?.role === "ta"
         setTasks(apiTasks.map((task) => {
           const assignments = task.tasks ?? []
           const myAssignment = assignments.find(
@@ -119,7 +123,7 @@ export default function TasksBoard() {
             status: normalizeStatus(myAssignment?.status),
             assignee: myAssignment?.task_assignee_gmail
               ?? assignments.map((assignment) => assignment.task_assignee_gmail).join(", "),
-            can_edit: task.task_owner_id === user.user_id,
+            can_edit: task.task_owner_id === user.user_id || canManageTasks,
             can_update_status: Boolean(myAssignment),
           }
         }))
@@ -150,7 +154,7 @@ export default function TasksBoard() {
   }
 
   return (
-    <div className="w-full flex-1 min-w-0 p-6 md:p-10">
+    <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10">
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#054a46] underline underline-offset-4">
@@ -162,13 +166,13 @@ export default function TasksBoard() {
       </div>
 
       {/* Board */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid flex-1 grid-cols-1 gap-6 md:min-h-0 md:grid-cols-3">
         {STATUS_CONFIG.map(({ key, label }) => {
           const columnTasks = tasks.filter((t) => t.status === key)
           return (
             <div
               key={key}
-              className="bg-[#054a46] rounded-3xl p-5 flex flex-col gap-4 min-h-[500px]"
+              className="bg-[#054a46] rounded-3xl p-5 flex flex-col gap-4 min-h-[500px] md:min-h-0"
             >
               <h2 className="text-white text-2xl font-bold bg-[#006c67]/40 rounded-full px-5 py-2 w-fit">
                 {label}
@@ -183,7 +187,7 @@ export default function TasksBoard() {
                 </Link>
               )}
 
-              <div className="flex flex-col gap-4 overflow-y-auto">
+              <div className="flex flex-1 flex-col gap-4 overflow-y-auto">
                 {isLoading ? (
                   <p className="text-white/70 text-sm">Loading...</p>
                 ) : columnTasks.length === 0 ? (

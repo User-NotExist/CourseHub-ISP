@@ -11,9 +11,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   const router = useRouter()
 
   return (
-    <div className="flex flex-row min-h-full flex flex-col">
+    <div className="flex min-h-screen">
       <CourseSidebar />
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className="flex min-w-0 flex-1 flex-col">
         {children}
       </div>
     </div>
