@@ -1,6 +1,6 @@
 # ---- CourseHub Backend (FastAPI) ----
-# Build context must be the REPO ROOT (requirements.txt lives there, not in backend/)
-# Example: docker build -f backend/Dockerfile -t coursehub-backend .
+# Build context is source/backend, where requirements.txt and app/ live.
+# From the repo root: docker build -t coursehub-backend source/backend
 
 FROM python:3.14.2-slim
 
@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

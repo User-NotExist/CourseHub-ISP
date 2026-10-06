@@ -11,8 +11,9 @@ Stack
 - dotenv for env vars
 
 Entry points & routing
-- main.py creates FastAPI app, adds SessionMiddleware and CORS, calls base.metadata.create_all(bind=engine), and includes routers from auth.py and course.py.
-- Add new routes via APIRouter and include in main.py.
+- Uvicorn and Docker use app.main:app directly; there are no top-level compatibility modules.
+- app/main.py creates FastAPI, adds SessionMiddleware and CORS, calls base.metadata.create_all(bind=engine), and includes routers from app/routers/.
+- Add new routes via APIRouter in app/routers/ and include in app/main.py.
 
 Environment (required)
 - DATABASE_URL: SQLAlchemy DB URL
@@ -27,7 +28,7 @@ Auth flow & cookies
 - COOKIE_SECURE must be true in production (HTTPS).
 
 Database patterns
-- database.get_db yields a SQLAlchemy Session; use Depends(get_db) in endpoints.
+- app.database.get_db yields a SQLAlchemy Session; use Depends(get_db) in endpoints.
 - engine = create_engine(url, echo=True) — SQL logging enabled.
 - base.metadata.create_all(bind=engine) is used at startup (no migration tool present).
 - Models use relationships (back_populates). Deletions are done manually in code (no ON DELETE CASCADE), so ensure to delete dependent rows explicitly.
@@ -38,12 +39,12 @@ Models summary (important fields)
 - CourseMember: links users to courses with role string ("lecturer", "ta", "student")
 
 Conventions & important patterns
-- Authz: verify user by decoding cookie JWT and then check DB for User and CourseMember role.
-- Role checks: route-level manual checks (e.g., only lecturer can edit/delete). Replicate exactly when adding endpoints.
+- Authz: use app.core.security.authenticated_user to decode the cookie JWT and look up User. Preserve the endpoint's error messages and missing-user status.
+- Role checks: services enforce each operation's existing permissions, using shared membership queries in app/services/permissions.py. Replicate existing policies exactly when adding endpoints.
 - ID generation: courses use secrets.choice to create non-guessable short IDs; preserve uniqueness constraints when creating.
-- No central service layer — routes interact directly with the DB session and ORM models.
+- Business logic and ORM operations live in app/services/; routers handle HTTP input/output and delegate to services.
 - Error handling: raise fastapi.HTTPException with appropriate status codes and messages.
-- Pydantic models defined inline in route files for request validation.
+- Pydantic request/response models live in app/schemas/. ORM definitions live in app/models.py.
 
 Security notes for agents
 - Never commit secrets (.env values) into repo. Use environment variables in CI/deploy.
@@ -52,7 +53,7 @@ Security notes for agents
 - Keep ALLOWED_DOMAIN check for Google sign-ins.
 
 Operational
-- Local run: python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000 (ensure env vars set)
+- Local run: python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 (ensure env vars set)
 - Install: pip install -r requirements.txt
 - When changing models, consider adding a migration strategy (Alembic) — currently create_all is used.
 
@@ -63,9 +64,10 @@ Limitations & gotchas
 - engine echo=True will log SQL in stdout; may expose sensitive queries in logs.
 
 Where to extend
-- Add a service/repository layer to centralize DB logic.
+- Extend app/services/ for business rules; keep app/routers/ focused on the public HTTP contract.
 - Add Alembic for schema migrations.
-- Add tests and CI.
+- Run python -m unittest discover -s testsuite -v for API regressions. Tests use isolated SQLite and mocked OAuth; keep CI independent of production secrets.
+- The original OpenAPI snapshot in testsuite/fixtures/openapi.json guards all 19 endpoints. Review any intentional API changes before updating it.
 
 Contact
 - Current maintainer: inspect root .env for dev contact (DO NOT commit secrets)

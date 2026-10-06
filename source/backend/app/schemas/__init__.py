@@ -1,0 +1,1 @@
+"""CourseHub backend package."""

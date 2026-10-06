@@ -1,21 +1,16 @@
+"""SQLAlchemy engine and request-scoped database sessions."""
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-import os
 
-from dotenv import load_dotenv
-load_dotenv()
+from app.core.config import settings
 
-url = os.getenv("DATABASE_URL")
-# print(url)
-engine = create_engine(url, echo=True)
-
+engine = create_engine(settings.database_url, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 base = declarative_base()
+
 
 def get_db():
     db = SessionLocal()
-
     try:
         yield db
     finally:
