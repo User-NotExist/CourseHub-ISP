@@ -267,7 +267,7 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                             </AlertDialogTitle>
 
                             <AlertDialogDescription>
-                                This will permanently delete "{task.task_name}".
+                                This will permanently delete &quot;{task.task_name}&quot;.
                                 This action cannot be undone.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
