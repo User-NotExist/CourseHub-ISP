@@ -2,11 +2,9 @@ name: coursehub-dev
 
 services:
   backend:
-    dns:
-      - 1.1.1.1
     build:
       context: ./backend
-      dockerfile: ./backend/docker/Dockerfile.dev
+      dockerfile: docker/Dockerfile.dev
     ports:
       - "127.0.0.1:8000:8000"
     env_file:
@@ -16,8 +14,6 @@ services:
     init: true
 
   frontend:
-    dns:
-      - 1.1.1.1
     build:
       context: ./coursehub
       dockerfile: Dockerfile.dev

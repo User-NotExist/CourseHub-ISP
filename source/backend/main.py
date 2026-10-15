@@ -3,12 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
-from source.backend.db.database import base, engine
-import source.backend.db.models as models
-from source.backend.auth.auth import router as auth_router
-from source.backend.features.course import router as course_router
-from source.backend.features.activity import router as activity_router
-from source.backend.features.task import router as task_router
+from db.database import base, engine
+import db.models as models
+from auth.auth import router as auth_router
+from features.course import router as course_router
+from features.activity import router as activity_router
+from features.task import router as task_router
 
 app = FastAPI()
 

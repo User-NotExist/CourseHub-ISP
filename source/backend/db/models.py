@@ -3,7 +3,7 @@ from sqlalchemy import (
     TIMESTAMP, ForeignKey, JSON, func
 )
 from sqlalchemy.orm import relationship
-from source.backend.db.database import base
+from db.database import base
 
 
 class User(base):
