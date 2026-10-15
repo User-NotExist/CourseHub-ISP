@@ -3,12 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
-from database import base, engine
-import models
-from auth import router as auth_router
-from course import router as course_router
-from activity import router as activity_router
-from task import router as task_router
+from db.database import base, engine
+import db.models as models
+from auth.auth import router as auth_router
+from features.course import router as course_router
+from features.activity import router as activity_router
+from features.task import router as task_router
 
 app = FastAPI()
 

@@ -11,8 +11,8 @@ from typing import Optional, Literal
 
 import string, secrets
 
-from database import get_db
-from models import User, Course, CourseMember, Task, Activity, Faq, Comments
+from db.database import get_db
+from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments
 
 router = APIRouter(prefix="/course", tags=["course"])
 

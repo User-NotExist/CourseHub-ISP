@@ -7,8 +7,8 @@ from jose import JWTError, jwt
 from pydantic import AliasPath, BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models import Activity, Course, CourseMember, User
+from db.database import get_db
+from db.models import Activity, Course, CourseMember, User
 
 router = APIRouter(prefix="/course/{course_id}/activities", tags=["activity"])
 
