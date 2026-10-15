@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from authlib.integrations.starlette_client import OAuth
 from jose import jwt, JWTError
 
-from database import get_db
-from models import User
+from source.backend.db.database import get_db
+from source.backend.db.models import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

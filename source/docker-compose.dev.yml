@@ -6,7 +6,7 @@ services:
       - 1.1.1.1
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev
+      dockerfile: ./backend/docker/Dockerfile.dev
     ports:
       - "127.0.0.1:8000:8000"
     env_file:

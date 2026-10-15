@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: /docker/Dockerfile
     container_name: coursehub-backend
     ports:
       - "8000:8000"
