@@ -36,6 +36,8 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
     const [saving, setSaving] = useState(false)
     const [email, setEmail] = useState("")
     const [removing, setRemoving] = useState<Assignee | null>(null)
+    // Email of the task owner when the current user is the owner. This assignee cannot be removed.
+    const [ownerEmail, setOwnerEmail] = useState("")
     const [leaving, setLeaving] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -46,33 +48,31 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
         const controller = new AbortController()
         async function load() {
             try {
-                const [membersResponse, taskResponse] = await Promise.all([
+                const [membersResponse, taskResponse, meResponse] = await Promise.all([
                     fetch(`/api_course/edit?course_id=${encodeURIComponent(courseId)}`, { signal: controller.signal }),
                     isEdit
                         ? fetch(`/api_task/edit?course_id=${encodeURIComponent(courseId)}&task_id=${encodeURIComponent(taskId ?? "")}`, { signal: controller.signal })
                         : Promise.resolve(null),
+                    fetch("/api_auth/me", { credentials: "include", signal: controller.signal }).catch(() => null),
                 ])
+                const me = meResponse?.ok ? await meResponse.json() : null
+                const self = typeof me?.email === "string" ? me.email.trim().toLowerCase() : ""
                 // The member list is only a convenience (suggestions + validation), so a failure here is ignored.
                 // Note: /api_course/edit is lecturer-only, so TAs won't get suggestions.
                 if (membersResponse.ok) {
                     const data = await membersResponse.json()
                     setMembers(data.members)
                 }
-                if (!isEdit) {
-                    // Creating a task: assign the current user by default (they can still be removed below).
-                    const meResponse = await fetch("/api_auth/me", { credentials: "include", signal: controller.signal }).catch(() => null)
-                    if (meResponse?.ok) {
-                        const me = await meResponse.json()
-                        const self = typeof me.email === "string" ? me.email.trim().toLowerCase() : ""
-                        if (self) {
-                            const withSelf = (current: TaskDetails): TaskDetails =>
-                                current.task_assignee.some((assignee) => assignee.task_assignee_gmail.toLowerCase() === self)
-                                    ? current
-                                    : { ...current, task_assignee: [{ task_assignee_gmail: self, status: "To-Do" }, ...current.task_assignee] }
-                            setTask((current) => (current ? withSelf(current) : current))
-                            setOriginal((current) => JSON.stringify(withSelf(JSON.parse(current) as TaskDetails)))
-                        }
-                    }
+                if (!isEdit && self) {
+                    // Creating a task: the current user is the owner, so assign them by default and keep them assigned.
+                    setOwnerEmail(self)
+                    const withSelf = (current: TaskDetails): TaskDetails =>
+                        current.task_assignee.some((assignee) => assignee.task_assignee_gmail.toLowerCase() === self)
+                            ? current
+                            : { ...current, task_assignee: [{ task_assignee_gmail: self, status: "To-Do" }, ...current.task_assignee] }
+                    // Keep the baseline in sync so the default assignee doesn't count as an unsaved change.
+                    setTask((current) => (current ? withSelf(current) : current))
+                    setOriginal((current) => JSON.stringify(withSelf(JSON.parse(current) as TaskDetails)))
                 }
                 if (taskResponse) {
                     const data = await taskResponse.json()
@@ -83,6 +83,8 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                         task_due_date: data.task_due_date === "None" || !data.task_due_date ? "" : data.task_due_date,
                         task_assignee: data.tasks ?? [],
                     }
+                    // Only the owner's own email is known here, so the lock applies when the current user owns the task.
+                    if (self && me?.user_id === data.task_owner_id) setOwnerEmail(self)
                     setTask(loaded)
                     setOriginal(JSON.stringify(loaded))
                 }
@@ -228,7 +230,8 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                             {task.task_assignee.map((assignee) => (
                                 <li key={assignee.task_assignee_gmail} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
                                     <div className="min-w-0 flex-1"><p className="break-words font-medium">{nameFor(assignee.task_assignee_gmail) || assignee.task_assignee_gmail}</p>{nameFor(assignee.task_assignee_gmail) && <p className="break-all text-sm text-muted-foreground">{assignee.task_assignee_gmail}</p>}</div>
-                                    <Button variant="ghost" size="icon" aria-label={`Remove ${assignee.task_assignee_gmail}`} disabled={saving} onClick={() => setRemoving(assignee)}><Trash2 className="size-4 text-destructive" /></Button>
+                                    {assignee.task_assignee_gmail.toLowerCase() === ownerEmail && <span className="text-sm text-muted-foreground">Owner</span>}
+                                    <Button variant="ghost" size="icon" aria-label={assignee.task_assignee_gmail.toLowerCase() === ownerEmail ? "The task owner cannot be removed" : `Remove ${assignee.task_assignee_gmail}`} title={assignee.task_assignee_gmail.toLowerCase() === ownerEmail ? "The task owner cannot be removed" : undefined} disabled={saving || assignee.task_assignee_gmail.toLowerCase() === ownerEmail} onClick={() => setRemoving(assignee)}><Trash2 className="size-4 text-destructive" /></Button>
                                 </li>
                             ))}
                         </ul>
