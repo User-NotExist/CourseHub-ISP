@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import {
     ActivityForm,
-    canManageActivities,
     errorMessage,
     formatDate,
     loadActivities,
@@ -41,8 +40,9 @@ export default function ActivityDetailPage() {
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [userId, setUserId] = useState<number | null>(null)
 
-    const canEdit = canManageActivities(course)
+    const canEdit = course?.role === "lecturer" || (activity !== null && activity.user_id === userId)
 
     useEffect(() => {
         const load = async () => {
@@ -52,6 +52,11 @@ export default function ActivityDetailPage() {
                 if (!found) throw new Error("Activity not found")
                 setActivity(found)
                 setCourse(data.course)
+                const userRes = await fetch("/api_auth/me")
+                if (userRes.ok) {
+                    const user: { user_id: number } = await userRes.json()
+                    setUserId(user.user_id)
+                }
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Failed to load activity")
             } finally {
