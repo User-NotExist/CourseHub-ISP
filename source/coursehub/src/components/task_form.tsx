@@ -58,6 +58,22 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                     const data = await membersResponse.json()
                     setMembers(data.members)
                 }
+                if (!isEdit) {
+                    // Creating a task: assign the current user by default (they can still be removed below).
+                    const meResponse = await fetch("/api_auth/me", { credentials: "include", signal: controller.signal }).catch(() => null)
+                    if (meResponse?.ok) {
+                        const me = await meResponse.json()
+                        const self = typeof me.email === "string" ? me.email.trim().toLowerCase() : ""
+                        if (self) {
+                            const withSelf = (current: TaskDetails): TaskDetails =>
+                                current.task_assignee.some((assignee) => assignee.task_assignee_gmail.toLowerCase() === self)
+                                    ? current
+                                    : { ...current, task_assignee: [{ task_assignee_gmail: self, status: "To-Do" }, ...current.task_assignee] }
+                            setTask((current) => (current ? withSelf(current) : current))
+                            setOriginal((current) => JSON.stringify(withSelf(JSON.parse(current) as TaskDetails)))
+                        }
+                    }
+                }
                 if (taskResponse) {
                     const data = await taskResponse.json()
                     if (!taskResponse.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Unable to load this task")
