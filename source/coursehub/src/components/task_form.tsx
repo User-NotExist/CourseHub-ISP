@@ -21,6 +21,18 @@ type TaskDetails = {
 type Member = { email: string; name: string; role: string }
 
 const EMPTY_TASK: TaskDetails = { task_name: "", task_description: "", task_due_date: "", task_assignee: [] }
+const STATUSES: TaskStatus[] = ["To-Do", "In-Progress", "Done"]
+
+// A real empty list ([]) means "nobody is assigned". Anything that is not a well-formed list
+// (null, undefined, wrong shape) is a data problem and must NOT be treated as "no assignees".
+function isValidAssignees(value: unknown): value is Assignee[] {
+    return Array.isArray(value) && value.every((item) =>
+        !!item &&
+        typeof item === "object" &&
+        typeof (item as Assignee).task_assignee_gmail === "string" &&
+        STATUSES.includes((item as Assignee).status)
+    )
+}
 
 export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
     const { id: courseId, taskId } = useParams<{ id: string; taskId?: string }>()
@@ -39,12 +51,15 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
     const [leaving, setLeaving] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    // Create mode starts with a genuinely empty list; edit mode is verified only after a valid load.
+    const [assigneesVerified, setAssigneesVerified] = useState(!isEdit)
     const dirty = !!task && JSON.stringify(task) !== original
     const validDetails = !!task?.task_name.trim()
 
     useEffect(() => {
         const controller = new AbortController()
         async function load() {
+            if (isEdit) setAssigneesVerified(false)
             try {
                 const [membersResponse, taskResponse] = await Promise.all([
                     fetch(`/api_course/edit?course_id=${encodeURIComponent(courseId)}`, { signal: controller.signal }),
@@ -61,14 +76,18 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                 if (taskResponse) {
                     const data = await taskResponse.json()
                     if (!taskResponse.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Unable to load this task")
+                    if (!isValidAssignees(data.tasks)) {
+                        throw new Error("This task's assignee data is missing or invalid, so it can't be edited safely. Please reload, and contact an admin if it keeps happening.")
+                    }
                     const loaded: TaskDetails = {
                         task_name: data.task_name,
                         task_description: data.task_description ?? "",
                         task_due_date: data.task_due_date === "None" || !data.task_due_date ? "" : data.task_due_date,
-                        task_assignee: data.tasks ?? [],
+                        task_assignee: data.tasks,
                     }
                     setTask(loaded)
                     setOriginal(JSON.stringify(loaded))
+                    setAssigneesVerified(true)
                 }
             } catch (err) {
                 if (!controller.signal.aborted) setError(err instanceof Error ? err.message : "Unable to load this task")
@@ -105,6 +124,7 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
     async function save(event: FormEvent) {
         event.preventDefault()
         if (!task || saving) return
+        if (!assigneesVerified) { toast.error("Assignee data hasn't loaded correctly. Reload the page before saving."); return }
         if (!task.task_name.trim()) { toast.error("Task name is required"); return }
         setSaving(true)
         try {
@@ -253,7 +273,7 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
             <div className="flex flex-wrap items-center justify-end gap-3">
                 <p role="status" className="mr-auto text-sm text-muted-foreground">{dirty ? "You have unsaved changes" : isEdit ? "All changes saved" : ""}</p>
                 <Button variant="outline" onClick={back} disabled={saving}>Cancel</Button>
-                <Button form="task-details" type="submit" disabled={saving || !validDetails || (isEdit && !dirty)}>{saving && <Loader2 className="size-4 animate-spin" />}{saving ? "Saving…" : isEdit ? "Save" : "Confirm"}</Button>
+                <Button form="task-details" type="submit" disabled={saving || !validDetails || !assigneesVerified || (isEdit && !dirty)}>{saving && <Loader2 className="size-4 animate-spin" />}{saving ? "Saving…" : isEdit ? "Save" : "Confirm"}</Button>
             </div>
             {isEdit && (
                 <AlertDialog
