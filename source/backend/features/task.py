@@ -163,6 +163,12 @@ async def display_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
 
+    is_lecturer = db.query(CourseMember).filter(
+        CourseMember.course_id == course_id,
+        CourseMember.user_id == user.user_id,
+        CourseMember.role == "lecturer",
+    ).first() is not None
+
     return {
         "task_owner_id": task.user_id,
         "task_id": task.task_id,
@@ -170,6 +176,7 @@ async def display_task(
         "task_description": task.task_description,
         "task_due_date": str(task.task_due_date),
         "tasks": task.tasks,
+        "can_edit": task.user_id == user.user_id or is_lecturer,
     }
 
 
