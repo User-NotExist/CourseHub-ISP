@@ -15,7 +15,8 @@ type Task = {
   description: string
   due_date: string | null
   status: TaskStatus
-  assignee: string | null
+  assignees: { email: string; status: TaskStatus }[]
+  my_assignee: string | null // current user's email if they are assigned
   can_edit: boolean
   can_update_status: boolean
 }
@@ -112,33 +113,28 @@ export default function TasksBoard() {
         ])
         const currentCourse = courses.find((item) => item.course_id === courseId) ?? null
         setCourse(currentCourse)
-        setTasks(apiTasks.flatMap<Task>((task) => {
-          const assignments = task.tasks ?? []
-          const taskDetails = {
+        // One card per task (not one per assignee).
+        setTasks(apiTasks.map<Task>((task) => {
+          const assignees = (task.tasks ?? []).map((assignment) => ({
+            email: assignment.task_assignee_gmail,
+            status: normalizeStatus(assignment.status),
+          }))
+          const mine = assignees.find((assignee) => assignee.email.toLowerCase() === user.email.toLowerCase())
+          // Column: my own status if assigned, otherwise the least-progressed assignee.
+          const status = mine?.status ?? (assignees.length
+            ? STATUS_ORDER[Math.min(...assignees.map((assignee) => STATUS_ORDER.indexOf(assignee.status)))]
+            : "todo")
+          return {
             task_id: String(task.task_id),
             title: task.task_name,
             description: task.task_description ?? "",
             due_date: task.task_due_date === "None" ? null : task.task_due_date,
+            status,
+            assignees,
+            my_assignee: mine?.email ?? null,
             can_edit: task.can_edit,
+            can_update_status: !!mine || (task.can_edit && assignees.length > 0),
           }
-          if (assignments.length === 0) {
-            return [{
-              ...taskDetails,
-              status: "todo",
-              assignee: null,
-              can_update_status: false,
-            }]
-          }
-
-          return assignments.map((assignment) => {
-            const isSelfAssignee = assignment.task_assignee_gmail.toLowerCase() === user.email.toLowerCase()
-            return {
-              ...taskDetails,
-              status: normalizeStatus(assignment.status),
-              assignee: assignment.task_assignee_gmail,
-              can_update_status: task.can_edit || isSelfAssignee,
-            }
-          })
         }))
       } catch {
         toast.error("Couldn't load this course's tasks")
@@ -149,24 +145,32 @@ export default function TasksBoard() {
     load()
   }, [courseId])
 
-  async function updateTaskStatus(taskId: string, assignee: string | null, status: TaskStatus) {
-    if (!assignee) return
+  // Assigned user moves only their own status; owner/lecturer (not assigned) moves everyone.
+  async function updateTaskStatus(target: Task, status: TaskStatus) {
+    const emails = target.my_assignee ? [target.my_assignee] : target.assignees.map((assignee) => assignee.email)
+    if (emails.length === 0) return
     const prev = tasks
     setTasks((current) => current.map((task) => (
-      task.task_id === taskId && task.assignee === assignee ? { ...task, status } : task
+      task.task_id === target.task_id
+        ? {
+            ...task,
+            status,
+            assignees: task.assignees.map((assignee) => (emails.includes(assignee.email) ? { ...assignee, status } : assignee)),
+          }
+        : task
     )))
     try {
-      const res = await fetch("/api_task/read", {
+      const results = await Promise.all(emails.map((email) => fetch("/api_task/read", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           course_id: courseId,
-          task_id: taskId,
-          task_assignee_gmail: assignee,
+          task_id: target.task_id,
+          task_assignee_gmail: email,
           status: toApiStatus(status),
         }),
-      })
-      if (!res.ok) throw new Error()
+      })))
+      if (results.some((res) => !res.ok)) throw new Error()
     } catch {
       setTasks(prev) // roll back on failure
       toast.error("Couldn't update task status")
@@ -215,7 +219,7 @@ export default function TasksBoard() {
                   <p className="text-white/50 text-sm">No tasks here yet.</p>
                 ) : (
                   columnTasks.map((task) => (
-                    <div key={`${task.task_id}:${task.assignee ?? "unassigned"}`} className="bg-white/10 rounded-2xl p-4 flex flex-col gap-2">
+                    <div key={task.task_id} className="bg-white/10 rounded-2xl p-4 flex flex-col gap-2">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="text-white font-bold">{task.title}</h3>
                         {task.can_edit && (
@@ -229,8 +233,10 @@ export default function TasksBoard() {
                         )}
                       </div>
                       <p className="text-white/70 text-sm">{task.description}</p>
-                      {task.assignee && (
-                        <p className="text-white/70 text-sm">Assigned to: {task.assignee}</p>
+                      {task.assignees.length > 0 && (
+                        <p className="text-white/70 text-sm">
+                          Assigned to: {task.assignees.map((assignee) => assignee.email).join(", ")}
+                        </p>
                       )}
                       <p className="text-white text-sm font-semibold">
                         Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}
@@ -239,7 +245,7 @@ export default function TasksBoard() {
                       {/* Move between columns */}
                       <div className="flex items-center gap-1 mt-1">
                         <button
-                          onClick={() => updateTaskStatus(task.task_id, task.assignee, moveStatus(key, "leftmost"))}
+                          onClick={() => updateTaskStatus(task, moveStatus(key, "leftmost"))}
                           disabled={key === "todo" || !task.can_update_status}
                           className="text-white/70 hover:text-white disabled:opacity-30"
                           aria-label="Move to first column"
@@ -247,7 +253,7 @@ export default function TasksBoard() {
                           <ChevronsLeft className="size-5" />
                         </button>
                         <button
-                          onClick={() => updateTaskStatus(task.task_id, task.assignee, moveStatus(key, "left"))}
+                          onClick={() => updateTaskStatus(task, moveStatus(key, "left"))}
                           disabled={key === "todo" || !task.can_update_status}
                           className="text-white/70 hover:text-white disabled:opacity-30"
                           aria-label="Move left"
@@ -256,7 +262,7 @@ export default function TasksBoard() {
                         </button>
                         <div className="flex-1" />
                         <button
-                          onClick={() => updateTaskStatus(task.task_id, task.assignee, moveStatus(key, "right"))}
+                          onClick={() => updateTaskStatus(task, moveStatus(key, "right"))}
                           disabled={key === "done" || !task.can_update_status}
                           className="text-white/70 hover:text-white disabled:opacity-30"
                           aria-label="Move right"
@@ -264,7 +270,7 @@ export default function TasksBoard() {
                           <ChevronRight className="size-5" />
                         </button>
                         <button
-                          onClick={() => updateTaskStatus(task.task_id, task.assignee, moveStatus(key, "rightmost"))}
+                          onClick={() => updateTaskStatus(task, moveStatus(key, "rightmost"))}
                           disabled={key === "done" || !task.can_update_status}
                           className="text-white/70 hover:text-white disabled:opacity-30"
                           aria-label="Move to last column"

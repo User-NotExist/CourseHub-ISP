@@ -77,6 +77,7 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                 if (taskResponse) {
                     const data = await taskResponse.json()
                     if (!taskResponse.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Unable to load this task")
+                    if (data.can_edit !== true) throw new Error("Only the task owner or lecturer can edit this task")
                     const loaded: TaskDetails = {
                         task_name: data.task_name,
                         task_description: data.task_description ?? "",
