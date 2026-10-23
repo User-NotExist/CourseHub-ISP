@@ -12,7 +12,7 @@ from typing import Optional, Literal
 import string, secrets
 
 from db.database import get_db
-from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments
+from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments, ConsultationLogs
 
 router = APIRouter(prefix="/course", tags=["course"])
 
@@ -244,9 +244,20 @@ async def delete_course(
     db.query(Activity).filter(Activity.course_id == course_id).delete()
     db.query(Faq).filter(Faq.course_id == course_id).delete()
     db.query(Comments).filter(Comments.course_id == course_id).delete()
+    db.query(ConsultationLogs).filter(ConsultationLogs.course_id == course_id).delete()
     db.query(CourseMember).filter(CourseMember.course_id == course_id).delete()
 
     db.delete(course)
     db.commit()
 
     return {"course_id": course_id, "deleted": True}
+
+
+# STUDENT
+@router.get("/get_name/{course_id}")
+async def get_course_name(course_id: str, db: Session = Depends(get_db)):
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found !")
+
+    return {"course_id": course.course_id, "course_name": course.course_name}
