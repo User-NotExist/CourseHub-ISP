@@ -251,3 +251,13 @@ async def delete_course(
     db.commit()
 
     return {"course_id": course_id, "deleted": True}
+
+
+# STUDENT
+@router.get("/get_name/{course_id}")
+async def get_course_name(course_id: str, db: Session = Depends(get_db)):
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found !")
+
+    return {"course_id": course.course_id, "course_name": course.course_name}
