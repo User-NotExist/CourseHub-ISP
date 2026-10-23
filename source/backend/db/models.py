@@ -20,6 +20,7 @@ class User(base):
     activities = relationship("Activity", back_populates="user")
     faqs = relationship("Faq", back_populates="user")
     comments = relationship("Comments", back_populates="user")
+    consultation_logs = relationship("ConsultationLogs", back_populates="user")
 
 
 class Course(base):
@@ -38,6 +39,7 @@ class Course(base):
     tasks = relationship("Task", back_populates="course")
     activities = relationship("Activity", back_populates="course")
     faqs = relationship("Faq", back_populates="course")
+    consultation_logs = relationship("ConsultationLogs", back_populates="course")
 
 
 class CourseMember(base):
@@ -113,3 +115,22 @@ class Comments(base):
     createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="comments")
+
+
+class ConsultationLogs(base):
+    __tablename__ = "consultation_logs"
+
+    consultation_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
+
+    title = Column(String, nullable=False)
+    description = Column(Text)
+    consultation_with_studentID = Column(String)
+    consultation_date = Column(Date)
+    start_time = Column(Time)
+    end_time = Column(Time)
+    createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="consultation_logs")
+    course = relationship("Course", back_populates="consultation_logs")
