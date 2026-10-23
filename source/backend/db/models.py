@@ -126,10 +126,12 @@ class ConsultationLogs(base):
 
     title = Column(String, nullable=False)
     description = Column(Text)
-    consultation_with_studentID = Column(String)
+    consultation_with_name = Column(String)
+    consultation_with_id = Column(String)
     consultation_date = Column(Date)
     start_time = Column(Time)
     end_time = Column(Time)
+    consultant = Column(String)    # consultant gmail
     createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="consultation_logs")

@@ -9,7 +9,7 @@ from auth.auth import router as auth_router
 from features.course import router as course_router
 from features.activity import router as activity_router
 from features.task import router as task_router
-from features.colsultation_log import router as consultation_logs_router
+from features.consultation_log import router as consultation_logs_router
 from features.faq import router as faq_router, student_router as faq_student_router
 
 app = FastAPI()
