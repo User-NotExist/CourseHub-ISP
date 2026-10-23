@@ -10,6 +10,8 @@ import {
     InputGroupInput,
 } from "@/components/ui/input-group";
 
+import { Button } from "@/components/ui/button"
+
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
     const { id: courseId } = useParams<{ id: string }>()
@@ -29,22 +31,28 @@ export default function CoursePage() {
         <div className="flex flex-cols items-center justify-center">
             <div className="flex flex-col items-start justify-center gap-1">
                 <h1>Student URL</h1>
-                <InputGroup className="w-full w-100 bg-background">
-                    <InputGroupInput aria-label="Link" readOnly type="url" value={courseUrl} />
-                    <InputGroupAddon align="inline-end">
-                        <InputGroupButton
-                            aria-label={copied ? "Copied" : "Copy"}
-                            onClick={handleCopy}
-                            size="icon-xs"
-                        >
-                            {copied ? (
-                                <CheckIcon aria-hidden="true" />
-                            ) : (
-                                <CopyIcon aria-hidden="true" />
-                            )}
-                        </InputGroupButton>
-                    </InputGroupAddon>
-                </InputGroup>
+
+                <div className="flex flex-row items-center justify-center gap-2">
+                    <InputGroup className="w-full w-100 bg-background">
+                        <InputGroupInput aria-label="Link" readOnly type="url" value={courseUrl} />
+                        <InputGroupAddon align="inline-end">
+                            <InputGroupButton
+                                aria-label={copied ? "Copied" : "Copy"}
+                                onClick={handleCopy}
+                                size="icon-xs"
+                            >
+                                {copied ? (
+                                    <CheckIcon aria-hidden="true" />
+                                ) : (
+                                    <CopyIcon aria-hidden="true" />
+                                )}
+                            </InputGroupButton>
+                        </InputGroupAddon>
+                    </InputGroup>
+
+                    <Button onClick={() => window.open(courseUrl, "_blank")} className="px-5">open</Button>
+                </div>
+
             </div>
         </div>
     );
