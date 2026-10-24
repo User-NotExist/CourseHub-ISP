@@ -14,7 +14,7 @@ import {
 type Props = {
   course?: Course;
   logs?: ConsultationLog[];
-  onNew?: () => void; // creation flow comes later
+  onNew?: () => void; // overrides the default navigation to /new
   onOpenLog?: (log: ConsultationLog) => void; // overrides the default navigation
 };
 
@@ -28,8 +28,10 @@ export default function ConsultationLogPage({
   const pathname = usePathname();
   const [query, setQuery] = useState("");
 
+  const base = pathname.replace(/\/$/, "");
   const openLog = (log: ConsultationLog) =>
-    onOpenLog ? onOpenLog(log) : router.push(`${pathname.replace(/\/$/, "")}/${log.id}`);
+    onOpenLog ? onOpenLog(log) : router.push(`${base}/${log.id}`);
+  const handleNew = () => (onNew ? onNew() : router.push(`${base}/new`));
 
   const [newestFirst, setNewestFirst] = useState(true);
 
@@ -55,7 +57,7 @@ export default function ConsultationLogPage({
         </div>
         <button
           type="button"
-          onClick={onNew}
+          onClick={handleNew}
           className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#00695f] px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#00574f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00695f]"
         >
           <Plus className="size-4" aria-hidden />
