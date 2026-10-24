@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useId, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useId, useState, useSyncExternalStore, type FormEvent } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import ConsultantPicker, { type Member } from "@/components/consultant_picker";
 import { SAMPLE_COURSE } from "@/lib/mock_consultation_data";
 
 // What the form hands to onSubmit. Maps onto the ConsultationLogs model:
@@ -23,11 +22,9 @@ type Props = {
 
 type Errors = Partial<Record<keyof NewLogValues, string>>;
 
-// Shape returned by GET /api_course/edit?course_id=... (BFF for FastAPI GET /course/edit/{course_id})
-type CourseMemberResponse = { email: string; name: string; role: string };
-
 const TITLE_MAX = 120;
 const DETAILS_MAX = 2000;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const label = "text-sm font-medium uppercase tracking-wider text-white/60";
 const inputBase =
@@ -38,12 +35,6 @@ const bad = "border-red-300";
 const noopSubscribe = () => () => {};
 const getToday = () => new Date().toLocaleDateString("en-CA");
 
-function initialsOf(name: string, email: string) {
-  const parts = (name || email).trim().split(/\s+/).filter(Boolean);
-  const letters = parts.slice(0, 2).map((p) => Array.from(p)[0] ?? "");
-  return letters.join("").toUpperCase() || "?";
-}
-
 export default function ConsultationLogForm({ onSubmit }: Props) {
   const router = useRouter();
   const id = useId();
@@ -52,7 +43,7 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
   const backHref = `/courses/${courseId}/consultation/logs`;
 
   const [title, setTitle] = useState("");
-  const [consultant, setConsultant] = useState<Member | null>(null);
+  const [consultantEmail, setConsultantEmail] = useState("");
   // Today's date in the browser's timezone. useSyncExternalStore keeps server and client renders consistent.
   const today = useSyncExternalStore(noopSubscribe, getToday, () => "");
   const [dateInput, setDateInput] = useState<string | null>(null); // null = untouched, use today
@@ -62,46 +53,11 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const [members, setMembers] = useState<Member[] | null>(null); // null = still loading
-  const [membersError, setMembersError] = useState("");
-
-  // Load the people who are actually in this course
-  useEffect(() => {
-    const controller = new AbortController();
-    (async () => {
-      try {
-        const response = await fetch(`/api_course/edit?course_id=${encodeURIComponent(courseId)}`, {
-          signal: controller.signal,
-        });
-        if (!response.ok) {
-          // /api_course/edit is lecturer-only on the backend, so TAs get 403 here.
-          setMembersError(
-            response.status === 403
-              ? "Only lecturers can load the course member list right now."
-              : "Couldn't load the course members. Please try again.",
-          );
-          setMembers([]);
-          return;
-        }
-        const data: { members?: CourseMemberResponse[] } = await response.json();
-        setMembers(
-          (data.members ?? [])
-            .map((m) => ({ ...m, initials: initialsOf(m.name, m.email) }))
-            .sort((a, b) => a.name.localeCompare(b.name)),
-        );
-      } catch {
-        if (controller.signal.aborted) return;
-        setMembersError("Couldn't load the course members. Please try again.");
-        setMembers([]);
-      }
-    })();
-    return () => controller.abort();
-  }, [courseId]);
-
   const validate = (): Errors => {
     const e: Errors = {};
     if (!title.trim()) e.title = "Enter a title.";
-    if (!consultant) e.consultantEmail = "Choose a consultant from the course.";
+    if (!consultantEmail.trim()) e.consultantEmail = "Enter the consultant's email.";
+    else if (!EMAIL_PATTERN.test(consultantEmail.trim())) e.consultantEmail = "Enter a valid email address.";
     if (!date) e.date = "Pick a date.";
     if (!details.trim()) e.details = "Add some details about the consultation.";
     return e;
@@ -111,18 +67,19 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
     ev.preventDefault();
     const e = validate();
     setErrors(e);
-    if (Object.keys(e).length || !consultant) return;
+    if (Object.keys(e).length) return;
 
     setSubmitting(true);
     setSubmitError("");
     const values: NewLogValues = {
       title: title.trim(),
-      consultantEmail: consultant.email,
+      consultantEmail: consultantEmail.trim().toLowerCase(),
       date,
       details: details.trim(),
     };
     try {
       // TODO: replace this default with a real API call once the consultation create route exists.
+      // The backend should also check that this email belongs to someone in the course.
       await (onSubmit ?? ((v) => console.log("New consultation log (not saved yet):", v)))(values);
       router.push(backHref);
       router.refresh();
@@ -131,8 +88,6 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
       setSubmitting(false);
     }
   };
-
-  const loadingMembers = members === null;
 
   return (
     <div className="flex min-h-svh w-full flex-col gap-8 self-start p-8 lg:p-12">
@@ -153,7 +108,6 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
         </Link>
       </header>
 
-      {/* No overflow-hidden here: the consultant dropdown must be able to extend past the panel */}
       <form
         onSubmit={handleSubmit}
         noValidate
@@ -178,23 +132,24 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
         {/* Consultant + Date */}
         <div className="grid gap-6 lg:grid-cols-[1fr_16rem]">
           <div>
-            <span id={`${id}-consultant`} className={label}>Consultant</span>
-            <div className="mt-2" aria-labelledby={`${id}-consultant`}>
-              <ConsultantPicker
-                members={members ?? []}
-                value={consultant}
-                onChange={setConsultant}
-                invalid={!!errors.consultantEmail || !!membersError}
-                disabled={loadingMembers || !!membersError}
-                placeholder={loadingMembers ? "Loading course members…" : undefined}
-                describedBy={
-                  errors.consultantEmail || membersError ? `${id}-consultant-err` : undefined
-                }
-              />
-            </div>
-            {(membersError || errors.consultantEmail) && (
-              <p id={`${id}-consultant-err`} className="mt-1.5 text-sm text-red-200">
-                {membersError || errors.consultantEmail}
+            <label htmlFor={`${id}-consultant`} className={label}>Consultant</label>
+            <input
+              id={`${id}-consultant`}
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={consultantEmail}
+              onChange={(e) => setConsultantEmail(e.target.value)}
+              placeholder="consultant@ku.th"
+              aria-invalid={!!errors.consultantEmail}
+              aria-describedby={errors.consultantEmail ? `${id}-consultant-err` : `${id}-consultant-hint`}
+              className={`mt-2 ${inputBase} ${errors.consultantEmail ? bad : ok}`}
+            />
+            {errors.consultantEmail ? (
+              <p id={`${id}-consultant-err`} className="mt-1.5 text-sm text-red-200">{errors.consultantEmail}</p>
+            ) : (
+              <p id={`${id}-consultant-hint`} className="mt-1.5 text-sm text-white/50">
+                Email of the person who gave the consultation.
               </p>
             )}
           </div>
