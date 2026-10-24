@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useParams } from "next/navigation";
 import {
     InputGroup,
@@ -12,14 +12,19 @@ import {
 
 import { Button } from "@/components/ui/button"
 
+const subscribe = () => () => {};
+
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
-    const { id: courseId } = useParams<{ id: string }>()
-    const [courseUrl, setCourseUrl] = useState("")
+    const { id: courseId } = useParams<{ id: string }>();
 
-    useEffect(() => {
-        setCourseUrl(`${window.location.origin}/students/${courseId}`)
-    }, [courseId])
+    const origin = useSyncExternalStore(
+        subscribe,
+        () => window.location.origin, // client
+        () => ""                      // server
+    );
+
+     const courseUrl = `${origin}/students/${courseId}`;
 
     const handleCopy = async () => {
         await navigator.clipboard.writeText(courseUrl);
