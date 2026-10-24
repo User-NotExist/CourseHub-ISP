@@ -2,8 +2,7 @@
 # Build context must be the coursehub/ folder
 # Example: docker build -t coursehub-frontend .   (run from inside coursehub/)
 
-# Node version pinned to v24.14.0 as requested
-ARG NODE_VERSION=24.14
+ARG NODE_VERSION=24.22.1
 
 # ---- deps: install dependencies ----
 FROM node:${NODE_VERSION}-alpine AS deps
