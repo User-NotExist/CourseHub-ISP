@@ -1,32 +1,43 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { Plus, Search, ArrowDown, ArrowUp, ChevronRight, MessageSquareText } from "lucide-react";
-import {
-  SAMPLE_COURSE,
-  SAMPLE_LOGS,
-  formatDate,
-  type ConsultationLog,
-  type Course,
-} from "@/lib/mock_consultation_data";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { Plus, Search, ArrowDown, ArrowUp, ChevronRight, MessageSquareText, Loader2 } from "lucide-react";
+import { fetchConsultationLogs, formatDate, type ConsultationLog } from "@/lib/consultation";
+import { useCourseName } from "@/lib/use_course_name";
 
 type Props = {
-  course?: Course;
-  logs?: ConsultationLog[];
   onNew?: () => void; // overrides the default navigation to /new
   onOpenLog?: (log: ConsultationLog) => void; // overrides the default navigation
 };
 
-export default function ConsultationLogPage({
-  course = SAMPLE_COURSE,
-  logs = SAMPLE_LOGS,
-  onNew,
-  onOpenLog,
-}: Props) {
+export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
   const router = useRouter();
   const pathname = usePathname();
+  const { id: courseId } = useParams<{ id: string }>();
+  const courseName = useCourseName(courseId);
   const [query, setQuery] = useState("");
+
+  // `loaded` records which course the current logs/error belong to; anything else means "loading".
+  const [state, setState] = useState<{
+    courseId: string;
+    logs: ConsultationLog[];
+    error: string;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchConsultationLogs(courseId)
+      .then((logs) => !cancelled && setState({ courseId, logs, error: "" }))
+      .catch((err: Error) => !cancelled && setState({ courseId, logs: [], error: err.message }));
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId]);
+
+  const loading = state?.courseId !== courseId;
+  const logs = useMemo(() => (loading ? [] : state.logs), [loading, state]);
+  const error = loading ? "" : state.error;
 
   const base = pathname.replace(/\/$/, "");
   const openLog = (log: ConsultationLog) =>
@@ -38,8 +49,17 @@ export default function ConsultationLogPage({
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return logs
-      .filter((l) => !q || l.title.toLowerCase().includes(q) || l.consultant.name.toLowerCase().includes(q))
-      .sort((a, b) => (newestFirst ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date)));
+      .filter(
+        (l) =>
+          !q ||
+          l.title.toLowerCase().includes(q) ||
+          l.consultant?.name.toLowerCase().includes(q) ||
+          l.consultant?.email.toLowerCase().includes(q),
+      )
+      .sort((a, b) => {
+        const [da, db] = [a.date ?? "", b.date ?? ""];
+        return newestFirst ? db.localeCompare(da) : da.localeCompare(db);
+      });
   }, [logs, query, newestFirst]);
 
   const SortIcon = newestFirst ? ArrowDown : ArrowUp;
@@ -50,10 +70,7 @@ export default function ConsultationLogPage({
       <header className="flex items-start justify-between gap-6">
         <div className="min-w-0">
           <h1 className="text-3xl font-semibold tracking-tight text-[#0b5c4f]">Consultation Log</h1>
-          <p className="mt-2 truncate text-lg font-semibold text-neutral-900">
-            {course.code} - {course.section} {course.name}
-          </p>
-          <p className="mt-0.5 text-sm text-neutral-600">SEC {course.sec}</p>
+          <p className="mt-2 truncate text-lg font-semibold text-neutral-900">{courseName ?? "\u00a0"}</p>
         </div>
         <button
           type="button"
@@ -79,7 +96,7 @@ export default function ConsultationLogPage({
             />
           </label>
           <span className="shrink-0 text-sm text-white/70">
-            {visible.length} {visible.length === 1 ? "entry" : "entries"}
+            {loading ? "Loading…" : `${visible.length} ${visible.length === 1 ? "entry" : "entries"}`}
           </span>
         </div>
 
@@ -110,19 +127,36 @@ export default function ConsultationLogPage({
                 </span>
                 <span className="order-2 flex items-center justify-end gap-3.5 sm:order-none sm:justify-start">
                   <span
-                    title={log.consultant.name}
+                    title={log.consultant?.name ?? "No consultant recorded"}
                     className="grid size-9 shrink-0 place-items-center rounded-full bg-[#00695f] text-xs font-semibold ring-2 ring-white/30"
                   >
-                    {log.consultant.initials}
+                    {log.consultant?.initials ?? "?"}
                   </span>
-                  <span className="hidden truncate text-sm text-white/85 md:inline">{log.consultant.name}</span>
+                  <span className="hidden truncate text-sm text-white/85 md:inline">
+                    {log.consultant?.name ?? "Not recorded"}
+                  </span>
                   <ChevronRight className="ml-auto hidden size-4 shrink-0 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-white/80 sm:block" aria-hidden />
                 </span>
               </button>
             </li>
           ))}
 
-          {visible.length === 0 && (
+          {loading && (
+            <li className="flex items-center justify-center gap-3 py-24 text-white/80" role="status">
+              <Loader2 className="size-5 animate-spin" aria-hidden />
+              <span className="text-base font-medium">Loading consultations…</span>
+            </li>
+          )}
+
+          {!loading && error && (
+            <li role="alert" className="flex flex-col items-center justify-center gap-3 py-24 text-center text-white/80">
+              <MessageSquareText className="size-10 text-white/40" aria-hidden />
+              <p className="text-base font-medium">Couldn&apos;t load consultations</p>
+              <p className="text-sm text-white/60">{error}</p>
+            </li>
+          )}
+
+          {!loading && !error && visible.length === 0 && (
             <li className="flex flex-col items-center justify-center gap-3 py-24 text-center text-white/80">
               <MessageSquareText className="size-10 text-white/40" aria-hidden />
               <p className="text-base font-medium">{query ? "No consultations match your search" : "No consultations yet"}</p>

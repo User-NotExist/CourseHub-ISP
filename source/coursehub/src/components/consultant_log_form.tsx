@@ -4,19 +4,13 @@ import { useId, useState, useSyncExternalStore, type FormEvent } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { SAMPLE_COURSE } from "@/lib/mock_consultation_data";
+import { createConsultationLog, type NewConsultationLog } from "@/lib/consultation";
+import { useCourseName } from "@/lib/use_course_name";
 
-// What the form hands to onSubmit. Maps onto the ConsultationLogs model:
-// title -> title, consultantEmail -> consultant, date -> consultation_date, details -> description
-export type NewLogValues = {
-  title: string;
-  consultantEmail: string;
-  date: string; // YYYY-MM-DD
-  details: string;
-};
+type NewLogValues = NewConsultationLog;
 
 type Props = {
-  // Send the new log to your API here. Throw to show an error message.
+  // Overrides the default save (POST to the consultation API). Throw to show an error message.
   onSubmit?: (values: NewLogValues) => Promise<void> | void;
 };
 
@@ -39,7 +33,7 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
   const router = useRouter();
   const id = useId();
   const { id: courseId } = useParams<{ id: string }>();
-  const course = SAMPLE_COURSE; // TODO: real course header data (code / section / SEC are not in the API yet)
+  const courseName = useCourseName(courseId);
   const backHref = `/courses/${courseId}/consultation/logs`;
 
   const [title, setTitle] = useState("");
@@ -78,13 +72,13 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
       details: details.trim(),
     };
     try {
-      // TODO: replace this default with a real API call once the consultation create route exists.
-      // The backend should also check that this email belongs to someone in the course.
-      await (onSubmit ?? ((v) => console.log("New consultation log (not saved yet):", v)))(values);
+      // The backend also checks that the consultant's email belongs to someone in the course.
+      await (onSubmit ?? ((v) => createConsultationLog(courseId, v)))(values);
       router.push(backHref);
       router.refresh();
-    } catch {
-      setSubmitError("Couldn't save the consultation log. Please try again.");
+    } catch (err) {
+      const reason = err instanceof Error && err.message ? ` ${err.message}` : "";
+      setSubmitError(`Couldn't save the consultation log.${reason}`);
       setSubmitting(false);
     }
   };
@@ -94,10 +88,7 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
       <header className="flex items-start justify-between gap-6">
         <div className="min-w-0">
           <h1 className="text-3xl font-semibold tracking-tight text-[#0b5c4f]">New Consultation Log</h1>
-          <p className="mt-2 truncate text-lg font-semibold text-neutral-900">
-            {course.code} - {course.section} {course.name}
-          </p>
-          <p className="mt-0.5 text-sm text-neutral-600">SEC {course.sec}</p>
+          <p className="mt-2 truncate text-lg font-semibold text-neutral-900">{courseName ?? "\u00a0"}</p>
         </div>
         <Link
           href={backHref}
