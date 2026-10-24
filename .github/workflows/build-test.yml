@@ -1,11 +1,59 @@
-name: Test Docker Compose Build
+name: Build & Test
 
+# Mirrors the Jenkinsfile's backend/frontend stages (no deployment).
 on:
   pull_request:
     branches: [ main, master ]
 
 jobs:
-  compose-build-test:
+  backend:
+    name: "Backend: install & test"
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.14.2-slim
+
+    defaults:
+      run:
+        working-directory: ./source/backend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          pip install --no-cache-dir -r requirements.txt
+          pip install --no-cache-dir pytest
+
+      # Matches Jenkins: test failures are reported but don't fail the build
+      - name: Run tests
+        run: python -m pytest --maxfail=1 || true
+
+  frontend:
+    name: "Frontend: install, lint & build"
+    runs-on: ubuntu-latest
+    container:
+      image: node:24.22.1-alpine
+
+    defaults:
+      run:
+        working-directory: ./source/coursehub
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  compose-build:
+    name: "Docker Compose: build"
     runs-on: ubuntu-latest
 
     defaults:
@@ -13,23 +61,19 @@ jobs:
         working-directory: ./source
 
     steps:
-      # 1. Check out the repository source code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Set up Docker Buildx (recommended for advanced caching and multi-platform builds)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
-      # 3. Create fake environment file for build to pass.
-      - name: Create Fake .env
-        run: touch ./coursehub/.env
 
-      # 3. Test building all services defined in docker-compose.yml
+      # Real env files are only provided at deploy time; empty ones let the build pass
+      - name: Create Fake .env Files
+        run: touch ./backend/.env ./coursehub/.env
+
       - name: Build Docker Compose Services
         run: docker compose build --parallel
 
-      # 4. Always tear down containers to free resources, even if prior steps fail
       - name: Cleanup / Tear Down
         if: always()
         run: docker compose down --volumes --remove-orphans
