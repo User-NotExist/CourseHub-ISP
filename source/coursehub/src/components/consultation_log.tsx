@@ -1,42 +1,36 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Plus, Search, ArrowDown, ArrowUp, ChevronRight, MessageSquareText } from "lucide-react";
-
-export type ConsultationLog = {
-  id: number | string;
-  title: string;
-  date: string; // ISO date, e.g. "2026-10-21"
-  consultant: { name: string; initials: string };
-};
-
-type Course = { code: string; section: string; name: string; sec: string };
+import {
+  SAMPLE_COURSE,
+  SAMPLE_LOGS,
+  formatDate,
+  type ConsultationLog,
+  type Course,
+} from "@/lib/mock_consultation_data";
 
 type Props = {
   course?: Course;
   logs?: ConsultationLog[];
   onNew?: () => void; // creation flow comes later
-  onOpenLog?: (log: ConsultationLog) => void;
+  onOpenLog?: (log: ConsultationLog) => void; // overrides the default navigation
 };
 
-// Placeholder data until the consultation API is ready.
-const SAMPLE_LOGS: ConsultationLog[] = [
-  { id: 1, title: "Assignment 5 question", date: "2026-10-21", consultant: { name: "Kanya Chaiyasit", initials: "KC" } },
-  { id: 2, title: "Normalization of the hotel schema", date: "2026-10-14", consultant: { name: "Somchai Wongsa", initials: "SW" } },
-  { id: 3, title: "Midterm review: SQL joins", date: "2026-10-02", consultant: { name: "Kanya Chaiyasit", initials: "KC" } },
-  { id: 4, title: "Project proposal feedback", date: "2026-09-18", consultant: { name: "Pim Rattanakul", initials: "PR" } },
-];
-
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-
 export default function ConsultationLogPage({
-  course = { code: "0981567", section: "56", name: "Database", sec: "450" },
+  course = SAMPLE_COURSE,
   logs = SAMPLE_LOGS,
   onNew,
   onOpenLog,
 }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [query, setQuery] = useState("");
+
+  const openLog = (log: ConsultationLog) =>
+    onOpenLog ? onOpenLog(log) : router.push(`${pathname.replace(/\/$/, "")}/${log.id}`);
+
   const [newestFirst, setNewestFirst] = useState(true);
 
   const visible = useMemo(() => {
@@ -105,7 +99,7 @@ export default function ConsultationLogPage({
             <li key={log.id}>
               <button
                 type="button"
-                onClick={() => onOpenLog?.(log)}
+                onClick={() => openLog(log)}
                 className="group grid w-full grid-cols-[1fr_auto] items-center gap-x-6 gap-y-2 rounded-2xl bg-white/10 px-6 py-5 text-left text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/70 sm:grid-cols-[1fr_11rem_16rem]"
               >
                 <span className="truncate text-base font-medium">{log.title}</span>
