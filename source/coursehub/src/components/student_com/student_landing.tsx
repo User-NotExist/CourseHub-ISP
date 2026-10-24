@@ -2,25 +2,19 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ChevronDown, Plus, Search } from "lucide-react"
+import { ChevronDown, Loader2, Plus, Search } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 type Faq = {
     faq_id: number
-    faq_name: string
-    faq_description: string
+    faq_owner_id: number
+    creator: string
+    title: string
+    description: string | null
+    createdAt: string
 }
-
-// mock lol
-const mock_faqs: Faq[] = [
-    { faq_id: 1, faq_name: "Topic 1", faq_description: "Answer for topic 1" },
-    { faq_id: 2, faq_name: "Topic 2", faq_description: "Answer for topic 2" },
-    { faq_id: 3, faq_name: "Topic 3", faq_description: "Answer for topic 3" },
-    { faq_id: 4, faq_name: "Topic 4", faq_description: "Answer for topic 4" },
-    { faq_id: 5, faq_name: "Topic 5", faq_description: "Answer for topic 5" },
-]
 
 export default function StudentLanding() {
     const { id: courseId } = useParams<{ id: string }>()
@@ -29,6 +23,9 @@ export default function StudentLanding() {
     const [search, setSearch] = useState("")
     const [openId, setOpenId] = useState<number | null>(null)
     const [courseName, setCourseName] = useState<string | null>(null)
+    const [allFaqs, setAllFaqs] = useState<Faq[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         fetch(`/api_course/read_name?course_id=${encodeURIComponent(courseId)}`)
@@ -38,10 +35,19 @@ export default function StudentLanding() {
             })
             .then((data) => setCourseName(data.course_name))
             .catch(() => setCourseName("Course not found"))
+
+        fetch(`/api_faq/student_read?course_id=${encodeURIComponent(courseId)}`)
+            .then(async (res) => {
+                const data = await res.json()
+                if (!res.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Failed to load FAQs")
+                setAllFaqs(data)
+            })
+            .catch((err) => setError(err instanceof Error ? err.message : "Failed to load FAQs"))
+            .finally(() => setIsLoading(false))
     }, [courseId])
 
-    const faqs = mock_faqs.filter((faq) =>
-        faq.faq_name.toLowerCase().includes(search.trim().toLowerCase())
+    const faqs = allFaqs.filter((faq) =>
+        faq.title.toLowerCase().includes(search.trim().toLowerCase())
     )
 
     return (
@@ -72,7 +78,13 @@ export default function StudentLanding() {
                     <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2" />
                 </div>
 
-                {faqs.length === 0 ? (
+                {isLoading ? (
+                    <div className="flex justify-center py-6">
+                        <Loader2 className="size-6 animate-spin text-[#054a46]" />
+                    </div>
+                ) : error ? (
+                    <p className="text-center text-sm text-red-600">{error}</p>
+                ) : faqs.length === 0 ? (
                     <p className="text-center text-sm text-muted-foreground">No FAQ found.</p>
                 ) : (
                     faqs.map((faq) => (
@@ -81,13 +93,18 @@ export default function StudentLanding() {
                                 className="flex w-full items-center justify-between px-4 py-3 text-left font-semibold"
                                 onClick={() => setOpenId(openId === faq.faq_id ? null : faq.faq_id)}
                             >
-                                {faq.faq_name}
+                                {faq.title}
                                 <ChevronDown
                                     className={`size-5 transition-transform ${openId === faq.faq_id ? "rotate-180" : ""}`}
                                 />
                             </button>
                             {openId === faq.faq_id && (
-                                <p className="px-4 pb-3 text-sm text-muted-foreground">{faq.faq_description}</p>
+                                <div className="flex flex-col gap-1 px-4 pb-3">
+                                    <p className="text-xs font-semibold">{faq.creator}</p>
+                                    <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                                        {faq.description || "No answer yet."}
+                                    </p>
+                                </div>
                             )}
                         </div>
                     ))
