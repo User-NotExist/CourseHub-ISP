@@ -24,7 +24,7 @@ type RawLog = {
   title: string;
   description: string | null;
   consultation_date: string | null;
-  consultant: { email: string; name: string } | null;
+  consultant: { email: string; name: string } | string | null;
   can_edit?: boolean;
 };
 
@@ -36,17 +36,21 @@ export const getInitials = (name: string) => {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 };
 
+const toConsultant = (raw: RawLog["consultant"]): Consultant | null => {
+  if (!raw) return null;
+  const email = typeof raw === "string" ? raw : raw.email;
+  const name = typeof raw === "string" ? raw : raw.name;
+  return { name, email, initials: getInitials(name) };
+};
+
+// The backend may send "None" for an unset date; only accept real YYYY-MM-DD values.
+const toDate = (raw: string | null) => (raw && /^\d{4}-\d{2}-\d{2}/.test(raw) ? raw : null);
+
 const toLog = (raw: RawLog): ConsultationLog => ({
   id: String(raw.consultation_id),
   title: raw.title,
-  date: raw.consultation_date,
-  consultant: raw.consultant
-    ? {
-        name: raw.consultant.name,
-        email: raw.consultant.email,
-        initials: getInitials(raw.consultant.name),
-      }
-    : null,
+  date: toDate(raw.consultation_date),
+  consultant: toConsultant(raw.consultant),
   details: raw.description ?? "",
   canEdit: raw.can_edit ?? false,
 });
