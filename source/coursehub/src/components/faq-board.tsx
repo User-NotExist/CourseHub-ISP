@@ -1,8 +1,18 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useParams, useRouter } from "next/navigation"
 
@@ -43,6 +53,8 @@ export default function FaqBoard() {
   const [course, setCourse] = useState<Course | null>(null)
   const [faqs, setFaqs] = useState<Faq[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [faqToDelete, setFaqToDelete] = useState<Faq | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -68,6 +80,38 @@ export default function FaqBoard() {
     }
     load()
   }, [courseId])
+
+  async function handleDelete() {
+    if (!faqToDelete || isDeleting) return
+    setIsDeleting(true)
+    try {
+      const res = await fetch("/api_faq/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ course_id: courseId, faq_id: faqToDelete.faq_id }),
+      })
+      if (!res.ok) {
+        const data: unknown = await res.json().catch(() => null)
+        // Already deleted elsewhere: drop it from the list instead of leaving a stale card.
+        if (res.status === 404) {
+          setFaqs((current) => current.filter((item) => item.faq_id !== faqToDelete.faq_id))
+          setFaqToDelete(null)
+        }
+        throw new Error(
+          typeof data === "object" && data !== null && "detail" in data && typeof data.detail === "string"
+            ? data.detail
+            : "Couldn't delete this FAQ",
+        )
+      }
+      setFaqs((current) => current.filter((item) => item.faq_id !== faqToDelete.faq_id))
+      setFaqToDelete(null)
+      toast.success("FAQ deleted")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Couldn't delete this FAQ")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   // FAQ management is for Lecturers/TAs. The backend must still enforce this;
   // hiding the button is only a UX convenience.
@@ -127,6 +171,7 @@ export default function FaqBoard() {
                         variant="ghost"
                         size="icon"
                         aria-label="Delete FAQ"
+                        onClick={() => setFaqToDelete(faq)}
                         className="bg-white/70 text-[#054a46] hover:bg-white"
                       >
                         <Trash2 className="size-4" />
@@ -142,6 +187,36 @@ export default function FaqBoard() {
           )}
         </div>
       </div>
+
+      <AlertDialog
+        open={faqToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) setFaqToDelete(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this FAQ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete &quot;{faqToDelete?.title}&quot;. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={(event) => {
+                event.preventDefault()
+                void handleDelete()
+              }}
+            >
+              {isDeleting && <Loader2 className="size-4 animate-spin" />}
+              {isDeleting ? "Deleting…" : "Delete FAQ"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
