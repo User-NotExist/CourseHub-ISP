@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Mail } from "lucide-react";
+import { ArrowLeft, CalendarDays, Mail, Pencil } from "lucide-react";
 import { formatDate, type ConsultationLog } from "@/lib/consultation";
 
 type Props = {
@@ -28,6 +28,16 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
 
       {/* Detail panel */}
       <article className="flex flex-1 flex-col gap-6 overflow-hidden rounded-3xl bg-[#04453f] p-6 shadow-lg ring-1 ring-black/10 lg:p-8">
+        {log.canEdit && (
+          <Link
+            href={`${backHref}/${log.id}/edit`}
+            className="inline-flex self-start items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#0b5c4f] shadow-sm transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <Pencil className="size-4" aria-hidden />
+            Edit
+          </Link>
+        )}
+
         {/* Title */}
         <div>
           <p className="text-sm font-medium uppercase tracking-wider text-white/60">Title</p>

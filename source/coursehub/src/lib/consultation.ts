@@ -116,6 +116,26 @@ export async function createConsultationLog(courseId: string, values: NewConsult
   return toLog(data);
 }
 
+export async function updateConsultationLog(
+  courseId: string,
+  logId: string,
+  values: NewConsultationLog,
+): Promise<ConsultationLog> {
+  const data = await request<RawLog>("/api_consultation/edit", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      course_id: courseId,
+      log_id: logId,
+      title: values.title,
+      consultant: values.consultantEmail,
+      consultation_date: values.date,
+      description: values.details,
+    }),
+  });
+  return toLog(data);
+}
+
 export async function fetchCourseName(courseId: string): Promise<string> {
   const data = await request<{ course_name: string }>(
     `/api_course/read_name?course_id=${encodeURIComponent(courseId)}`,
