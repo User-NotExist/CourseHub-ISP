@@ -1,6 +1,22 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Mail, Pencil } from "lucide-react";
-import { formatDate, type ConsultationLog } from "@/lib/consultation";
+import { useRouter, useParams } from "next/navigation";
+import { ArrowLeft, CalendarDays, Loader2, Mail, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { deleteConsultationLog, formatDate, type ConsultationLog } from "@/lib/consultation";
 
 type Props = {
   log: ConsultationLog;
@@ -9,6 +25,25 @@ type Props = {
 };
 
 export default function ConsultationLogDetail({ log, courseName, backHref }: Props) {
+  const router = useRouter();
+  const { id: courseId } = useParams<{ id: string }>();
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    try {
+      await deleteConsultationLog(courseId, log.id);
+      toast.success("Consultation log deleted.");
+      router.push(backHref);
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Couldn't delete the consultation log.");
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="flex min-h-svh w-full flex-col gap-8 self-start p-8 lg:p-12">
       {/* Page header, same style as the list page */}
@@ -29,13 +64,23 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
       {/* Detail panel */}
       <article className="flex flex-1 flex-col gap-6 overflow-hidden rounded-3xl bg-[#04453f] p-6 shadow-lg ring-1 ring-black/10 lg:p-8">
         {log.canEdit && (
-          <Link
-            href={`${backHref}/${log.id}/edit`}
-            className="inline-flex self-start items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#0b5c4f] shadow-sm transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <Pencil className="size-4" aria-hidden />
-            Edit
-          </Link>
+          <div className="flex self-start items-center gap-3">
+            <Link
+              href={`${backHref}/${log.id}/edit`}
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#0b5c4f] shadow-sm transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <Pencil className="size-4" aria-hidden />
+              Edit
+            </Link>
+            <Button
+              type="button"
+              onClick={() => setIsDeleteOpen(true)}
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+            >
+              <Trash2 className="size-4" aria-hidden />
+              Delete
+            </Button>
+          </div>
         )}
 
         {/* Title */}
@@ -83,6 +128,31 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
           </div>
         </section>
       </article>
+      <AlertDialog open={isDeleteOpen} onOpenChange={(open) => !isDeleting && setIsDeleteOpen(open)}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+              <Trash2 />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Delete this consultation log?</AlertDialogTitle>
+            <AlertDialogDescription>
+              &quot;{log.title}&quot; will be permanently removed. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel variant="outline" disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <Button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {isDeleting && <Loader2 className="size-4 animate-spin" aria-hidden />}
+              {isDeleting ? "Deleting…" : "Delete"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

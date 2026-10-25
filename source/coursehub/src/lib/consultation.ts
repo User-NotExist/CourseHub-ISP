@@ -136,6 +136,14 @@ export async function updateConsultationLog(
   return toLog(data);
 }
 
+export async function deleteConsultationLog(courseId: string, logId: string): Promise<void> {
+  await request<{ consultation_id: number; deleted: boolean }>("/api_consultation/delete", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ course_id: courseId, log_id: logId }),
+  });
+}
+
 export async function fetchCourseName(courseId: string): Promise<string> {
   const data = await request<{ course_name: string }>(
     `/api_course/read_name?course_id=${encodeURIComponent(courseId)}`,
