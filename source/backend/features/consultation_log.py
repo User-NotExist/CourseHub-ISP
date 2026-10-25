@@ -19,7 +19,9 @@ JWT_ALGORITHM = "HS256"
 class ConsultationLogCreate(BaseModel):
     title: str
     description: Optional[str] = None
-    consultation_with_studentID: Optional[str] = None
+    consultation_with_name: Optional[str] = None
+    consultation_with_id: Optional[str] = None
+    consultant: Optional[str] = None
     consultation_date: Optional[date] = None
     start_time: Optional[time] = None
     end_time: Optional[time] = None
@@ -58,7 +60,9 @@ async def create_consultation_log(
         course_id=course_id,
         title=payload.title,
         description=payload.description,
-        consultation_with_studentID=payload.consultation_with_studentID,
+        consultation_with_name=payload.consultation_with_name,
+        consultation_with_id=payload.consultation_with_id,
+        consultant=payload.consultant,
         consultation_date=payload.consultation_date,
         start_time=payload.start_time,
         end_time=payload.end_time,
@@ -72,7 +76,9 @@ async def create_consultation_log(
         "consultation_id": new_log.consultation_id,
         "title": new_log.title,
         "description": new_log.description,
-        "consultation_with_studentID": new_log.consultation_with_studentID,
+        "consultation_with_name": new_log.consultation_with_name,
+        "consultation_with_id": new_log.consultation_with_id,
+        "consultant": new_log.consultant,
         "consultation_date": str(new_log.consultation_date),
         "start_time": str(new_log.start_time),
         "end_time": str(new_log.end_time),
@@ -121,7 +127,9 @@ async def display_consultation_logs(
             "consultation_id": l.consultation_id,
             "title": l.title,
             "description": l.description,
-            "consultation_with_studentID": l.consultation_with_studentID,
+            "consultation_with_name": l.consultation_with_name,
+            "consultation_with_id": l.consultation_with_id,
+            "consultant": l.consultant,
             "consultation_date": str(l.consultation_date),
             "start_time": str(l.start_time),
             "end_time": str(l.end_time),
@@ -171,7 +179,9 @@ async def display_consultation_log(
         "consultation_id": log.consultation_id,
         "title": log.title,
         "description": log.description,
-        "consultation_with_studentID": log.consultation_with_studentID,
+        "consultation_with_name": log.consultation_with_name,
+        "consultation_with_id": log.consultation_with_id,
+        "consultant": log.consultant,
         "consultation_date": str(log.consultation_date),
         "start_time": str(log.start_time),
         "end_time": str(log.end_time),
@@ -216,7 +226,9 @@ async def edit_consultation_log(
 
     log.title = payload.title
     log.description = payload.description
-    log.consultation_with_studentID = payload.consultation_with_studentID
+    log.consultation_with_name = payload.consultation_with_name
+    log.consultation_with_id = payload.consultation_with_id
+    log.consultant = payload.consultant
     log.consultation_date = payload.consultation_date
     log.start_time = payload.start_time
     log.end_time = payload.end_time
@@ -229,7 +241,9 @@ async def edit_consultation_log(
         "consultation_id": log.consultation_id,
         "title": log.title,
         "description": log.description,
-        "consultation_with_studentID": log.consultation_with_studentID,
+        "consultation_with_name": log.consultation_with_name,
+        "consultation_with_id": log.consultation_with_id,
+        "consultant": log.consultant,
         "consultation_date": str(log.consultation_date),
         "start_time": str(log.start_time),
         "end_time": str(log.end_time),
