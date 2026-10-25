@@ -117,6 +117,7 @@ export default function FaqBoard() {
                         variant="ghost"
                         size="icon"
                         aria-label="Edit FAQ"
+                        onClick={() => router.push(`/courses/${courseId}/faq/${faq.faq_id}/edit`)}
                         className="bg-white/70 text-[#054a46] hover:bg-white"
                       >
                         <Pencil className="size-4" />
