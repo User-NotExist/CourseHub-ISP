@@ -12,11 +12,23 @@ type Course = {
   course_name: string
 }
 
-// ASSUMPTION: same API shape as faq-board.tsx. Adjust to your real faq.py.
+// Shape returned by GET /api_faq/read?course_id=...&faq_id=...
 type ApiFaq = {
   faq_id: number
-  faq_title: string
-  faq_description: string | null
+  title: string
+  description: string | null
+  can_edit: boolean
+}
+
+// Reads the backend's error message from a failed response.
+async function readDetail(res: Response, fallback: string) {
+  const data: unknown = await res.json().catch(() => null)
+  return typeof data === "object" &&
+    data !== null &&
+    "detail" in data &&
+    typeof data.detail === "string"
+    ? data.detail
+    : fallback
 }
 
 // Create mode: <FaqForm />            (page: /courses/[id]/faq/create)
@@ -31,6 +43,7 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(isEdit)
   const [isSaving, setIsSaving] = useState(false)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   const backHref = `/courses/${courseId}/faq`
 
@@ -44,24 +57,30 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
         setCourse(courses.find((item) => item.course_id === courseId) ?? null)
 
         if (faqId) {
-          // ASSUMPTION: reuse the list endpoint and pick the FAQ by id,
-          // so no extra "read one" route is required.
-          const faqsRes = await fetch(`/api_faq/read?course_id=${encodeURIComponent(courseId)}`)
-          if (!faqsRes.ok) throw new Error()
-          const faqs: ApiFaq[] = await faqsRes.json()
-          const current = faqs.find((item) => String(item.faq_id) === faqId)
-          if (!current) throw new Error("not found")
-          setTitle(current.faq_title)
-          setDescription(current.faq_description ?? "")
+          const faqRes = await fetch(
+            `/api_faq/read?course_id=${encodeURIComponent(courseId)}&faq_id=${encodeURIComponent(faqId)}`,
+          )
+          if (!faqRes.ok) throw new Error(await readDetail(faqRes, "Couldn't load this FAQ"))
+          const current: ApiFaq = await faqRes.json()
+          if (!current.can_edit) {
+            // The backend also rejects the save; this just avoids showing a form that can't work.
+            toast.error("You don't have permission to edit this FAQ")
+            router.replace(backHref)
+            return
+          }
+          setTitle(current.title)
+          setDescription(current.description ?? "")
         }
-      } catch {
-        toast.error("Couldn't load this FAQ")
+      } catch (error) {
+        toast.error(error instanceof Error && error.message ? error.message : "Couldn't load this FAQ")
+        // Don't let someone save over a FAQ that never loaded.
+        if (faqId) setLoadFailed(true)
       } finally {
         setIsLoading(false)
       }
     }
     load()
-  }, [courseId, faqId])
+  }, [courseId, faqId, backHref, router])
 
   async function handleSave() {
     if (!title.trim() || !description.trim()) {
@@ -80,17 +99,7 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
           description: description.trim(),
         }),
       })
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => null)
-        const detail =
-          typeof errorData === "object" &&
-          errorData !== null &&
-          "detail" in errorData &&
-          typeof errorData.detail === "string"
-            ? errorData.detail
-            : "Couldn't save this FAQ"
-        throw new Error(detail)
-      }
+      if (!res.ok) throw new Error(await readDetail(res, "Couldn't save this FAQ"))
       toast.success(isEdit ? "FAQ updated" : "FAQ created")
       router.push(backHref)
     } catch (error) {
@@ -122,7 +131,7 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
           <Button
             type="button"
             onClick={handleSave}
-            disabled={isSaving || isLoading}
+            disabled={isSaving || isLoading || loadFailed}
             className="h-12 w-32 rounded-[10px] bg-[#006c67] text-lg font-bold text-white hover:bg-[#054a46]"
           >
             {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
@@ -142,7 +151,7 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title"
-            disabled={isLoading || isSaving}
+            disabled={isLoading || isSaving || loadFailed}
             className="bg-white"
           />
         </div>
@@ -157,7 +166,7 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description"
             rows={10}
-            disabled={isLoading || isSaving}
+            disabled={isLoading || isSaving || loadFailed}
             className="w-full resize-y rounded-md border border-input bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#006c67] disabled:opacity-50"
           />
         </div>
