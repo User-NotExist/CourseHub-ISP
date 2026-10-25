@@ -4,13 +4,20 @@ import { useId, useState, useSyncExternalStore, type FormEvent } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { createConsultationLog, type NewConsultationLog } from "@/lib/consultation";
+import {
+  createConsultationLog,
+  updateConsultationLog,
+  type ConsultationLog,
+  type NewConsultationLog,
+} from "@/lib/consultation";
 import { useCourseName } from "@/lib/use_course_name";
 
 type NewLogValues = NewConsultationLog;
 
 type Props = {
-  // Overrides the default save (POST to the consultation API). Throw to show an error message.
+  initial?: ConsultationLog;
+  logId?: string;
+  // Overrides the default save. Throw to show an error message.
   onSubmit?: (values: NewLogValues) => Promise<void> | void;
 };
 
@@ -29,20 +36,21 @@ const bad = "border-red-300";
 const noopSubscribe = () => () => {};
 const getToday = () => new Date().toLocaleDateString("en-CA");
 
-export default function ConsultationLogForm({ onSubmit }: Props) {
+export default function ConsultationLogForm({ initial, logId, onSubmit }: Props) {
   const router = useRouter();
   const id = useId();
   const { id: courseId } = useParams<{ id: string }>();
   const courseName = useCourseName(courseId);
   const backHref = `/courses/${courseId}/consultation/logs`;
+  const cancelHref = logId ? `${backHref}/${logId}` : backHref;
 
-  const [title, setTitle] = useState("");
-  const [consultantEmail, setConsultantEmail] = useState("");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [consultantEmail, setConsultantEmail] = useState(initial?.consultant?.email ?? "");
   // Today's date in the browser's timezone. useSyncExternalStore keeps server and client renders consistent.
   const today = useSyncExternalStore(noopSubscribe, getToday, () => "");
-  const [dateInput, setDateInput] = useState<string | null>(null); // null = untouched, use today
-  const date = dateInput ?? today;
-  const [details, setDetails] = useState("");
+  const [dateInput, setDateInput] = useState<string | null>(initial?.date ?? null); // null = untouched, use today
+  const date = dateInput ?? (initial ? "" : today);
+  const [details, setDetails] = useState(initial?.details ?? "");
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -73,8 +81,11 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
     };
     try {
       // The backend also checks that the consultant's email belongs to someone in the course.
-      await (onSubmit ?? ((v) => createConsultationLog(courseId, v)))(values);
-      router.push(backHref);
+      await (onSubmit ?? ((v) =>
+        logId
+          ? updateConsultationLog(courseId, logId, v)
+          : createConsultationLog(courseId, v)))(values);
+      router.push(logId ? `${backHref}/${logId}` : backHref);
       router.refresh();
     } catch (err) {
       const reason = err instanceof Error && err.message ? ` ${err.message}` : "";
@@ -87,15 +98,17 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
     <div className="flex min-h-svh w-full flex-col gap-8 self-start p-8 lg:p-12">
       <header className="flex items-start justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-3xl font-semibold tracking-tight text-[#0b5c4f]">New Consultation Log</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#0b5c4f]">
+            {logId ? "Edit Consultation Log" : "New Consultation Log"}
+          </h1>
           <p className="mt-2 truncate text-lg font-semibold text-neutral-900">{courseName ?? "\u00a0"}</p>
         </div>
         <Link
-          href={backHref}
+          href={cancelHref}
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-[#00695f]/30 bg-white px-5 py-3 text-base font-semibold text-[#0b5c4f] shadow-sm transition hover:bg-[#00695f] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00695f]"
         >
           <ArrowLeft className="size-4" aria-hidden />
-          Back to logs
+          {logId ? "Back to details" : "Back to logs"}
         </Link>
       </header>
 
@@ -183,7 +196,7 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-white/10 pt-6">
           {submitError && <p role="alert" className="mr-auto text-sm text-red-200">{submitError}</p>}
           <Link
-            href={backHref}
+            href={cancelHref}
             className="rounded-xl px-5 py-3 text-base font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
           >
             Cancel
@@ -194,7 +207,7 @@ export default function ConsultationLogForm({ onSubmit }: Props) {
             className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-semibold text-[#04453f] shadow-sm transition hover:bg-white/90 disabled:opacity-60"
           >
             {submitting && <Loader2 className="size-4 animate-spin" aria-hidden />}
-            {submitting ? "Saving…" : "Create log"}
+            {submitting ? "Saving…" : logId ? "Save changes" : "Create log"}
           </button>
         </div>
       </form>

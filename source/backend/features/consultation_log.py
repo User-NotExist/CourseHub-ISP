@@ -174,6 +174,12 @@ async def display_consultation_log(
     if not log:
         raise HTTPException(status_code=404, detail="Consultation log not found !")
 
+    is_lecturer = db.query(CourseMember).filter(
+        CourseMember.course_id == course_id,
+        CourseMember.user_id == user.user_id,
+        CourseMember.role == "lecturer",
+    ).first() is not None
+
     return {
         "log_owner_id": log.user_id,
         "consultation_id": log.consultation_id,
@@ -183,6 +189,7 @@ async def display_consultation_log(
         "consultation_with_id": log.consultation_with_id,
         "consultant": log.consultant,
         "consultation_date": str(log.consultation_date),
+        "can_edit": log.user_id == user.user_id or is_lecturer,
         "start_time": str(log.start_time),
         "end_time": str(log.end_time),
     }
