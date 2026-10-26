@@ -17,6 +17,9 @@ type Task = {
   status: TaskStatus
   assignees: { email: string; status: TaskStatus }[]
   my_assignee: string | null // current user's email if they are assigned
+  // Backend only gives the owner's id, so for other people's tasks we assume
+  // the first assignee is the owner (the create form puts the creator first).
+  owner_email: string | null
   can_edit: boolean
   can_update_status: boolean
 }
@@ -132,6 +135,7 @@ export default function TasksBoard() {
             status,
             assignees,
             my_assignee: mine?.email ?? null,
+            owner_email: task.task_owner_id === user.user_id ? user.email : (assignees[0]?.email ?? null),
             can_edit: task.can_edit,
             can_update_status: !!mine || (task.can_edit && assignees.length > 0),
           }
@@ -178,7 +182,7 @@ export default function TasksBoard() {
   }
 
   return (
-    <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10 overflow-y-auto h-screen scrollbar-none">
+    <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10 overflow-y-auto md:overflow-hidden h-screen scrollbar-none">
       {/* Page header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -200,13 +204,13 @@ export default function TasksBoard() {
       </div>
 
       {/* Board */}
-      <div className="grid flex-1 grid-cols-1 gap-6 md:min-h-0 md:grid-cols-3">
+      <div className="grid flex-1 grid-cols-1 gap-6 md:min-h-0 md:grid-cols-3 md:grid-rows-[minmax(0,1fr)]">
         {STATUS_CONFIG.map(({ key, label }) => {
           const columnTasks = tasks.filter((t) => t.status === key)
           return (
             <div
               key={key}
-              className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-[500px] shadow-sm ring-1 ring-panel-border md:min-h-0"
+              className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-0 shadow-sm ring-1 ring-panel-border"
             >
               <h2 className="text-panel-foreground text-xl font-semibold bg-panel-surface-strong rounded-2xl px-5 py-2.5 w-fit">
                 {label}
@@ -225,7 +229,7 @@ export default function TasksBoard() {
                         {task.can_edit && (
                           <Link
                             href={`/courses/${courseId}/task/${task.task_id}/edit`}
-                            className="bg-brand rounded-xl p-1.5 shadow-sm hover:bg-brand-hover transition"
+                            className="bg-brand rounded-md p-1.5 shadow-sm hover:bg-brand-hover transition"
                             aria-label="Edit task"
                           >
                             <Edit className="size-4 text-brand-foreground" />
@@ -233,11 +237,19 @@ export default function TasksBoard() {
                         )}
                       </div>
                       <p className="text-panel-muted text-sm">{task.description}</p>
-                      {task.assignees.length > 0 && (
-                        <p className="text-panel-muted text-sm">
-                          Assigned to: {task.assignees.map((assignee) => assignee.email).join(", ")}
+                      <div className="text-sm text-panel-muted space-y-0.5">
+                        <p>
+                          <span className="font-semibold text-panel-foreground">Owner: </span>
+                          {task.owner_email ?? "Unknown"}
                         </p>
-                      )}
+                        <p>
+                          <span className="font-semibold text-panel-foreground">Assignee: </span>
+                          {task.assignees
+                            .filter((assignee) => assignee.email.toLowerCase() !== task.owner_email?.toLowerCase())
+                            .map((assignee) => assignee.email)
+                            .join(", ") || "None"}
+                        </p>
+                      </div>
                       <p className="text-panel-foreground text-sm font-semibold">
                         Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}
                       </p>

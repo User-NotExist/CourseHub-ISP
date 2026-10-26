@@ -85,7 +85,9 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                         task_assignee: data.tasks ?? [],
                     }
                     // Only the owner's own email is known here, so the lock applies when the current user owns the task.
-                    if (self && me?.user_id === data.task_owner_id) setOwnerEmail(self)
+                    // For someone else's task, assume the first assignee is the owner (the create form puts the creator first).
+                    const firstAssignee = loaded.task_assignee[0]?.task_assignee_gmail.toLowerCase() ?? ""
+                    setOwnerEmail(self && me?.user_id === data.task_owner_id ? self : firstAssignee)
                     setTask(loaded)
                     setOriginal(JSON.stringify(loaded))
                 }
@@ -194,6 +196,8 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
 
     const back = () => dirty ? setLeaving(true) : router.push(tasksUrl)
     const nameFor = (assigneeEmail: string) => members?.find((member) => member.email.toLowerCase() === assigneeEmail.toLowerCase())?.name ?? ""
+    // The owner stays in task_assignee (so they can move the task) but is shown in its own section.
+    const others = task.task_assignee.filter((assignee) => assignee.task_assignee_gmail.toLowerCase() !== ownerEmail)
 
     return (
         <main className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8 overflow-y-auto h-screen scrollbar-none">
@@ -212,8 +216,16 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                     </CardContent>
                 </Card>
             </form>
+            {ownerEmail && (
+                <Card>
+                    <CardHeader><CardTitle>Owner</CardTitle><CardDescription>The person who created this task.</CardDescription></CardHeader>
+                    <CardContent>
+                        <div className="rounded-lg border px-4 py-4"><p className="break-words font-medium">{nameFor(ownerEmail) || ownerEmail}</p>{nameFor(ownerEmail) && <p className="break-all text-sm text-muted-foreground">{ownerEmail}</p>}</div>
+                    </CardContent>
+                </Card>
+            )}
             <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2"><Users className="size-5" />Assigned users ({task.task_assignee.length})</CardTitle><CardDescription>Assigned users can move this task between columns. Changes take effect when you save.</CardDescription></CardHeader>
+                <CardHeader><CardTitle className="flex items-center gap-2"><Users className="size-5" />Assigned users ({others.length})</CardTitle><CardDescription>Assigned users can move this task between columns. Changes take effect when you save.</CardDescription></CardHeader>
                 <CardContent className="space-y-6">
                     <form onSubmit={addAssignee} className="space-y-2">
                         <label htmlFor="assignee-email" className="font-medium">Assign a user</label>
@@ -224,15 +236,14 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                         </div>
                         <p id="assignee-hint" className="text-xs text-muted-foreground">Use the email of a member of this course.</p>
                     </form>
-                    {task.task_assignee.length === 0 ? (
+                    {others.length === 0 ? (
                         <p className="text-sm text-muted-foreground">No one is assigned yet.</p>
                     ) : (
                         <ul className="divide-y rounded-lg border px-4">
-                            {task.task_assignee.map((assignee) => (
+                            {others.map((assignee) => (
                                 <li key={assignee.task_assignee_gmail} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
                                     <div className="min-w-0 flex-1"><p className="break-words font-medium">{nameFor(assignee.task_assignee_gmail) || assignee.task_assignee_gmail}</p>{nameFor(assignee.task_assignee_gmail) && <p className="break-all text-sm text-muted-foreground">{assignee.task_assignee_gmail}</p>}</div>
-                                    {assignee.task_assignee_gmail.toLowerCase() === ownerEmail && <span className="text-sm text-muted-foreground">Owner</span>}
-                                    <Button variant="ghost" size="icon" aria-label={assignee.task_assignee_gmail.toLowerCase() === ownerEmail ? "The task owner cannot be removed" : `Remove ${assignee.task_assignee_gmail}`} title={assignee.task_assignee_gmail.toLowerCase() === ownerEmail ? "The task owner cannot be removed" : undefined} disabled={saving || assignee.task_assignee_gmail.toLowerCase() === ownerEmail} onClick={() => setRemoving(assignee)}><Trash2 className="size-4 text-destructive" /></Button>
+                                    <Button variant="ghost" size="icon" aria-label={`Remove ${assignee.task_assignee_gmail}`} disabled={saving} onClick={() => setRemoving(assignee)}><Trash2 className="size-4 text-destructive" /></Button>
                                 </li>
                             ))}
                         </ul>

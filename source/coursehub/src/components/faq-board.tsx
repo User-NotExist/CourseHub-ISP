@@ -118,7 +118,7 @@ export default function FaqBoard() {
   const canCreate = course?.role === "lecturer" || course?.role === "ta"
 
   return (
-    <div className="flex w-270 flex-1 min-w-0 flex-col p-6 md:p-10 h-screen">
+    <div className="flex w-full flex-1 min-w-0 flex-col p-7 md:p-10 h-screen">
       {/* Page header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
