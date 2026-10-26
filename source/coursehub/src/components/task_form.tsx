@@ -196,7 +196,7 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
     const nameFor = (assigneeEmail: string) => members?.find((member) => member.email.toLowerCase() === assigneeEmail.toLowerCase())?.name ?? ""
 
     return (
-        <main className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8">
+        <main className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8 overflow-y-auto h-screen scrollbar-none">
             <Button variant="ghost" onClick={back} disabled={saving}><ArrowLeft />Back to tasks</Button>
             <header>
                 <h1 className="text-3xl font-bold">{isEdit ? "Edit task" : "Create task"}</h1>
@@ -208,7 +208,7 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                     <CardContent className="space-y-5">
                         <div className="space-y-2"><label htmlFor="task-name" className="font-medium">Task name</label><Input id="task-name" required value={task.task_name} disabled={saving} onChange={(event) => setTask({ ...task, task_name: event.target.value })} placeholder="e.g. Prepare Lab 3 slides" /></div>
                         <div className="space-y-2"><label htmlFor="task-description" className="font-medium">Task description</label><Textarea id="task-description" rows={4} value={task.task_description} disabled={saving} onChange={(event) => setTask({ ...task, task_description: event.target.value })} placeholder="What needs to be done…" /></div>
-                        <div className="space-y-2"><label htmlFor="task-due-date" className="font-medium">Due date</label><Input id="task-due-date" type="date" value={task.task_due_date} disabled={saving} onChange={(event) => setTask({ ...task, task_due_date: event.target.value })} className="sm:w-48" /></div>
+                        <div className="space-y-2"><label htmlFor="task-due-date" className="font-medium">Due date</label><Input id="task-due-date" type="date" value={task.task_due_date} disabled={saving} onChange={(event) => setTask({ ...task, task_due_date: event.target.value })} className="sm:w-48 ml-2" /></div>
                     </CardContent>
                 </Card>
             </form>

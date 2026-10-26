@@ -95,7 +95,7 @@ export default function ConsultationLogForm({ initial, logId, onSubmit }: Props)
   };
 
   return (
-    <div className="flex min-h-svh w-full flex-col gap-8 self-start p-8 lg:p-12">
+    <div className="flex min-h-svh w-full flex-col gap-8 self-start p-8 lg:p-12 overflow-y-auto h-screen scrollbar-none">
       <header className="flex items-start justify-between gap-6">
         <div className="min-w-0">
           <h1 className="text-3xl font-semibold tracking-tight text-[#0b5c4f]">

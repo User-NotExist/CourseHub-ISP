@@ -65,7 +65,7 @@ export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
   const SortIcon = newestFirst ? ArrowDown : ArrowUp;
 
   return (
-    <div className="flex min-h-svh w-full flex-col items-stretch justify-start gap-8 self-start p-8 lg:p-12">
+    <div className="flex w-full flex-col justify-start gap-8 self-start p-8 lg:p-12 h-screen">
       {/* Page header, anchored top-left */}
       <header className="flex items-start justify-between gap-6">
         <div className="min-w-0">
@@ -83,7 +83,7 @@ export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
       </header>
 
       {/* Log panel fills the remaining space */}
-      <section className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-[#04453f] shadow-lg ring-1 ring-black/10">
+      <section className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-[#04453f] shadow-lg ring-1 ring-black/10 overflow-y-auto h-screen scrollbar-none">
         <div className="flex items-center gap-4 px-6 pt-6 lg:px-8 lg:pt-8">
           <label className="relative flex-1">
             <span className="sr-only">Search consultations</span>
