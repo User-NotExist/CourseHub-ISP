@@ -182,19 +182,19 @@ export default function TasksBoard() {
       {/* Page header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#054a46] underline underline-offset-4">
+          <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">
             Course Tasks
           </h1>
-          <p className="mt-1 text-xl font-semibold">
+          <p className="mt-2 text-lg font-semibold text-neutral-900">
             {course?.course_name ?? (isLoading ? "Loading..." : "Untitled course")}
           </p>
         </div>
         <Button
           type="button"
           onClick={() => router.push(`/courses/${courseId}/task/create`)}
-          className="h-12 shrink-0 gap-2 rounded-full bg-[#006c67] px-6 text-base font-semibold text-white shadow-md transition hover:bg-[#054a46] hover:shadow-lg"
+          className="h-auto shrink-0 gap-2 rounded-xl bg-brand px-5 py-3 text-base font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
-          <Plus className="size-5" />
+          <Plus className="size-4" />
           Create Task
         </Button>
       </div>
@@ -206,39 +206,39 @@ export default function TasksBoard() {
           return (
             <div
               key={key}
-              className="bg-[#054a46] rounded-3xl p-5 flex flex-col gap-4 min-h-[500px] md:min-h-0"
+              className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-[500px] shadow-lg ring-1 ring-black/10 md:min-h-0"
             >
-              <h2 className="text-white text-2xl font-bold bg-[#006c67]/40 rounded-full px-5 py-2 w-fit">
+              <h2 className="text-panel-foreground text-xl font-semibold bg-panel-surface-strong rounded-2xl px-5 py-2.5 w-fit">
                 {label}
               </h2>
 
               <div className="flex flex-1 flex-col gap-4 overflow-y-auto scrollbar-none">
                 {isLoading ? (
-                  <p className="text-white/70 text-sm">Loading...</p>
+                  <p className="text-panel-muted text-sm">Loading...</p>
                 ) : columnTasks.length === 0 ? (
-                  <p className="text-white/50 text-sm">No tasks here yet.</p>
+                  <p className="text-panel-muted text-sm">No tasks here yet.</p>
                 ) : (
                   columnTasks.map((task) => (
-                    <div key={task.task_id} className="bg-white/10 rounded-2xl p-4 flex flex-col gap-2">
+                    <div key={task.task_id} className="bg-panel-surface rounded-2xl p-4 flex flex-col gap-2 transition hover:bg-panel-surface-strong">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-white font-bold">{task.title}</h3>
+                        <h3 className="text-panel-foreground font-semibold">{task.title}</h3>
                         {task.can_edit && (
                           <Link
                             href={`/courses/${courseId}/task/${task.task_id}/edit`}
-                            className="bg-white/60 rounded-lg p-1.5 hover:bg-white/80 transition"
+                            className="bg-white rounded-xl p-1.5 shadow-sm hover:bg-white/90 transition"
                             aria-label="Edit task"
                           >
-                            <Edit className="size-4 text-[#054a46]" />
+                            <Edit className="size-4 text-brand-ink" />
                           </Link>
                         )}
                       </div>
-                      <p className="text-white/70 text-sm">{task.description}</p>
+                      <p className="text-panel-muted text-sm">{task.description}</p>
                       {task.assignees.length > 0 && (
-                        <p className="text-white/70 text-sm">
+                        <p className="text-panel-muted text-sm">
                           Assigned to: {task.assignees.map((assignee) => assignee.email).join(", ")}
                         </p>
                       )}
-                      <p className="text-white text-sm font-semibold">
+                      <p className="text-panel-foreground text-sm font-semibold">
                         Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}
                       </p>
 
@@ -247,7 +247,7 @@ export default function TasksBoard() {
                         <button
                           onClick={() => updateTaskStatus(task, moveStatus(key, "leftmost"))}
                           disabled={key === "todo" || !task.can_update_status}
-                          className="text-white/70 hover:text-white disabled:opacity-30"
+                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
                           aria-label="Move to first column"
                         >
                           <ChevronsLeft className="size-5" />
@@ -255,7 +255,7 @@ export default function TasksBoard() {
                         <button
                           onClick={() => updateTaskStatus(task, moveStatus(key, "left"))}
                           disabled={key === "todo" || !task.can_update_status}
-                          className="text-white/70 hover:text-white disabled:opacity-30"
+                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
                           aria-label="Move left"
                         >
                           <ChevronLeft className="size-5" />
@@ -264,7 +264,7 @@ export default function TasksBoard() {
                         <button
                           onClick={() => updateTaskStatus(task, moveStatus(key, "right"))}
                           disabled={key === "done" || !task.can_update_status}
-                          className="text-white/70 hover:text-white disabled:opacity-30"
+                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
                           aria-label="Move right"
                         >
                           <ChevronRight className="size-5" />
@@ -272,7 +272,7 @@ export default function TasksBoard() {
                         <button
                           onClick={() => updateTaskStatus(task, moveStatus(key, "rightmost"))}
                           disabled={key === "done" || !task.can_update_status}
-                          className="text-white/70 hover:text-white disabled:opacity-30"
+                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
                           aria-label="Move to last column"
                         >
                           <ChevronsRight className="size-5" />

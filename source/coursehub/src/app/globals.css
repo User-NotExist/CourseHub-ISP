@@ -39,6 +39,18 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-foreground);
+  --color-panel-muted: var(--panel-muted);
+  --color-panel-subtle: var(--panel-subtle);
+  --color-panel-surface: var(--panel-surface);
+  --color-panel-surface-strong: var(--panel-surface-strong);
+  --color-panel-border: var(--panel-border);
+  --color-panel-danger: var(--panel-danger);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -81,6 +93,22 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* CourseHub brand: buttons, links and page titles on the light page background */
+  --brand: #00695f;
+  --brand-hover: #00574f;
+  --brand-ink: #0b5c4f;
+  --brand-foreground: #ffffff;
+
+  /* Green content panels (lists, detail views, forms) and what sits on them */
+  --panel: #2a7a71;
+  --panel-foreground: #ffffff;
+  --panel-muted: #e6f3f1;        /* labels, secondary text, hints */
+  --panel-subtle: #c3e0dc;       /* placeholders, decorative icons */
+  --panel-surface: #236560;      /* rows, cards and inputs inside a panel */
+  --panel-surface-strong: #1d554f; /* table header rows, hovered rows */
+  --panel-border: #ffffff33;
+  --panel-danger: #fee2e2;       /* error text on a panel */
 }
 
 .dark {

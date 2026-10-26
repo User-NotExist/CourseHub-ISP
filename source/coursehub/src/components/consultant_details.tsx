@@ -49,12 +49,12 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
       {/* Page header, same style as the list page */}
       <header className="flex items-start justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-3xl font-semibold tracking-tight text-[#0b5c4f]">Consultation Log Details</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">Consultation Log Details</h1>
           <p className="mt-2 truncate text-lg font-semibold text-neutral-900">{courseName ?? "\u00a0"}</p>
         </div>
         <Link
           href={backHref}
-          className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-[#00695f]/30 bg-white px-5 py-3 text-base font-semibold text-[#0b5c4f] shadow-sm transition hover:bg-[#00695f] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00695f]"
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-brand/30 bg-white px-5 py-3 text-base font-semibold text-brand-ink shadow-sm transition hover:bg-brand hover:text-brand-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           <ArrowLeft className="size-4" aria-hidden />
           Back to logs
@@ -62,12 +62,12 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
       </header>
 
       {/* Detail panel */}
-      <article className="flex flex-1 flex-col gap-6 overflow-hidden rounded-3xl bg-[#04453f] p-6 shadow-lg ring-1 ring-black/10 lg:p-8">
+      <article className="flex flex-1 flex-col gap-6 overflow-hidden rounded-3xl bg-panel p-6 shadow-lg ring-1 ring-black/10 lg:p-8">
         {log.canEdit && (
           <div className="flex self-start items-center gap-3">
             <Link
               href={`${backHref}/${log.id}/edit`}
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-[#0b5c4f] shadow-sm transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-brand-ink shadow-sm transition hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-panel-foreground"
             >
               <Pencil className="size-4" aria-hidden />
               Edit
@@ -75,7 +75,7 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
             <Button
               type="button"
               onClick={() => setIsDeleteOpen(true)}
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+              className="inline-flex h-10 items-center gap-2 rounded-xl bg-destructive px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-destructive/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive"
             >
               <Trash2 className="size-4" aria-hidden />
               Delete
@@ -85,22 +85,22 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
 
         {/* Title */}
         <div>
-          <p className="text-sm font-medium uppercase tracking-wider text-white/60">Title</p>
-          <h2 className="mt-2 text-2xl font-semibold leading-snug text-white lg:text-3xl">{log.title}</h2>
+          <p className="text-sm font-medium uppercase tracking-wider text-panel-muted">Title</p>
+          <h2 className="mt-2 text-2xl font-semibold leading-snug text-panel-foreground lg:text-3xl">{log.title}</h2>
         </div>
 
         {/* Consultant + Date */}
         <div className="grid gap-4 sm:grid-cols-2">
-          <section className="rounded-2xl bg-white/10 p-5">
-            <p className="text-sm font-medium uppercase tracking-wider text-white/60">Consultant</p>
+          <section className="rounded-2xl bg-panel-surface p-5">
+            <p className="text-sm font-medium uppercase tracking-wider text-panel-muted">Consultant</p>
             <div className="mt-3 flex items-center gap-4">
-              <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#00695f] text-sm font-semibold text-white ring-2 ring-white/30">
+              <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand text-sm font-semibold text-brand-foreground ring-2 ring-panel-border">
                 {log.consultant?.initials ?? "?"}
               </span>
               <div className="min-w-0">
-                <p className="truncate text-lg font-medium text-white">{log.consultant?.name ?? "Not recorded"}</p>
+                <p className="truncate text-lg font-medium text-panel-foreground">{log.consultant?.name ?? "Not recorded"}</p>
                 {log.consultant && (
-                  <p className="flex items-center gap-1.5 truncate text-sm text-white/70">
+                  <p className="flex items-center gap-1.5 truncate text-sm text-panel-muted">
                     <Mail className="size-3.5 shrink-0" aria-hidden />
                     {log.consultant.email}
                   </p>
@@ -109,22 +109,22 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
             </div>
           </section>
 
-          <section className="rounded-2xl bg-white/10 p-5">
-            <p className="text-sm font-medium uppercase tracking-wider text-white/60">Date</p>
+          <section className="rounded-2xl bg-panel-surface p-5">
+            <p className="text-sm font-medium uppercase tracking-wider text-panel-muted">Date</p>
             <div className="mt-3 flex items-center gap-4">
-              <span className="grid size-12 shrink-0 place-items-center rounded-full bg-white/15 text-white">
+              <span className="grid size-12 shrink-0 place-items-center rounded-full bg-panel-surface text-panel-foreground">
                 <CalendarDays className="size-5" aria-hidden />
               </span>
-              <p className="text-lg font-medium text-white">{formatDate(log.date, true)}</p>
+              <p className="text-lg font-medium text-panel-foreground">{formatDate(log.date, true)}</p>
             </div>
           </section>
         </div>
 
         {/* Details: scrolls on its own when the text is long */}
-        <section className="flex min-h-0 flex-1 flex-col rounded-2xl bg-white/10 p-5 lg:p-6">
-          <p className="text-sm font-medium uppercase tracking-wider text-white/60">Details</p>
+        <section className="flex min-h-0 flex-1 flex-col rounded-2xl bg-panel-surface p-5 lg:p-6">
+          <p className="text-sm font-medium uppercase tracking-wider text-panel-muted">Details</p>
           <div className="mt-3 max-h-[50svh] min-h-40 flex-1 overflow-y-auto pr-3 [scrollbar-color:rgba(255,255,255,0.35)_transparent] [scrollbar-width:thin]">
-            <p className="whitespace-pre-line text-base leading-7 text-white/90">{log.details}</p>
+            <p className="whitespace-pre-line text-base leading-7 text-panel-muted">{log.details}</p>
           </div>
         </section>
       </article>
@@ -145,7 +145,7 @@ export default function ConsultationLogDetail({ log, courseName, backHref }: Pro
               type="button"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="bg-red-600 text-white hover:bg-red-700"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
               {isDeleting && <Loader2 className="size-4 animate-spin" aria-hidden />}
               {isDeleting ? "Deleting…" : "Delete"}

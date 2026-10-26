@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Loader2, Trash2Icon } from "lucide-react"
+import { ArrowLeft, Loader2, Pencil, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -102,16 +102,22 @@ export default function ActivityDetailPage() {
 
     return (
         <div className="flex flex-col h-screen pt-7 gap-4 xl:w-250 lg:w-200 md:w-150 sm:w-100 min-w-90">
-            <Button variant="outline" onClick={() => router.push(listUrl)} className="self-start gap-2 px-4 py-4 text-md">
-                <ArrowLeft />
-                Back to activities
-            </Button>
+            <div className="flex flex-row items-start justify-between gap-6">
+                <div className="min-w-0">
+                    <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">Activities and Milestones Details</h1>
+                    <h2 className="mt-2 truncate text-lg font-semibold text-neutral-900">{course?.course_name ?? " "}</h2>
+                </div>
+                <Button
+                    variant="outline"
+                    onClick={() => router.push(listUrl)}
+                    className="h-auto shrink-0 gap-2 rounded-xl border-brand/30 bg-white px-5 py-3 text-base font-semibold text-brand-ink shadow-sm transition hover:bg-brand hover:text-brand-foreground"
+                >
+                    <ArrowLeft />
+                    Back to activities
+                </Button>
+            </div>
 
-            <h1 className="text-center text-3xl font-bold text-[#054A46] underline">Activities and Milestones Details</h1>
-
-            <h2 className="text-xl font-bold">{course?.course_name}</h2>
-
-            <div className="flex flex-col gap-5 rounded-2xl bg-[#054A46] p-6 mb-6 text-white overflow-y-auto">
+            <div className="flex flex-col gap-6 rounded-3xl bg-panel p-6 mb-6 text-panel-foreground overflow-y-auto shadow-lg ring-1 ring-black/10 lg:p-8">
                 {isLoading ? (
                     <div className="flex justify-center py-10">
                         <Loader2 className="animate-spin" size={40} />
@@ -122,40 +128,42 @@ export default function ActivityDetailPage() {
                     <>
                         <div className="flex flex-row items-start justify-between gap-4">
                             <div className="flex flex-col gap-2">
-                                <h3 className="text-2xl font-bold break-words">{activity.activity_name}</h3>
+                                <h3 className="text-2xl font-semibold leading-snug break-words lg:text-3xl">{activity.activity_name}</h3>
                                 <div className="flex flex-row gap-2">
-                                    <span className="rounded-full bg-[#E8E8E8] px-3 py-0.5 text-xs font-bold text-black">
+                                    <span className="rounded-full bg-panel-surface px-3 py-0.5 text-xs font-semibold text-panel-foreground ring-1 ring-panel-border">
                                         {activity.activity_type}
                                     </span>
                                 </div>
                             </div>
 
                             {canEdit && (
-                                <div className="flex flex-row gap-2">
-                                    <Button onClick={() => setIsFormOpen(true)} className="bg-[#E8E8E8] px-5 font-bold text-black hover:bg-white">
+                                <div className="flex flex-row gap-3">
+                                    <Button onClick={() => setIsFormOpen(true)} className="h-10 gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-brand-ink shadow-sm transition hover:bg-white/90">
+                                        <Pencil className="size-4" aria-hidden />
                                         Edit
                                     </Button>
-                                    <Button onClick={() => setIsDeleteOpen(true)} className="bg-red-600 px-5 font-bold text-white hover:bg-red-700">
+                                    <Button onClick={() => setIsDeleteOpen(true)} className="h-10 gap-2 rounded-xl bg-destructive px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-destructive/90">
+                                        <Trash2Icon className="size-4" aria-hidden />
                                         Delete
                                     </Button>
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex flex-row flex-wrap gap-4">
-                            <div className="min-w-48 rounded-xl bg-[#69928F] px-4 py-3">
-                                <p className="font-bold">Date</p>
-                                <p>{formatDate(activity.activity_date)}</p>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="rounded-2xl bg-panel-surface p-5">
+                                <p className="text-sm font-medium uppercase tracking-wider text-panel-muted">Date</p>
+                                <p className="mt-3 text-lg font-medium">{formatDate(activity.activity_date)}</p>
                             </div>
-                            <div className="min-w-48 rounded-xl bg-[#69928F] px-4 py-3">
-                                <p className="font-bold">Created by</p>
-                                <p>{activity.creator_name}</p>
+                            <div className="rounded-2xl bg-panel-surface p-5">
+                                <p className="text-sm font-medium uppercase tracking-wider text-panel-muted">Created by</p>
+                                <p className="mt-3 text-lg font-medium">{activity.creator_name}</p>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-2 rounded-xl bg-[#69928F] px-4 py-3">
-                            <p className="font-bold">Description</p>
-                            <p className="whitespace-pre-wrap">{activity.activity_description || "—"}</p>
+                        <div className="flex flex-col rounded-2xl bg-panel-surface p-5 lg:p-6">
+                            <p className="text-sm font-medium uppercase tracking-wider text-panel-muted">Description</p>
+                            <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-panel-muted">{activity.activity_description || "—"}</p>
                         </div>
                     </>
                 )}
@@ -178,7 +186,7 @@ export default function ActivityDetailPage() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel variant="outline" disabled={isDeleting}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction variant="destructive" onClick={handle_delete} disabled={isDeleting}>Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={handle_delete} disabled={isDeleting} className="bg-destructive text-white hover:bg-destructive/90">Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

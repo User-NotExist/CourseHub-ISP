@@ -71,12 +71,13 @@ export default function ActivitiesPage() {
 
     return (
         <div className="flex flex-col h-screen pt-7 gap-4 xl:w-250 lg:w-200 md:w-150 sm:w-100 min-w-90">
-            <h1 className="text-center text-3xl font-bold text-[#054A46] underline">Activities and Milestones</h1>
-
-            <div className="flex flex-row items-center justify-between">
-                <h2 className="text-xl font-bold">{course?.course_name}</h2>
+            <div className="flex flex-row items-start justify-between gap-6">
+                <div className="min-w-0">
+                    <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">Activities and Milestones</h1>
+                    <h2 className="mt-2 truncate text-lg font-semibold text-neutral-900">{course?.course_name ?? " "}</h2>
+                </div>
                 {canEdit && (
-                    <Button onClick={() => setIsFormOpen(true)} className="bg-[#006C67] px-5 text-white hover:bg-[#006C67]/90">
+                    <Button onClick={() => setIsFormOpen(true)} className="h-auto shrink-0 gap-2 rounded-xl bg-brand px-5 py-3 text-base font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
                         <Plus />
                         New
                     </Button>
@@ -88,8 +89,10 @@ export default function ActivitiesPage() {
                     <button
                         key={t}
                         onClick={() => setTab(t)}
-                        className={`rounded-md border border-[#006C67] px-6 py-1 font-bold transition-colors ${
-                            tab === t ? "bg-[#006C67] text-white" : "text-[#006C67] hover:bg-[#006C67]/10"
+                        className={`rounded-xl border px-6 py-2 font-semibold shadow-sm transition-colors ${
+                            tab === t
+                                ? "border-brand bg-brand text-brand-foreground"
+                                : "border-brand/30 bg-white text-brand-ink hover:bg-brand hover:text-brand-foreground"
                         }`}
                     >
                         {t}
@@ -97,8 +100,8 @@ export default function ActivitiesPage() {
                 ))}
             </div>
 
-            <div className="flex flex-col gap-3 rounded-2xl bg-[#054A46] p-4 mb-6 overflow-y-auto h-screen scrollbar-none">
-                <div className={`${columns} rounded-xl bg-[#69928F] py-3 font-bold text-white`}>
+            <div className="flex flex-col gap-3 rounded-3xl bg-panel p-6 mb-6 overflow-y-auto h-screen scrollbar-none shadow-lg ring-1 ring-black/10">
+                <div className={`${columns} rounded-2xl bg-panel-surface-strong py-3.5 font-semibold text-panel-foreground`}>
                     <span>Title</span>
                     <span>Type</span>
                     <span>Date</span>
@@ -106,18 +109,18 @@ export default function ActivitiesPage() {
 
                 {isLoading ? (
                     <div className="flex justify-center py-10">
-                        <Loader2 className="animate-spin text-white" size={40} />
+                        <Loader2 className="animate-spin text-panel-foreground" size={40} />
                     </div>
                 ) : error ? (
-                    <p className="py-10 text-center text-white">{error}</p>
+                    <p className="py-10 text-center text-panel-muted">{error}</p>
                 ) : shown.length === 0 ? (
-                    <p className="py-10 text-center text-white/80">No activities or milestones yet.</p>
+                    <p className="py-10 text-center text-panel-muted">No activities or milestones yet.</p>
                 ) : (
                     shown.map((activity) => (
                         <Link
                             key={activity.activity_id}
                             href={`/courses/${courseId}/acmil/${activity.activity_id}`}
-                            className={`${columns} items-center rounded-md bg-[#69928F] py-3 text-white transition-colors hover:bg-[#7BA3A0]`}
+                            className={`${columns} items-center rounded-2xl bg-panel-surface py-4 text-panel-foreground transition hover:bg-panel-surface-strong`}
                         >
                             <span className="truncate">{activity.activity_name}</span>
                             <span>{activity.activity_type}</span>

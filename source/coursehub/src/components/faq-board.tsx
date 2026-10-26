@@ -120,66 +120,65 @@ export default function FaqBoard() {
   return (
     <div className="flex w-270 flex-1 min-w-0 flex-col p-6 md:p-10 h-screen">
       {/* Page header */}
-      <h1 className="mb-6 text-center text-3xl font-bold text-[#054a46] underline underline-offset-4">
-        Frequently Asked Questions
-      </h1>
-
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xl font-bold">
-          {course?.course_name ?? (isLoading ? "Loading..." : "Untitled course")}
-        </p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">
+            Frequently Asked Questions
+          </h1>
+          <p className="mt-2 truncate text-lg font-semibold text-neutral-900">
+            {course?.course_name ?? (isLoading ? "Loading..." : "Untitled course")}
+          </p>
+        </div>
         {canCreate && (
           <Button
             type="button"
             onClick={() => router.push(`/courses/${courseId}/faq/create`)}
-            className="h-12 shrink-0 gap-2 rounded-[10px] bg-[#006c67] px-8 text-lg font-bold text-white transition hover:bg-[#054a46]"
+            className="h-auto shrink-0 gap-2 rounded-xl bg-brand px-5 py-3 text-base font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
-            <Plus className="size-5" />
+            <Plus className="size-4" />
             New
           </Button>
         )}
       </div>
 
-      <div className="flex-1 rounded-3xl bg-[#054a46] p-5 md:min-h-0 overflow-y-auto scrollbar-none">
+      <div className="flex-1 rounded-3xl bg-panel p-6 shadow-lg ring-1 ring-black/10 md:min-h-0 lg:p-8 overflow-y-auto scrollbar-none">
         <div className="flex flex-col gap-4">
           {isLoading ? (
-            <p className="px-2 text-sm text-white/70">Loading...</p>
+            <p className="px-2 text-sm text-panel-muted">Loading...</p>
           ) : faqs.length === 0 ? (
-            <p className="px-2 text-sm text-white/50">No FAQs here yet.</p>
+            <p className="px-2 text-sm text-panel-muted">No FAQs here yet.</p>
           ) : (
             faqs.map((faq) => (
               <article
                 key={faq.faq_id}
-                className="rounded-2xl bg-[#6f9997] px-6 py-5 text-white"
+                className="rounded-2xl bg-panel-surface px-6 py-5 text-panel-foreground transition hover:bg-panel-surface-strong"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <h2 className="min-w-0 break-words text-2xl font-bold">{faq.title}</h2>
+                  <h2 className="min-w-0 break-words text-2xl font-semibold leading-snug">{faq.title}</h2>
                   {faq.can_edit && (
                     <div className="flex shrink-0 items-center gap-2">
                       <Button
                         type="button"
-                        variant="ghost"
                         size="icon"
                         aria-label="Edit FAQ"
                         onClick={() => router.push(`/courses/${courseId}/faq/${faq.faq_id}/edit`)}
-                        className="bg-white/70 text-[#054a46] hover:bg-white"
+                        className="rounded-xl bg-white text-brand-ink shadow-sm hover:bg-white/90"
                       >
                         <Pencil className="size-4" />
                       </Button>
                       <Button
                         type="button"
-                        variant="ghost"
                         size="icon"
                         aria-label="Delete FAQ"
                         onClick={() => setFaqToDelete(faq)}
-                        className="bg-white/70 text-[#054a46] hover:bg-white"
+                        className="rounded-xl bg-destructive text-white shadow-sm hover:bg-destructive/90"
                       >
                         <Trash2 className="size-4" />
                       </Button>
                     </div>
                   )}
                 </div>
-                <p className="mt-3 whitespace-pre-wrap break-words text-sm">
+                <p className="mt-3 whitespace-pre-wrap break-words text-base leading-7 text-panel-muted">
                   {faq.description || "-"}
                 </p>
               </article>
@@ -204,8 +203,8 @@ export default function FaqBoard() {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              variant="destructive"
               disabled={isDeleting}
+              className="bg-destructive text-white hover:bg-destructive/90"
               onClick={(event) => {
                 event.preventDefault()
                 void handleDelete()
