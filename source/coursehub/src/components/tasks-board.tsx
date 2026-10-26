@@ -178,7 +178,7 @@ export default function TasksBoard() {
   }
 
   return (
-    <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10">
+    <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10 overflow-y-auto h-screen scrollbar-none">
       {/* Page header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -212,7 +212,7 @@ export default function TasksBoard() {
                 {label}
               </h2>
 
-              <div className="flex flex-1 flex-col gap-4 overflow-y-auto">
+              <div className="flex flex-1 flex-col gap-4 overflow-y-auto scrollbar-none">
                 {isLoading ? (
                   <p className="text-white/70 text-sm">Loading...</p>
                 ) : columnTasks.length === 0 ? (

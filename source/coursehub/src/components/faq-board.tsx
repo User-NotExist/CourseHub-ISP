@@ -118,7 +118,7 @@ export default function FaqBoard() {
   const canCreate = course?.role === "lecturer" || course?.role === "ta"
 
   return (
-    <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10">
+    <div className="flex w-270 flex-1 min-w-0 flex-col p-6 md:p-10 h-screen">
       {/* Page header */}
       <h1 className="mb-6 text-center text-3xl font-bold text-[#054a46] underline underline-offset-4">
         Frequently Asked Questions
@@ -140,7 +140,7 @@ export default function FaqBoard() {
         )}
       </div>
 
-      <div className="flex-1 rounded-3xl bg-[#054a46] p-5 md:min-h-0">
+      <div className="flex-1 rounded-3xl bg-[#054a46] p-5 md:min-h-0 overflow-y-auto scrollbar-none">
         <div className="flex flex-col gap-4">
           {isLoading ? (
             <p className="px-2 text-sm text-white/70">Loading...</p>
