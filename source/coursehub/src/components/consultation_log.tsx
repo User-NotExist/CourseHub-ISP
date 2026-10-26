@@ -69,13 +69,13 @@ export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
       {/* Page header, anchored top-left */}
       <header className="flex items-start justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-3xl font-semibold tracking-tight text-[#0b5c4f]">Consultation Log</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">Consultation Log</h1>
           <p className="mt-2 truncate text-lg font-semibold text-neutral-900">{courseName ?? "\u00a0"}</p>
         </div>
         <button
           type="button"
           onClick={handleNew}
-          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#00695f] px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#00574f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00695f]"
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-brand px-5 py-3 text-base font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           <Plus className="size-4" aria-hidden />
           New
@@ -83,29 +83,29 @@ export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
       </header>
 
       {/* Log panel fills the remaining space */}
-      <section className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-[#04453f] shadow-lg ring-1 ring-black/10 overflow-y-auto h-screen scrollbar-none">
+      <section className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-panel shadow-sm ring-1 ring-panel-border overflow-y-auto h-screen scrollbar-none">
         <div className="flex items-center gap-4 px-6 pt-6 lg:px-8 lg:pt-8">
           <label className="relative flex-1">
             <span className="sr-only">Search consultations</span>
-            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/60" aria-hidden />
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-panel-muted" aria-hidden />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by title or consultant"
-              className="w-full rounded-xl border border-white/10 bg-white/10 py-3 pl-11 pr-4 text-sm text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none"
+              className="w-full rounded-xl border border-panel-border bg-panel-surface py-3 pl-11 pr-4 text-sm text-panel-foreground placeholder:text-panel-subtle focus:border-brand focus:outline-none"
             />
           </label>
-          <span className="shrink-0 text-sm text-white/70">
+          <span className="shrink-0 text-sm text-panel-muted">
             {loading ? "Loading…" : `${visible.length} ${visible.length === 1 ? "entry" : "entries"}`}
           </span>
         </div>
 
-        <div className="mx-6 mt-6 hidden grid-cols-[1fr_11rem_16rem] items-center rounded-2xl bg-white/20 px-6 py-3.5 text-base font-semibold text-white sm:grid lg:mx-8">
+        <div className="mx-6 mt-6 hidden grid-cols-[1fr_11rem_16rem] items-center rounded-2xl bg-panel-surface-strong px-6 py-3.5 text-base font-semibold text-panel-foreground sm:grid lg:mx-8">
           <span>Title</span>
           <button
             type="button"
             onClick={() => setNewestFirst((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-left hover:text-white/80"
+            className="inline-flex items-center gap-1.5 text-left hover:text-panel-muted"
             aria-label={`Sort by date, currently ${newestFirst ? "newest" : "oldest"} first`}
           >
             Date <SortIcon className="size-3.5" aria-hidden />
@@ -119,48 +119,48 @@ export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
               <button
                 type="button"
                 onClick={() => openLog(log)}
-                className="group grid w-full grid-cols-[1fr_auto] items-center gap-x-6 gap-y-2 rounded-2xl bg-white/10 px-6 py-5 text-left text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/70 sm:grid-cols-[1fr_11rem_16rem]"
+                className="group grid w-full grid-cols-[1fr_auto] items-center gap-x-6 gap-y-2 rounded-2xl bg-panel-surface px-6 py-5 text-left text-panel-foreground transition hover:bg-panel-surface-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-panel-foreground sm:grid-cols-[1fr_11rem_16rem]"
               >
                 <span className="truncate text-base font-medium">{log.title}</span>
-                <span className="order-3 text-sm text-white/70 sm:order-none sm:text-base sm:text-white">
+                <span className="order-3 text-sm text-panel-muted sm:order-none sm:text-base sm:text-panel-foreground">
                   {formatDate(log.date)}
                 </span>
                 <span className="order-2 flex items-center justify-end gap-3.5 sm:order-none sm:justify-start">
                   <span
                     title={log.consultant?.name ?? "No consultant recorded"}
-                    className="grid size-9 shrink-0 place-items-center rounded-full bg-[#00695f] text-xs font-semibold ring-2 ring-white/30"
+                    className="grid size-9 shrink-0 place-items-center rounded-full bg-brand text-xs font-semibold text-brand-foreground ring-2 ring-panel-border"
                   >
                     {log.consultant?.initials ?? "?"}
                   </span>
-                  <span className="hidden truncate text-sm text-white/85 md:inline">
+                  <span className="hidden truncate text-sm text-panel-muted md:inline">
                     {log.consultant?.name ?? "Not recorded"}
                   </span>
-                  <ChevronRight className="ml-auto hidden size-4 shrink-0 text-white/40 transition group-hover:translate-x-0.5 group-hover:text-white/80 sm:block" aria-hidden />
+                  <ChevronRight className="ml-auto hidden size-4 shrink-0 text-panel-subtle transition group-hover:translate-x-0.5 group-hover:text-panel-foreground sm:block" aria-hidden />
                 </span>
               </button>
             </li>
           ))}
 
           {loading && (
-            <li className="flex items-center justify-center gap-3 py-24 text-white/80" role="status">
+            <li className="flex items-center justify-center gap-3 py-24 text-panel-muted" role="status">
               <Loader2 className="size-5 animate-spin" aria-hidden />
               <span className="text-base font-medium">Loading consultations…</span>
             </li>
           )}
 
           {!loading && error && (
-            <li role="alert" className="flex flex-col items-center justify-center gap-3 py-24 text-center text-white/80">
-              <MessageSquareText className="size-10 text-white/40" aria-hidden />
+            <li role="alert" className="flex flex-col items-center justify-center gap-3 py-24 text-center text-panel-muted">
+              <MessageSquareText className="size-10 text-panel-subtle" aria-hidden />
               <p className="text-base font-medium">Couldn&apos;t load consultations</p>
-              <p className="text-sm text-white/60">{error}</p>
+              <p className="text-sm text-panel-muted">{error}</p>
             </li>
           )}
 
           {!loading && !error && visible.length === 0 && (
-            <li className="flex flex-col items-center justify-center gap-3 py-24 text-center text-white/80">
-              <MessageSquareText className="size-10 text-white/40" aria-hidden />
+            <li className="flex flex-col items-center justify-center gap-3 py-24 text-center text-panel-muted">
+              <MessageSquareText className="size-10 text-panel-subtle" aria-hidden />
               <p className="text-base font-medium">{query ? "No consultations match your search" : "No consultations yet"}</p>
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-panel-muted">
                 {query ? "Try a different title or consultant name." : "Select New to log your first consultation."}
               </p>
             </li>

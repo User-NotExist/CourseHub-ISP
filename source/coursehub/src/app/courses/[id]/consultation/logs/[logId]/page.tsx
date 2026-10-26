@@ -42,13 +42,13 @@ export default function Page() {
     <div className="flex min-h-svh w-full flex-col items-center justify-center gap-4 p-8 text-center">
       {failed ? (
         <>
-          <h1 className="text-2xl font-semibold text-[#0b5c4f]">
+          <h1 className="text-2xl font-semibold text-brand-ink">
             {state.notFound ? "Consultation log not found" : "Couldn't load this consultation log"}
           </h1>
           {!state.notFound && <p className="text-sm text-neutral-600">{state.error}</p>}
           <Link
             href={backHref}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#00695f]/30 bg-white px-5 py-3 text-base font-semibold text-[#0b5c4f] shadow-sm transition hover:bg-[#00695f] hover:text-white"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand/30 bg-white px-5 py-3 text-base font-semibold text-brand-ink shadow-sm transition hover:bg-brand hover:text-brand-foreground"
           >
             <ArrowLeft className="size-4" aria-hidden />
             Back to logs

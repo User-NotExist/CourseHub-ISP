@@ -12,6 +12,11 @@ export type ActivityType = "Activities" | "Milestones"
 
 const activityTypes: ActivityType[] = ["Activities", "Milestones"]
 
+// Same look as the consultation log form.
+const fieldLabel = "flex flex-col gap-2 text-sm font-medium uppercase tracking-wider text-panel-muted"
+const fieldInput =
+    "h-auto rounded-xl border-panel-border bg-panel-surface px-4 py-3 text-base font-normal normal-case tracking-normal text-panel-foreground placeholder:text-panel-subtle focus-visible:border-brand focus-visible:ring-0 md:text-base"
+
 export type Activity = {
     activity_id: number
     user_id: number
@@ -112,23 +117,23 @@ export function ActivityForm({
             <form
                 onSubmit={handle_submit}
                 onClick={(event) => event.stopPropagation()}
-                className="flex w-full max-w-2xl flex-col gap-4 rounded-2xl bg-[#E8F1F0] p-6"
+                className="flex w-full max-w-2xl flex-col gap-6 rounded-3xl bg-panel p-6 shadow-sm ring-1 ring-panel-border lg:p-8"
             >
-                <label className="flex flex-col gap-1 font-bold">
+                <label className={fieldLabel}>
                     Title
                     <Input
                         value={name}
                         onChange={(event) => setName(event.target.value)}
                         placeholder="Enter Activities or Milestones Title"
-                        className="bg-white font-normal"
+                        className={fieldInput}
                     />
                 </label>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <label className="flex flex-col gap-1 font-bold">
+                    <label className={fieldLabel}>
                         Type
                         <Combobox items={activityTypes} value={type || null} onValueChange={(value) => setType(value ?? "")}>
-                            <ComboboxInput readOnly placeholder="Select type" className="w-full bg-white font-normal" />
+                            <ComboboxInput readOnly placeholder="Select type" className="h-auto w-full rounded-xl border-panel-border bg-panel-surface py-1.5 text-base font-normal normal-case tracking-normal text-panel-foreground [&_input]:placeholder:text-panel-subtle [&_svg]:text-panel-subtle" />
                             <ComboboxContent>
                                 <ComboboxList>
                                     {(item: ActivityType) => (
@@ -141,34 +146,34 @@ export function ActivityForm({
                         </Combobox>
                     </label>
 
-                    <label className="flex flex-col gap-1 font-bold">
+                    <label className={fieldLabel}>
                         Date
                         <Input
                             type="date"
                             value={date}
                             onChange={(event) => setDate(event.target.value)}
-                            className="bg-white font-normal"
+                            className={`${fieldInput}`}
                         />
                     </label>
                 </div>
 
-                <label className="flex flex-col gap-1 font-bold">
+                <label className={fieldLabel}>
                     Detail
                     <Textarea
                         value={description}
                         onChange={(event) => setDescription(event.target.value)}
                         placeholder="Write details"
-                        className="min-h-32 bg-white font-normal"
+                        className={`min-h-32 leading-7 ${fieldInput}`}
                     />
                 </label>
 
-                {formError && <p className="text-sm font-bold text-red-600">{formError}</p>}
+                {formError && <p role="alert" className="text-sm font-medium text-panel-danger">{formError}</p>}
 
-                <div className="flex flex-row gap-3">
-                    <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
+                <div className="flex flex-row justify-end gap-3 border-t border-panel-border pt-6">
+                    <Button type="button" variant="ghost" onClick={onCancel} disabled={isSaving} className="h-auto rounded-xl px-5 py-3 text-base font-semibold text-panel-muted hover:bg-panel-surface hover:text-panel-foreground">
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isSaving} className="bg-[#054A46] text-white hover:bg-[#054A46]/90">
+                    <Button type="submit" disabled={isSaving} className="h-auto rounded-xl bg-brand px-6 py-3 text-base font-semibold text-brand-foreground shadow-sm hover:bg-brand-hover">
                         {isSaving && <Loader2 className="animate-spin" />}
                         Save
                     </Button>

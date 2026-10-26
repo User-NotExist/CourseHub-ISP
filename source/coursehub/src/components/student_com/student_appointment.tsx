@@ -109,7 +109,7 @@ export default function StudentAppointment() {
                 <div className="flex items-center rounded-2xl bg-[#006c67] px-6 py-3 text-2xl font-bold text-white">
                     Book Consultation
                 </div>
-                <div className="flex flex-1 items-center rounded-2xl bg-[#6b9491] px-6 py-3 text-xl font-bold text-white">
+                <div className="flex flex-1 items-center rounded-2xl bg-panel px-6 py-3 text-xl font-bold text-panel-foreground">
                     {courseName ?? "Loading..."}
                 </div>
             </div>

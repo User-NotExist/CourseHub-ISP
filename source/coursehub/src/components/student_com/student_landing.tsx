@@ -101,7 +101,7 @@ export default function StudentLanding() {
                             {openId === faq.faq_id && (
                                 <div className="flex flex-col gap-1 px-4 pb-3">
                                     <p className="text-xs font-semibold">{faq.creator}</p>
-                                    <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                                    <p className="whitespace-pre-wrap text-sm text-neutral-600">
                                         {faq.description || "No answer yet."}
                                     </p>
                                 </div>

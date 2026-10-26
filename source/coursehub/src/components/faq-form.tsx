@@ -111,20 +111,21 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
 
   return (
     <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10">
-      <h1 className="mb-6 text-center text-3xl font-bold text-[#054a46] underline underline-offset-4">
-        {isEdit ? "Edit FAQ" : "Create FAQ"}
-      </h1>
-
-      {/* Course name on the left, Cancel / Save on the right (as in Figma) */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xl font-bold">{course?.course_name ?? "Loading..."}</p>
-        <div className="flex gap-4">
+      {/* Title and course name on the left, Cancel / Save on the right (as in Figma) */}
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">
+            {isEdit ? "Edit FAQ" : "Create FAQ"}
+          </h1>
+          <p className="mt-2 truncate text-lg font-semibold text-neutral-900">{course?.course_name ?? "Loading..."}</p>
+        </div>
+        <div className="flex gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={() => router.push(backHref)}
             disabled={isSaving}
-            className="h-12 w-32 rounded-[10px] border-[#006c67] bg-transparent text-lg font-bold text-[#006c67] hover:bg-[#006c67]/10 hover:text-[#006c67]"
+            className="h-auto rounded-xl border-brand/30 bg-white px-5 py-3 text-base font-semibold text-brand-ink shadow-sm transition hover:bg-brand hover:text-brand-foreground"
           >
             Cancel
           </Button>
@@ -132,7 +133,7 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
             type="button"
             onClick={handleSave}
             disabled={isSaving || isLoading || loadFailed}
-            className="h-12 w-32 rounded-[10px] bg-[#006c67] text-lg font-bold text-white hover:bg-[#054a46]"
+            className="h-auto rounded-xl bg-brand px-6 py-3 text-base font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-hover"
           >
             {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
             Save
@@ -141,10 +142,10 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
       </div>
 
       {/* Fields */}
-      <div className="flex flex-col gap-6 rounded-3xl bg-neutral-100 p-6">
+      <div className="flex flex-col gap-6 rounded-3xl bg-panel p-6 shadow-sm ring-1 ring-panel-border lg:p-8">
         <div className="flex flex-col gap-2">
-          <label htmlFor="faq-title" className="text-lg font-bold">
-            Title<span className="text-red-600">*</span>
+          <label htmlFor="faq-title" className="text-sm font-medium uppercase tracking-wider text-panel-muted">
+            Title<span className="ml-0.5 font-bold text-panel-danger">*</span>
           </label>
           <Input
             id="faq-title"
@@ -152,13 +153,13 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title"
             disabled={isLoading || isSaving || loadFailed}
-            className="bg-white"
+            className="h-auto rounded-xl border-panel-border bg-panel-surface px-4 py-3 text-base text-panel-foreground placeholder:text-panel-subtle focus-visible:border-brand focus-visible:ring-0 md:text-base"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="faq-description" className="text-lg font-bold">
-            Description<span className="text-red-600">*</span>
+          <label htmlFor="faq-description" className="text-sm font-medium uppercase tracking-wider text-panel-muted">
+            Description<span className="ml-0.5 font-bold text-panel-danger">*</span>
           </label>
           <textarea
             id="faq-description"
@@ -167,7 +168,7 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
             placeholder="Description"
             rows={10}
             disabled={isLoading || isSaving || loadFailed}
-            className="w-full resize-y rounded-md border border-input bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#006c67] disabled:opacity-50"
+            className="w-full resize-y rounded-xl border border-panel-border bg-panel-surface px-4 py-3 text-base leading-7 text-panel-foreground outline-none placeholder:text-panel-subtle focus:border-brand disabled:opacity-50"
           />
         </div>
       </div>
