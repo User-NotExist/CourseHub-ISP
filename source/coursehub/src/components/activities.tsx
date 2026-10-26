@@ -70,7 +70,7 @@ export default function ActivitiesPage() {
     const shown = tab === "All" ? activities : activities.filter((a) => a.activity_type === tab)
 
     return (
-        <div className="flex flex-col h-screen pt-7 gap-4 xl:w-250 lg:w-200 md:w-150 sm:w-100 min-w-90">
+        <div className="flex flex-col h-screen w-full min-w-0 gap-4 p-6 md:p-10">
             <div className="flex flex-row items-start justify-between gap-6">
                 <div className="min-w-0">
                     <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">Activities and Milestones</h1>
@@ -100,7 +100,7 @@ export default function ActivitiesPage() {
                 ))}
             </div>
 
-            <div className="flex flex-col gap-3 rounded-3xl bg-panel p-6 mb-6 overflow-y-auto h-screen scrollbar-none shadow-sm ring-1 ring-panel-border">
+            <div className="flex flex-col gap-3 rounded-3xl bg-panel p-6 overflow-y-auto flex-1 min-h-0 scrollbar-none shadow-sm ring-1 ring-panel-border">
                 <div className={`${columns} rounded-2xl bg-panel-surface-strong py-3.5 font-semibold text-panel-foreground`}>
                     <span>Title</span>
                     <span>Type</span>
