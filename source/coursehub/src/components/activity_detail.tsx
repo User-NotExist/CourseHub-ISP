@@ -117,7 +117,7 @@ export default function ActivityDetailPage() {
                 </Button>
             </div>
 
-            <div className="flex flex-col gap-6 rounded-3xl bg-panel p-6 mb-6 text-panel-foreground overflow-y-auto shadow-lg ring-1 ring-black/10 lg:p-8">
+            <div className="flex flex-col gap-6 rounded-3xl bg-panel p-6 mb-6 text-panel-foreground overflow-y-auto shadow-sm ring-1 ring-panel-border lg:p-8">
                 {isLoading ? (
                     <div className="flex justify-center py-10">
                         <Loader2 className="animate-spin" size={40} />
@@ -138,7 +138,7 @@ export default function ActivityDetailPage() {
 
                             {canEdit && (
                                 <div className="flex flex-row gap-3">
-                                    <Button onClick={() => setIsFormOpen(true)} className="h-10 gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-brand-ink shadow-sm transition hover:bg-white/90">
+                                    <Button onClick={() => setIsFormOpen(true)} className="h-10 gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-hover">
                                         <Pencil className="size-4" aria-hidden />
                                         Edit
                                     </Button>

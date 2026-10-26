@@ -83,7 +83,7 @@ export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
       </header>
 
       {/* Log panel fills the remaining space */}
-      <section className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-panel shadow-lg ring-1 ring-black/10 overflow-y-auto h-screen scrollbar-none">
+      <section className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-panel shadow-sm ring-1 ring-panel-border overflow-y-auto h-screen scrollbar-none">
         <div className="flex items-center gap-4 px-6 pt-6 lg:px-8 lg:pt-8">
           <label className="relative flex-1">
             <span className="sr-only">Search consultations</span>
@@ -92,7 +92,7 @@ export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by title or consultant"
-              className="w-full rounded-xl border border-panel-border bg-panel-surface py-3 pl-11 pr-4 text-sm text-panel-foreground placeholder:text-panel-subtle focus:border-panel-foreground focus:outline-none"
+              className="w-full rounded-xl border border-panel-border bg-panel-surface py-3 pl-11 pr-4 text-sm text-panel-foreground placeholder:text-panel-subtle focus:border-brand focus:outline-none"
             />
           </label>
           <span className="shrink-0 text-sm text-panel-muted">
@@ -128,7 +128,7 @@ export default function ConsultationLogPage({ onNew, onOpenLog }: Props) {
                 <span className="order-2 flex items-center justify-end gap-3.5 sm:order-none sm:justify-start">
                   <span
                     title={log.consultant?.name ?? "No consultant recorded"}
-                    className="grid size-9 shrink-0 place-items-center rounded-full bg-brand text-xs font-semibold ring-2 ring-panel-border"
+                    className="grid size-9 shrink-0 place-items-center rounded-full bg-brand text-xs font-semibold text-brand-foreground ring-2 ring-panel-border"
                   >
                     {log.consultant?.initials ?? "?"}
                   </span>

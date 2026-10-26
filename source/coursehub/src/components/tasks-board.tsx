@@ -206,7 +206,7 @@ export default function TasksBoard() {
           return (
             <div
               key={key}
-              className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-[500px] shadow-lg ring-1 ring-black/10 md:min-h-0"
+              className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-[500px] shadow-sm ring-1 ring-panel-border md:min-h-0"
             >
               <h2 className="text-panel-foreground text-xl font-semibold bg-panel-surface-strong rounded-2xl px-5 py-2.5 w-fit">
                 {label}
@@ -225,10 +225,10 @@ export default function TasksBoard() {
                         {task.can_edit && (
                           <Link
                             href={`/courses/${courseId}/task/${task.task_id}/edit`}
-                            className="bg-white rounded-xl p-1.5 shadow-sm hover:bg-white/90 transition"
+                            className="bg-brand rounded-xl p-1.5 shadow-sm hover:bg-brand-hover transition"
                             aria-label="Edit task"
                           >
-                            <Edit className="size-4 text-brand-ink" />
+                            <Edit className="size-4 text-brand-foreground" />
                           </Link>
                         )}
                       </div>

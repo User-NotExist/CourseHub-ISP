@@ -15,7 +15,7 @@ const activityTypes: ActivityType[] = ["Activities", "Milestones"]
 // Same look as the consultation log form.
 const fieldLabel = "flex flex-col gap-2 text-sm font-medium uppercase tracking-wider text-panel-muted"
 const fieldInput =
-    "h-auto rounded-xl border-panel-border bg-panel-surface px-4 py-3 text-base font-normal normal-case tracking-normal text-panel-foreground placeholder:text-panel-subtle focus-visible:border-panel-foreground focus-visible:ring-0 md:text-base"
+    "h-auto rounded-xl border-panel-border bg-panel-surface px-4 py-3 text-base font-normal normal-case tracking-normal text-panel-foreground placeholder:text-panel-subtle focus-visible:border-brand focus-visible:ring-0 md:text-base"
 
 export type Activity = {
     activity_id: number
@@ -117,7 +117,7 @@ export function ActivityForm({
             <form
                 onSubmit={handle_submit}
                 onClick={(event) => event.stopPropagation()}
-                className="flex w-full max-w-2xl flex-col gap-6 rounded-3xl bg-panel p-6 shadow-lg ring-1 ring-black/10 lg:p-8"
+                className="flex w-full max-w-2xl flex-col gap-6 rounded-3xl bg-panel p-6 shadow-sm ring-1 ring-panel-border lg:p-8"
             >
                 <label className={fieldLabel}>
                     Title
@@ -152,7 +152,7 @@ export function ActivityForm({
                             type="date"
                             value={date}
                             onChange={(event) => setDate(event.target.value)}
-                            className={`[color-scheme:dark] ${fieldInput}`}
+                            className={`${fieldInput}`}
                         />
                     </label>
                 </div>
@@ -167,13 +167,13 @@ export function ActivityForm({
                     />
                 </label>
 
-                {formError && <p className="text-sm text-panel-danger">{formError}</p>}
+                {formError && <p role="alert" className="text-sm font-medium text-panel-danger">{formError}</p>}
 
                 <div className="flex flex-row justify-end gap-3 border-t border-panel-border pt-6">
                     <Button type="button" variant="ghost" onClick={onCancel} disabled={isSaving} className="h-auto rounded-xl px-5 py-3 text-base font-semibold text-panel-muted hover:bg-panel-surface hover:text-panel-foreground">
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isSaving} className="h-auto rounded-xl bg-white px-6 py-3 text-base font-semibold text-brand-ink shadow-sm hover:bg-white/90">
+                    <Button type="submit" disabled={isSaving} className="h-auto rounded-xl bg-brand px-6 py-3 text-base font-semibold text-brand-foreground shadow-sm hover:bg-brand-hover">
                         {isSaving && <Loader2 className="animate-spin" />}
                         Save
                     </Button>

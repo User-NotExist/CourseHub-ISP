@@ -110,7 +110,7 @@ export default function CreateCourse() {
                                 <Image src={selectedVariant.value} alt="Course preview" fill className="object-cover" />
                             </div>
                         ) : (
-                            <div className="w-full h-40 mb-2 rounded-lg border border-dashed flex items-center justify-center text-sm text-gray-400">
+                            <div className="w-full h-40 mb-2 rounded-lg border border-dashed flex items-center justify-center text-sm text-muted-foreground">
                                 No image selected
                             </div>
                         )}
@@ -152,7 +152,7 @@ export default function CreateCourse() {
                             maxLength={DESCRIPTION_MAX_LENGTH}
                             rows={5}
                         />
-                        <p className="text-xs text-gray-400 text-right mt-1">
+                        <p className="text-xs text-muted-foreground text-right mt-1">
                             {courseDescription.length}/{DESCRIPTION_MAX_LENGTH}
                         </p>
                     </div>

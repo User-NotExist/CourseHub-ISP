@@ -141,7 +141,7 @@ export default function FaqBoard() {
         )}
       </div>
 
-      <div className="flex-1 rounded-3xl bg-panel p-6 shadow-lg ring-1 ring-black/10 md:min-h-0 lg:p-8 overflow-y-auto scrollbar-none">
+      <div className="flex-1 rounded-3xl bg-panel p-6 shadow-sm ring-1 ring-panel-border md:min-h-0 lg:p-8 overflow-y-auto scrollbar-none">
         <div className="flex flex-col gap-4">
           {isLoading ? (
             <p className="px-2 text-sm text-panel-muted">Loading...</p>
@@ -162,7 +162,7 @@ export default function FaqBoard() {
                         size="icon"
                         aria-label="Edit FAQ"
                         onClick={() => router.push(`/courses/${courseId}/faq/${faq.faq_id}/edit`)}
-                        className="rounded-xl bg-white text-brand-ink shadow-sm hover:bg-white/90"
+                        className="rounded-xl bg-brand text-brand-foreground shadow-sm hover:bg-brand-hover"
                       >
                         <Pencil className="size-4" />
                       </Button>

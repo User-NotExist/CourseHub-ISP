@@ -51,6 +51,8 @@
   --color-panel-surface-strong: var(--panel-surface-strong);
   --color-panel-border: var(--panel-border);
   --color-panel-danger: var(--panel-danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-soft-foreground: var(--danger-soft-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -100,15 +102,19 @@
   --brand-ink: #0b5c4f;
   --brand-foreground: #ffffff;
 
-  /* Green content panels (lists, detail views, forms) and what sits on them */
-  --panel: #2a7a71;
-  --panel-foreground: #ffffff;
-  --panel-muted: #e6f3f1;        /* labels, secondary text, hints */
-  --panel-subtle: #c3e0dc;       /* placeholders, decorative icons */
-  --panel-surface: #236560;      /* rows, cards and inputs inside a panel */
-  --panel-surface-strong: #1d554f; /* table header rows, hovered rows */
-  --panel-border: #ffffff33;
-  --panel-danger: #fee2e2;       /* error text on a panel */
+  /* Soft mint content panels (lists, detail views, forms) and what sits on them */
+  --panel: #eef6f4;
+  --panel-foreground: #12332f;
+  --panel-muted: #3f5f5a;        /* labels, secondary text, hints */
+  --panel-subtle: #56756f;       /* placeholders, decorative icons */
+  --panel-surface: #ffffff;      /* rows, cards and inputs inside a panel */
+  --panel-surface-strong: #d7e9e5; /* table header rows, hovered rows */
+  --panel-border: #c9ddd9;
+  --panel-danger: #b91c1c;       /* error text, required marks and invalid-field borders */
+
+  /* Error messages: red text on a pale red badge or toast */
+  --danger-soft: #fef2f2;
+  --danger-soft-foreground: #b91c1c;
 }
 
 .dark {

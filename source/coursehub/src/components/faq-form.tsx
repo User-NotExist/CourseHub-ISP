@@ -142,10 +142,10 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
       </div>
 
       {/* Fields */}
-      <div className="flex flex-col gap-6 rounded-3xl bg-panel p-6 shadow-lg ring-1 ring-black/10 lg:p-8">
+      <div className="flex flex-col gap-6 rounded-3xl bg-panel p-6 shadow-sm ring-1 ring-panel-border lg:p-8">
         <div className="flex flex-col gap-2">
           <label htmlFor="faq-title" className="text-sm font-medium uppercase tracking-wider text-panel-muted">
-            Title<span className="text-panel-danger">*</span>
+            Title<span className="ml-0.5 font-bold text-panel-danger">*</span>
           </label>
           <Input
             id="faq-title"
@@ -153,13 +153,13 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title"
             disabled={isLoading || isSaving || loadFailed}
-            className="h-auto rounded-xl border-panel-border bg-panel-surface px-4 py-3 text-base text-panel-foreground placeholder:text-panel-subtle focus-visible:border-panel-foreground focus-visible:ring-0 md:text-base"
+            className="h-auto rounded-xl border-panel-border bg-panel-surface px-4 py-3 text-base text-panel-foreground placeholder:text-panel-subtle focus-visible:border-brand focus-visible:ring-0 md:text-base"
           />
         </div>
 
         <div className="flex flex-col gap-2">
           <label htmlFor="faq-description" className="text-sm font-medium uppercase tracking-wider text-panel-muted">
-            Description<span className="text-panel-danger">*</span>
+            Description<span className="ml-0.5 font-bold text-panel-danger">*</span>
           </label>
           <textarea
             id="faq-description"
@@ -168,7 +168,7 @@ export default function FaqForm({ faqId }: { faqId?: string }) {
             placeholder="Description"
             rows={10}
             disabled={isLoading || isSaving || loadFailed}
-            className="w-full resize-y rounded-xl border border-panel-border bg-panel-surface px-4 py-3 text-base leading-7 text-panel-foreground outline-none placeholder:text-panel-subtle focus:border-panel-foreground disabled:opacity-50"
+            className="w-full resize-y rounded-xl border border-panel-border bg-panel-surface px-4 py-3 text-base leading-7 text-panel-foreground outline-none placeholder:text-panel-subtle focus:border-brand disabled:opacity-50"
           />
         </div>
       </div>

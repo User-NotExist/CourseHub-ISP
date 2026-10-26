@@ -30,8 +30,9 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const label = "text-sm font-medium uppercase tracking-wider text-panel-muted";
 const inputBase =
   "w-full rounded-xl border bg-panel-surface px-4 py-3 text-base text-panel-foreground placeholder:text-panel-subtle focus:outline-none";
-const ok = "border-panel-border focus:border-panel-foreground";
+const ok = "border-panel-border focus:border-brand";
 const bad = "border-panel-danger";
+const errorText = "text-sm font-medium text-panel-danger";
 
 const noopSubscribe = () => () => {};
 const getToday = () => new Date().toLocaleDateString("en-CA");
@@ -115,7 +116,7 @@ export default function ConsultationLogForm({ initial, logId, onSubmit }: Props)
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="flex flex-1 flex-col gap-6 rounded-3xl bg-panel p-6 shadow-lg ring-1 ring-black/10 lg:p-8"
+        className="flex flex-1 flex-col gap-6 rounded-3xl bg-panel p-6 shadow-sm ring-1 ring-panel-border lg:p-8"
       >
         {/* Title */}
         <div>
@@ -130,7 +131,7 @@ export default function ConsultationLogForm({ initial, logId, onSubmit }: Props)
             aria-describedby={errors.title ? `${id}-title-err` : undefined}
             className={`mt-2 ${inputBase} ${errors.title ? bad : ok}`}
           />
-          {errors.title && <p id={`${id}-title-err`} className="mt-1.5 text-sm text-panel-danger">{errors.title}</p>}
+          {errors.title && <p id={`${id}-title-err`} className={`mt-1.5 ${errorText}`}>{errors.title}</p>}
         </div>
 
         {/* Consultant + Date */}
@@ -150,7 +151,7 @@ export default function ConsultationLogForm({ initial, logId, onSubmit }: Props)
               className={`mt-2 ${inputBase} ${errors.consultantEmail ? bad : ok}`}
             />
             {errors.consultantEmail ? (
-              <p id={`${id}-consultant-err`} className="mt-1.5 text-sm text-panel-danger">{errors.consultantEmail}</p>
+              <p id={`${id}-consultant-err`} className={`mt-1.5 ${errorText}`}>{errors.consultantEmail}</p>
             ) : (
               <p id={`${id}-consultant-hint`} className="mt-1.5 text-sm text-panel-muted">
                 Email of the person who gave the consultation.
@@ -167,9 +168,9 @@ export default function ConsultationLogForm({ initial, logId, onSubmit }: Props)
               onChange={(e) => setDateInput(e.target.value)}
               aria-invalid={!!errors.date}
               aria-describedby={errors.date ? `${id}-date-err` : undefined}
-              className={`mt-2 [color-scheme:dark] ${inputBase} ${errors.date ? bad : ok}`}
+              className={`mt-2 ${inputBase} ${errors.date ? bad : ok}`}
             />
-            {errors.date && <p id={`${id}-date-err`} className="mt-1.5 text-sm text-panel-danger">{errors.date}</p>}
+            {errors.date && <p id={`${id}-date-err`} className={`mt-1.5 ${errorText}`}>{errors.date}</p>}
           </div>
         </div>
 
@@ -189,12 +190,12 @@ export default function ConsultationLogForm({ initial, logId, onSubmit }: Props)
             aria-describedby={errors.details ? `${id}-details-err` : undefined}
             className={`mt-2 min-h-56 flex-1 resize-y leading-7 ${inputBase} ${errors.details ? bad : ok}`}
           />
-          {errors.details && <p id={`${id}-details-err`} className="mt-1.5 text-sm text-panel-danger">{errors.details}</p>}
+          {errors.details && <p id={`${id}-details-err`} className={`mt-1.5 ${errorText}`}>{errors.details}</p>}
         </div>
 
         {/* Actions */}
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-panel-border pt-6">
-          {submitError && <p role="alert" className="mr-auto text-sm text-panel-danger">{submitError}</p>}
+          {submitError && <p role="alert" className={`mr-auto ${errorText}`}>{submitError}</p>}
           <Link
             href={cancelHref}
             className="rounded-xl px-5 py-3 text-base font-semibold text-panel-muted transition hover:bg-panel-surface hover:text-panel-foreground"
@@ -204,7 +205,7 @@ export default function ConsultationLogForm({ initial, logId, onSubmit }: Props)
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-base font-semibold text-brand-ink shadow-sm transition hover:bg-white/90 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-base font-semibold text-brand-foreground shadow-sm transition hover:bg-brand-hover disabled:opacity-60"
           >
             {submitting && <Loader2 className="size-4 animate-spin" aria-hidden />}
             {submitting ? "Saving…" : logId ? "Save changes" : "Create log"}
