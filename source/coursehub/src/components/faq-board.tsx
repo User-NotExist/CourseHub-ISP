@@ -162,7 +162,7 @@ export default function FaqBoard() {
                         size="icon"
                         aria-label="Edit FAQ"
                         onClick={() => router.push(`/courses/${courseId}/faq/${faq.faq_id}/edit`)}
-                        className="rounded-xl bg-brand text-brand-foreground shadow-sm hover:bg-brand-hover"
+                        className="rounded-lg bg-brand text-brand-foreground shadow-sm hover:bg-brand-hover"
                       >
                         <Pencil className="size-4" />
                       </Button>
@@ -171,7 +171,7 @@ export default function FaqBoard() {
                         size="icon"
                         aria-label="Delete FAQ"
                         onClick={() => setFaqToDelete(faq)}
-                        className="rounded-xl bg-destructive text-white shadow-sm hover:bg-destructive/90"
+                        className="rounded-lg bg-destructive text-white shadow-sm hover:bg-destructive/90"
                       >
                         <Trash2 className="size-4" />
                       </Button>
