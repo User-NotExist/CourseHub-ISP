@@ -101,7 +101,7 @@ export default function ActivityDetailPage() {
     }
 
     return (
-        <div className="flex flex-col h-screen pt-7 gap-4 xl:w-250 lg:w-200 md:w-150 sm:w-100 min-w-90">
+        <div className="flex flex-col h-screen gap-4 w-full p-10 overflow-y-auto">
             <div className="flex flex-row items-start justify-between gap-6">
                 <div className="min-w-0">
                     <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">Activities and Milestones Details</h1>
@@ -117,7 +117,7 @@ export default function ActivityDetailPage() {
                 </Button>
             </div>
 
-            <div className="flex flex-col gap-6 rounded-3xl bg-panel p-6 mb-6 text-panel-foreground overflow-y-auto shadow-sm ring-1 ring-panel-border lg:p-8">
+            <div className="flex flex-col gap-6 rounded-3xl bg-panel p-6 mb-6 text-panel-foreground overflow-y-auto overflow-x-hidden min-w-0 shadow-sm ring-1 ring-panel-border lg:p-8">
                 {isLoading ? (
                     <div className="flex justify-center py-10">
                         <Loader2 className="animate-spin" size={40} />
@@ -163,7 +163,7 @@ export default function ActivityDetailPage() {
 
                         <div className="flex flex-col rounded-2xl bg-panel-surface p-5 lg:p-6">
                             <p className="text-sm font-medium uppercase tracking-wider text-panel-muted">Description</p>
-                            <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-panel-muted">{activity.activity_description || "—"}</p>
+                            <p className="mt-3 whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-base leading-7 text-panel-muted">{activity.activity_description || "—"}</p>
                         </div>
                     </>
                 )}
