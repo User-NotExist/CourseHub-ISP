@@ -18,6 +18,12 @@ import { useRouter } from "next/navigation";
 
 const subscribe = () => () => { };
 
+type my_tasks = {
+    task_id: number;
+    task_name: string;
+    task_due_date: string;
+}
+
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -26,7 +32,9 @@ export default function CoursePage() {
     const [courseTitle, setCourseTitle] = useState("Loading Title...");
     const [courseDescription, setCourseDescription] = useState("Loading Description...");
     const [totalLecturer, setTotalLecturer] = useState<string>("N/A");
-    const [totalTA, setTotalTA] = useState<string>("N/A ");
+    const [totalTA, setTotalTA] = useState<string>("N/A");
+
+    const [myTasks, setMyTasks] = useState<my_tasks[]>([]);
 
     const origin = useSyncExternalStore(
         subscribe,
@@ -72,13 +80,30 @@ export default function CoursePage() {
         }
     };
 
+    const get_my_tasks = async () => {
+        try {
+            const response = await fetch(`/api_course/get_details/get_my_task?course_id=${courseId}`);
+            if (response.ok) {
+                const data = await response.json();
+                setMyTasks(data);
+            }
+            else {
+                setMyTasks([]);
+            }
+        } catch (error) {
+            console.error("Error fetching my tasks:", error);
+            setMyTasks([]);
+        }
+    }
+
     useEffect(() => {
         get_course_details();
         get_course_numbers();
+        get_my_tasks();
     }, [courseId]);
 
     return (
-        <div className="flex w-full min-w-0 flex-col p-7 md:p-10 overflow-y-auto gap-5">
+        <div className="flex w-full min-w-0 flex-col p-7 md:p-10 overflow-y-auto gap-5 scrollbar-none">
             <div className="flex flex-col items-start gap-4">
                 <div className="text-4xl font-semibold tracking-tight text-brand-ink">{courseTitle}</div>
                 <div className="text-2xl">{courseDescription}</div>

@@ -72,6 +72,29 @@ async def get_title_description(
     return {"title": course.course_name, "description": course.course_description}
 
 
+@router.get("/get_self_tasks")
+async def get_self_tasks(
+    course_id: str,
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    tasks = db.query(Task).filter(Task.course_id == course_id, Task.user_id == user.user_id).all()
+
+    return [{"task_id": task.task_id, "task_name": task.task_name, "task_due_date": str(task.task_due_date)} for task in tasks]
+
+
 # keep : might use this for drow down when assigning something for ..
 @router.get("/get_members_email_and_role")
 async def get_members_email_and_role(
