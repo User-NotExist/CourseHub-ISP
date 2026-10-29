@@ -31,8 +31,10 @@ export default function CourseCalendar({
     onSelect,
     dueTasks = [],
     activities = [],
+    highlightDate = null,
 }: {
     onSelect?: (dateKey: string) => void
+    highlightDate?: string | null // date to shade + show popup (from hovering a list item)
     dueTasks?: { date: string; title: string }[] // date: "YYYY-MM-DD"
     activities?: { date: string; title: string; type: string }[] // type: "Activities" | "Milestones"
 }) {
@@ -110,6 +112,7 @@ export default function CourseCalendar({
                     if (day === null) return <span key={`empty-${i}`} className="border-b border-gray-200" />
                     const key = toDateKey(year, month, day)
                     const isToday = key === todayKey
+                    const isHighlighted = key === highlightDate
                     const dayTasks = tasksByDate[key] ?? []
                     const dayActivities = activitiesByDate[key] ?? []
                     const taskLines = Math.min(dayTasks.length, 4)
@@ -117,11 +120,11 @@ export default function CourseCalendar({
                         <div key={key} className="group relative flex justify-center border-b border-gray-200 py-3">
                         <button
                             onClick={() => onSelect?.(key)}
-                            className={`relative size-14 transition-all hover:scale-125 ${
+                            className={`peer relative size-14 transition-all hover:scale-125 ${
                                 isToday
                                     ? "rounded-xl font-semibold text-brand"
                                     : "rounded-xl"
-                            }`}
+                            } ${isHighlighted ? "scale-125" : ""}`}
                         >
                             {isToday && <span className="absolute top-1.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-brand" />}
                             {day}
@@ -143,7 +146,7 @@ export default function CourseCalendar({
                             </span>
                         </button>
                         {(dayTasks.length > 0 || dayActivities.length > 0) && (
-                            <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-0 hidden w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand px-3 py-2 text-left text-sm text-brand-foreground shadow-lg group-hover:flex">
+                            <div className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-0 ${isHighlighted ? "flex" : "hidden"} w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand px-3 py-2 text-left text-sm text-brand-foreground shadow-lg peer-hover:flex`}>
                                 {dayTasks.map((t, n) => (
                                     <span key={`t${n}`} className="flex items-center gap-2 truncate">
                                         <span className="h-1 w-3 shrink-0 rounded-full bg-green-400" />{t.title}

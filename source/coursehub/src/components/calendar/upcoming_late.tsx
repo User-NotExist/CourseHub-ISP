@@ -33,9 +33,15 @@ function isValidDate(date: string) {
     return /^\d{4}-\d{2}-\d{2}$/.test(date)
 }
 
-function Row({ item, note, noteClass }: { item: Item; note: string; noteClass: string }) {
+function Row({
+    item, note, noteClass, onHover,
+}: { item: Item; note: string; noteClass: string; onHover?: (date: string | null) => void }) {
     return (
-        <div className="flex items-center gap-3 rounded-lg bg-white px-4 py-3">
+        <div
+            onMouseEnter={() => onHover?.(item.date)}
+            onMouseLeave={() => onHover?.(null)}
+            className="flex items-center gap-3 rounded-lg bg-white px-4 py-3 transition-shadow hover:shadow-md"
+        >
             <span className={`h-1.5 w-5 shrink-0 rounded-full ${kindColor[item.kind]}`} />
             <span className="flex-1 truncate font-medium">{item.title}</span>
             <span className="text-sm text-gray-500">{formatDate(item.date)}</span>
@@ -44,7 +50,13 @@ function Row({ item, note, noteClass }: { item: Item; note: string; noteClass: s
     )
 }
 
-export default function UpcomingLate({ tasks, activities }: { tasks: Task[]; activities: Activity[] }) {
+export default function UpcomingLate({
+    tasks, activities, onHoverDate,
+}: {
+    tasks: Task[]
+    activities: Activity[]
+    onHoverDate?: (date: string | null) => void // tells the calendar which date to highlight
+}) {
     const todayKey = useTodayKey()
 
     // on the server todayKey is "", so show nothing until the browser knows today
@@ -90,7 +102,7 @@ export default function UpcomingLate({ tasks, activities }: { tasks: Task[]; act
                         <p className="py-6 text-center text-sm text-gray-500">None...</p>
                     ) : (
                         upcoming.map((it) => (
-                            <Row key={it.id} item={it} note={upcomingNote(it.date)} noteClass="text-brand" />
+                            <Row key={it.id} item={it} note={upcomingNote(it.date)} noteClass="text-brand" onHover={onHoverDate} />
                         ))
                     )}
                 </div>
@@ -103,7 +115,7 @@ export default function UpcomingLate({ tasks, activities }: { tasks: Task[]; act
                         <p className="py-6 text-center text-sm text-gray-500">No late tasks.</p>
                     ) : (
                         late.map((it) => (
-                            <Row key={it.id} item={it} note={lateNote(it.date)} noteClass="text-red-600" />
+                            <Row key={it.id} item={it} note={lateNote(it.date)} noteClass="text-red-600" onHover={onHoverDate} />
                         ))
                     )}
                 </div>

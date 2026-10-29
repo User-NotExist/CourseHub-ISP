@@ -45,6 +45,7 @@ export default function CoursePage() {
 
     const [myTasks, setMyTasks] = useState<my_tasks[]>([]);
     const [myActivities, setMyActivities] = useState<my_activities[]>([]);
+    const [hoveredDate, setHoveredDate] = useState<string | null>(null);
 
     const origin = useSyncExternalStore(
         subscribe,
@@ -182,10 +183,11 @@ export default function CoursePage() {
             <CourseCalendar
                 dueTasks={myTasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))}
                 activities={myActivities.map((a) => ({ date: a.activity_date, title: a.activity_name, type: a.activity_type }))}
+                highlightDate={hoveredDate}
             />
 
             <Card className="flex flex-col w-full bg-gray-100 shadow-lg p-7 h-63">
-                <UpcomingLate tasks={myTasks} activities={myActivities} />
+                <UpcomingLate tasks={myTasks} activities={myActivities} onHoverDate={setHoveredDate} />
             </Card>
         </div>
     );
