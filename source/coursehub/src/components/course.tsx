@@ -13,16 +13,19 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
+import { useRouter } from "next/navigation";
+
 const subscribe = () => () => { };
 
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
+    const router = useRouter();
     const { id: courseId } = useParams<{ id: string }>();
 
     const [courseTitle, setCourseTitle] = useState("Loading Title...");
     const [courseDescription, setCourseDescription] = useState("Loading Description...");
-    const [totalLecturer, setTotalLecturer] = useState(0);
-    const [totalTA, setTotalTA] = useState(0);
+    const [totalLecturer, setTotalLecturer] = useState<string>("N/A");
+    const [totalTA, setTotalTA] = useState<string>("N/A ");
 
     const origin = useSyncExternalStore(
         subscribe,
@@ -55,12 +58,16 @@ export default function CoursePage() {
         const response = await fetch(`/api_course/get_details/get_numbers?course_id=${courseId}`);
         if (response.ok) {
             const data = await response.json();
-            setTotalLecturer(data.total_lecturer);
-            setTotalTA(data.total_ta);
+
+            const totalLecturerStr = data.num_lec.toString()
+            const totalTaStr = data.num_ta.toString()
+
+            setTotalLecturer(totalLecturerStr);
+            setTotalTA(totalTaStr);
         }
         else {
-            setTotalLecturer(0);
-            setTotalTA(0);
+            setTotalLecturer("0");
+            setTotalTA("0");
         }
     };
 
@@ -70,19 +77,18 @@ export default function CoursePage() {
     }, [courseId]);
 
     return (
-        <div className="flex w-full min-w-0 flex-col p-7 md:p-10 overflow-y-auto">
+        <div className="flex w-full min-w-0 flex-col p-7 md:p-10 overflow-y-auto gap-5">
             <div className="flex flex-col items-start gap-4">
-                <div className="text-3xl font-semibold tracking-tight text-brand-ink">{courseTitle}</div>
-                <div>{courseDescription}</div>
+                <div className="text-4xl font-semibold tracking-tight text-brand-ink">{courseTitle}</div>
+                <div className="text-2xl">{courseDescription}</div>
 
                 <div className="grid grid-cols-2 gap-30">
-                    <div>{totalLecturer}</div>
-                    <div>{totalTA}</div>
+                    <div className="text-lg">Total Lecturers - {totalLecturer}</div>
+                    <div className="text-lg">Total TAs - {totalTA}</div>
                 </div>
-
             </div>
 
-            <div className="py-4 flex flex-col items-start justify-center gap-1 w-full">
+            <div className="flex flex-col items-start justify-center gap-1 w-full">
                 <h1>Student URL</h1>
                 <div className="flex flex-row items-center justify-center gap-2 w-full">
                     <InputGroup className="bg-background">
@@ -103,26 +109,35 @@ export default function CoursePage() {
                     </InputGroup>
 
                     <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10">open</Button>
+                    <Button onClick={() => router.push(`/courses/${courseId}/edit`)} variant="outline" className="px-15">
+                        Edit Course
+                    </Button>
                 </div>
             </div>
 
-            <Card className="h-130 w-full bg-gray-100 shadow-lg p-7">
-                Calendar
+            <Card className="flex flex-col h-50 w-full bg-gray-100 shadow-lg p-7">
+                <h2 className="text-xl font-bold">Latest Announcements</h2>
+
+                <div className="flex flex-col items-start justify-center" >
+                    To be Implemented
+                </div>
             </Card>
 
-            <div className="flex flex-col items-start justify-center gap-4 w-full mt-10">
-                <Card className="h-30 w-full bg-gray-100 shadow-lg p-7">
-                    Latest aanouncements
-                </Card>
+            <Card className="flex flex-col h-130 w-full bg-gray-100 shadow-lg p-7">
+                <h2 className="text-xl font-bold">Calendar</h2>
 
-                <Card className="h-30 w-full bg-gray-100 shadow-lg p-7">
-                    Latest tasks
-                </Card>
+                <div className="flex flex-col items-start justify-center" >
+                    Calendar
+                </div>
+            </Card>
 
-                <Card className="h-30 w-full bg-gray-100 shadow-lg p-7">
-                    Latest Act/Mil
-                </Card>
-            </div>
+            <Card className="flex flex-col h-60 w-full bg-gray-100 shadow-lg p-7">
+                <h2 className="text-xl font-bold">Upcoming Tasks / Activities</h2>
+
+                <div className="flex flex-col items-start justify-center" >
+                    Upcoming Tasks / Activities
+                </div>
+            </Card>
         </div>
     );
 };
