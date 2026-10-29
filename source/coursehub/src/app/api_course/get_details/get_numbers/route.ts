@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { cookies } from "next/headers"
 
 export async function GET(request: NextRequest) {
     const courseId = request.nextUrl.searchParams.get("course_id")
@@ -7,6 +8,7 @@ export async function GET(request: NextRequest) {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8000"
     try {
         const response = await fetch(`${backendUrl}/course/${encodeURIComponent(courseId)}/overview/get_num_lec_ta`, {
+            headers: { cookie: (await cookies()).toString() },
             cache: "no-store",
         })
         return NextResponse.json(await response.json(), { status: response.status })

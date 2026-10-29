@@ -45,6 +45,10 @@ export default function CoursePage() {
             setCourseTitle(data.title);
             setCourseDescription(data.description);
         }
+        else {
+            setCourseTitle("Error loading title");
+            setCourseDescription("Error loading description");
+        }
     };
 
     const get_course_numbers = async () => {
@@ -53,6 +57,10 @@ export default function CoursePage() {
             const data = await response.json();
             setTotalLecturer(data.total_lecturer);
             setTotalTA(data.total_ta);
+        }
+        else {
+            setTotalLecturer(0);
+            setTotalTA(0);
         }
     };
 

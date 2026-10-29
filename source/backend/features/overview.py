@@ -41,8 +41,8 @@ async def display_me_tasks(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    ta = db.query(CourseMember).filter(CourseMember.course_id == course_id, CourseMember.role == "TA").count()
-    lec = db.query(CourseMember).filter(CourseMember.course_id == course_id, CourseMember.role == "Lecturer").count()
+    ta = db.query(CourseMember).filter(CourseMember.course_id == course_id, CourseMember.role == "ta").count()
+    lec = db.query(CourseMember).filter(CourseMember.course_id == course_id, CourseMember.role == "lecturer").count()
 
     return {"num_ta": ta, "num_lec": lec}
 
@@ -68,4 +68,4 @@ async def get_title_description(
     if not course:
         raise HTTPException(status_code=404, detail="Course not found !")
 
-    return {"title": course.title, "description": course.description}
+    return {"title": course.course_name, "description": course.course_description}
