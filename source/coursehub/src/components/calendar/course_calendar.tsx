@@ -16,13 +16,21 @@ export function toDateKey(year: number, month: number, day: number) {
 export default function CourseCalendar({
     onSelect,
     dueTasks = [],
+    activities = [],
 }: {
     onSelect?: (dateKey: string) => void
     dueTasks?: { date: string; title: string }[] // date: "YYYY-MM-DD"
+    activities?: { date: string; title: string; type: string }[] // type: "Activities" | "Milestones"
 }) {
-    // task titles grouped by due date
-    const dueByDate: Record<string, string[]> = {}
-    for (const t of dueTasks) (dueByDate[t.date] ??= []).push(t.title)
+    // titles grouped by date
+    const groupByDate = <T extends { date: string }>(items: T[]) => {
+        const map: Record<string, T[]> = {}
+        for (const it of items) (map[it.date] ??= []).push(it)
+        return map
+    }
+    const tasksByDate = groupByDate(dueTasks)
+    const activitiesByDate = groupByDate(activities)
+    const activityColor = (type: string) => (type === "Milestones" ? "bg-violet-500" : "bg-amber-500")
 
     const today = new Date()
     const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate())
@@ -36,6 +44,8 @@ export default function CourseCalendar({
         ...Array.from({ length: firstWeekDay }, () => null),
         ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
     ]
+    // fill the last week so every row is complete
+    while (cells.length % 7 !== 0) cells.push(null)
 
     const currentYear = today.getFullYear()
     const years = [currentYear - 1, currentYear, currentYear + 1]
@@ -78,45 +88,69 @@ export default function CourseCalendar({
                 </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-8 text-center text-lg">
+            <div className="grid grid-cols-7 text-center text-lg">
                 {weekDays.map((d) => (
-                    <span key={d} className="text-lg text-gray-500">{d}</span>
+                    <span key={d} className="border-b border-gray-200 pb-3 text-lg text-gray-500">{d}</span>
                 ))}
                 {cells.map((day, i) => {
-                    if (day === null) return <span key={`empty-${i}`} />
+                    if (day === null) return <span key={`empty-${i}`} className="border-b border-gray-200" />
                     const key = toDateKey(year, month, day)
                     const isToday = key === todayKey
-                    const titles = dueByDate[key] ?? []
-                    const dots = Math.min(titles.length, 4)
+                    const dayTasks = tasksByDate[key] ?? []
+                    const dayActivities = activitiesByDate[key] ?? []
+                    const taskLines = Math.min(dayTasks.length, 4)
                     return (
-                        <div key={key} className="group relative mx-auto">
+                        <div key={key} className="group relative flex justify-center border-b border-gray-200 py-3">
                         <button
                             onClick={() => onSelect?.(key)}
                             className={`relative size-14 transition-all hover:scale-125 ${
                                 isToday
-                                    ? "rounded-xl border-[3px] border-brand font-semibold text-brand"
-                                    : "rounded-xl hover:bg-gray-100"
+                                    ? "rounded-xl font-semibold text-brand"
+                                    : "rounded-xl"
                             }`}
                         >
+                            {isToday && <span className="absolute top-1.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-brand" />}
                             {day}
-                            {dots > 0 && (
-                                <span className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 gap-0.5">
-                                    {Array.from({ length: dots }, (_, n) => (
-                                        <span key={n} className="size-1.5 rounded-full bg-brand" />
-                                    ))}
-                                </span>
-                            )}
+                            <span className="absolute bottom-1 left-1/2 flex -translate-x-1/2 flex-col items-center gap-0.5">
+                                {taskLines > 0 && (
+                                    <span className="flex gap-0.5">
+                                        {Array.from({ length: taskLines }, (_, n) => (
+                                            <span key={n} className="h-1.5 w-5 rounded-full bg-green-500" />
+                                        ))}
+                                    </span>
+                                )}
+                                {dayActivities.length > 0 && (
+                                    <span className="flex gap-0.5">
+                                        {dayActivities.slice(0, 4).map((a, n) => (
+                                            <span key={n} className={`h-1.5 w-5 rounded-full ${activityColor(a.type)}`} />
+                                        ))}
+                                    </span>
+                                )}
+                            </span>
                         </button>
-                        {titles.length > 0 && (
+                        {(dayTasks.length > 0 || dayActivities.length > 0) && (
                             <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 hidden w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand-ink px-3 py-2 text-left text-sm text-white shadow-lg group-hover:flex">
-                                {titles.map((title, n) => (
-                                    <span key={n} className="truncate">• {title}</span>
+                                {dayTasks.map((t, n) => (
+                                    <span key={`t${n}`} className="flex items-center gap-2 truncate">
+                                        <span className="h-1 w-3 shrink-0 rounded-full bg-green-400" />{t.title}
+                                    </span>
+                                ))}
+                                {dayActivities.map((a, n) => (
+                                    <span key={`a${n}`} className="flex items-center gap-2 truncate">
+                                        <span className={`h-1 w-3 shrink-0 rounded-full ${activityColor(a.type)}`} />{a.title}
+                                    </span>
                                 ))}
                             </div>
                         )}
                         </div>
                     )
                 })}
+            </div>
+
+            <div className="flex gap-4 text-sm text-gray-500 pt-3 pl-2">
+                <span className="flex items-center gap-1.5 font-bold"><span className="h-1.5 w-5 rounded-full bg-green-500 font-bold" /> Task</span>
+                <span className="flex items-center gap-1.5 font-bold"><span className="h-1.5 w-5 rounded-full bg-amber-500 font-bold" /> Activity</span>
+                <span className="flex items-center gap-1.5 font-bold"><span className="h-1.5 w-5 rounded-full bg-violet-500 font-bold" /> Milestone</span>
             </div>
         </div>
     )

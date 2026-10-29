@@ -108,6 +108,37 @@ async def get_self_tasks(
     ]
 
 
+@router.get("/get_activity_milestone")
+async def get_activity_milestone(
+    course_id: str,
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    activities = db.query(Activity).filter(Activity.course_id == course_id).all()
+
+    return [
+        {
+            "activity_id": a.activity_id,
+            "activity_name": a.activity_name,
+            "activity_type": a.activity_type,
+            "activity_date": str(a.activity_date),
+        }
+        for a in activities
+    ]
+
+
 # keep : might use this for drow down when assigning something for ..
 @router.get("/get_members_email_and_role")
 async def get_members_email_and_role(

@@ -24,6 +24,13 @@ type my_tasks = {
     task_due_date: string;
 }
 
+type my_activities = {
+    activity_id: number,
+    activity_name: string,
+    activity_type: string,
+    activity_date: string,
+}
+
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -35,6 +42,7 @@ export default function CoursePage() {
     const [totalTA, setTotalTA] = useState<string>("N/A");
 
     const [myTasks, setMyTasks] = useState<my_tasks[]>([]);
+    const [myActivities, setMyActivities] = useState<my_activities[]>([]);
 
     const origin = useSyncExternalStore(
         subscribe,
@@ -50,56 +58,74 @@ export default function CoursePage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const get_course_details = async () => {
-        const response = await fetch(`/api_course/get_details/get_detail?course_id=${courseId}`);
-        if (response.ok) {
-            const data = await response.json();
-            setCourseTitle(data.title);
-            setCourseDescription(data.description);
-        }
-        else {
-            setCourseTitle("Error loading title");
-            setCourseDescription("Error loading description");
-        }
-    };
-
-    const get_course_numbers = async () => {
-        const response = await fetch(`/api_course/get_details/get_numbers?course_id=${courseId}`);
-        if (response.ok) {
-            const data = await response.json();
-
-            const totalLecturerStr = data.num_lec.toString()
-            const totalTaStr = data.num_ta.toString()
-
-            setTotalLecturer(totalLecturerStr);
-            setTotalTA(totalTaStr);
-        }
-        else {
-            setTotalLecturer("0");
-            setTotalTA("0");
-        }
-    };
-
-    const get_my_tasks = async () => {
-        try {
-            const response = await fetch(`/api_course/get_details/get_my_task?course_id=${courseId}`);
+    useEffect(() => {
+        const get_course_details = async () => {
+            const response = await fetch(`/api_course/get_details/get_detail?course_id=${courseId}`);
             if (response.ok) {
                 const data = await response.json();
-                setMyTasks(data);
+                setCourseTitle(data.title);
+                setCourseDescription(data.description);
             }
             else {
+                setCourseTitle("Error loading title");
+                setCourseDescription("Error loading description");
+            }
+        };
+
+        const get_course_numbers = async () => {
+            const response = await fetch(`/api_course/get_details/get_numbers?course_id=${courseId}`);
+            if (response.ok) {
+                const data = await response.json();
+
+                const totalLecturerStr = data.num_lec.toString()
+                const totalTaStr = data.num_ta.toString()
+
+                setTotalLecturer(totalLecturerStr);
+                setTotalTA(totalTaStr);
+            }
+            else {
+                setTotalLecturer("0");
+                setTotalTA("0");
+            }
+        };
+
+        const get_my_tasks = async () => {
+            try {
+                const response = await fetch(`/api_course/get_details/get_my_task?course_id=${courseId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setMyTasks(data);
+                }
+                else {
+                    setMyTasks([]);
+                }
+            } catch (error) {
+                console.error("Error fetching my tasks:", error);
                 setMyTasks([]);
             }
-        } catch (error) {
-            console.error("Error fetching my tasks:", error);
-            setMyTasks([]);
         }
-    }
 
-    useEffect(() => {
+        const get_my_activities = async () => {
+            try {
+                const response = await fetch(`/api_course/get_details/get_my_activity?course_id=${courseId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setMyActivities(data);
+                }
+                else {
+                    setMyActivities([]);
+                }
+            }
+            catch (error) {
+                console.error("Error fetching my activities", error)
+                setMyActivities([])
+            }
+        }
+
         get_course_details();
         get_course_numbers();
         get_my_tasks();
+        get_my_activities();
     }, [courseId]);
 
     return (
@@ -149,7 +175,10 @@ export default function CoursePage() {
                 </div>
             </Card>
 
-            <CourseCalendar dueTasks={myTasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))} />
+            <CourseCalendar
+                dueTasks={myTasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))}
+                activities={myActivities.map((a) => ({ date: a.activity_date, title: a.activity_name, type: a.activity_type }))}
+            />
 
             <Card className="flex flex-col h-60 w-full bg-gray-100 shadow-lg p-7">
                 <h2 className="text-xl font-bold">Upcoming Tasks / Activities</h2>
