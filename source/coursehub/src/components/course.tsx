@@ -12,6 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import CourseCalendar from "@/components/calendar/course_calendar"
 
 import { useRouter } from "next/navigation";
 
@@ -123,13 +124,7 @@ export default function CoursePage() {
                 </div>
             </Card>
 
-            <Card className="flex flex-col h-130 w-full bg-gray-100 shadow-lg p-7">
-                <h2 className="text-xl font-bold">Calendar</h2>
-
-                <div className="flex flex-col items-start justify-center" >
-                    Calendar
-                </div>
-            </Card>
+            <CourseCalendar />
 
             <Card className="flex flex-col h-60 w-full bg-gray-100 shadow-lg p-7">
                 <h2 className="text-xl font-bold">Upcoming Tasks / Activities</h2>
