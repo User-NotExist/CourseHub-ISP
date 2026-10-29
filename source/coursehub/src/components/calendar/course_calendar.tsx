@@ -111,7 +111,7 @@ export default function CourseCalendar({
                         >
                             {isToday && <span className="absolute top-1.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-brand" />}
                             {day}
-                            <span className="absolute bottom-1 left-1/2 flex -translate-x-1/2 flex-col items-center gap-0.5">
+                            <span className="absolute left-1/2 flex -translate-x-1/2 flex-col items-center gap-0.5">
                                 {taskLines > 0 && (
                                     <span className="flex gap-0.5">
                                         {Array.from({ length: taskLines }, (_, n) => (
@@ -147,10 +147,10 @@ export default function CourseCalendar({
                 })}
             </div>
 
-            <div className="flex gap-4 text-sm text-gray-500 pt-3 pl-2">
-                <span className="flex items-center gap-1.5 font-bold"><span className="h-1.5 w-5 rounded-full bg-green-500 font-bold" /> Task</span>
-                <span className="flex items-center gap-1.5 font-bold"><span className="h-1.5 w-5 rounded-full bg-amber-500 font-bold" /> Activity</span>
-                <span className="flex items-center gap-1.5 font-bold"><span className="h-1.5 w-5 rounded-full bg-violet-500 font-bold" /> Milestone</span>
+            <div className="flex gap-6 text-sm text-gray-500 pt-3 pl-2">
+                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-green-500 font-bold" /> Task</span>
+                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-amber-500 font-bold" /> Activity</span>
+                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-violet-500 font-bold" /> Milestone</span>
             </div>
         </div>
     )
