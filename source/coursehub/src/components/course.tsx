@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { useState, useSyncExternalStore } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useParams } from "next/navigation";
 import {
     InputGroup,
@@ -19,6 +19,11 @@ export default function CoursePage() {
     const [copied, setCopied] = useState(false);
     const { id: courseId } = useParams<{ id: string }>();
 
+    const [courseTitle, setCourseTitle] = useState("Loading Title...");
+    const [courseDescription, setCourseDescription] = useState("Loading Description...");
+    const [totalLecturer, setTotalLecturer] = useState(0);
+    const [totalTA, setTotalTA] = useState(0);
+
     const origin = useSyncExternalStore(
         subscribe,
         () => window.location.origin, // client
@@ -33,15 +38,38 @@ export default function CoursePage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const get_course_details = async () => {
+        const response = await fetch(`/api_course/get_details/get_detail?course_id=${courseId}`);
+        if (response.ok) {
+            const data = await response.json();
+            setCourseTitle(data.title);
+            setCourseDescription(data.description);
+        }
+    };
+
+    const get_course_numbers = async () => {
+        const response = await fetch(`/api_course/get_details/get_numbers?course_id=${courseId}`);
+        if (response.ok) {
+            const data = await response.json();
+            setTotalLecturer(data.total_lecturer);
+            setTotalTA(data.total_ta);
+        }
+    };
+
+    useEffect(() => {
+        get_course_details();
+        get_course_numbers();
+    }, [courseId]);
+
     return (
         <div className="flex w-full min-w-0 flex-col p-7 md:p-10 overflow-y-auto">
             <div className="flex flex-col items-start gap-4">
-                <div className="text-3xl font-semibold tracking-tight text-brand-ink">Course Title</div>
-                <div>Course Description</div>
+                <div className="text-3xl font-semibold tracking-tight text-brand-ink">{courseTitle}</div>
+                <div>{courseDescription}</div>
 
                 <div className="grid grid-cols-2 gap-30">
-                    <div>Total Lecturer</div>
-                    <div>Total TA</div>
+                    <div>{totalLecturer}</div>
+                    <div>{totalTA}</div>
                 </div>
 
             </div>
