@@ -58,7 +58,7 @@ export default function CourseCalendar({
 
 
     return (
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-6">
+        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
             <div className="flex items-center gap-2 pb-4">
                 <button onClick={() => shiftMonth(-1)} aria-label="Previous month" className="p-1">
                     <ChevronLeft className="size-6" />

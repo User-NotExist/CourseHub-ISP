@@ -129,7 +129,7 @@ export default function CoursePage() {
     }, [courseId]);
 
     return (
-        <div className="flex w-full min-w-0 flex-col p-7 md:p-10 overflow-y-auto gap-5 scrollbar-none">
+        <div className="flex w-full min-w-0 flex-col md:p-10 overflow-y-auto gap-8 scrollbar-none">
             <div className="flex flex-col items-start gap-4">
                 <div className="text-4xl font-semibold tracking-tight text-brand-ink">{courseTitle}</div>
                 <div className="text-2xl">{courseDescription}</div>
@@ -140,40 +140,42 @@ export default function CoursePage() {
                 </div>
             </div>
 
-            <div className="flex flex-col items-start justify-center gap-1 w-full">
-                <h1>Student URL</h1>
-                <div className="flex flex-row items-center justify-center gap-2 w-full">
-                    <InputGroup className="bg-background">
-                        <InputGroupInput aria-label="Link" readOnly type="url" value={courseUrl} />
-                        <InputGroupAddon align="inline-end">
-                            <InputGroupButton
-                                aria-label={copied ? "Copied" : "Copy"}
-                                onClick={handleCopy}
-                                size="icon-xs"
-                            >
-                                {copied ? (
-                                    <CheckIcon aria-hidden="true" />
-                                ) : (
-                                    <CopyIcon aria-hidden="true" />
-                                )}
-                            </InputGroupButton>
-                        </InputGroupAddon>
-                    </InputGroup>
+            <div className="">
+                <div className="flex flex-col items-start justify-center gap-1 w-full pb-4">
+                    <h1>Student URL</h1>
+                    <div className="flex flex-row items-center justify-center gap-2 w-full">
+                        <InputGroup className="bg-background">
+                            <InputGroupInput aria-label="Link" readOnly type="url" value={courseUrl} />
+                            <InputGroupAddon align="inline-end">
+                                <InputGroupButton
+                                    aria-label={copied ? "Copied" : "Copy"}
+                                    onClick={handleCopy}
+                                    size="icon-xs"
+                                >
+                                    {copied ? (
+                                        <CheckIcon aria-hidden="true" />
+                                    ) : (
+                                        <CopyIcon aria-hidden="true" />
+                                    )}
+                                </InputGroupButton>
+                            </InputGroupAddon>
+                        </InputGroup>
 
-                    <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10">open</Button>
-                    <Button onClick={() => router.push(`/courses/${courseId}/edit`)} variant="outline" className="px-15">
-                        Edit Course
-                    </Button>
+                        <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10">open</Button>
+                        <Button onClick={() => router.push(`/courses/${courseId}/edit`)} variant="outline" className="px-15">
+                            Edit Course
+                        </Button>
+                    </div>
                 </div>
+
+                <Card className="flex flex-col h-50 w-full bg-gray-100 shadow-lg p-7">
+                    <h2 className="text-xl font-bold">Latest Announcements</h2>
+
+                    <div className="flex flex-col items-start justify-center" >
+                        To be Implemented
+                    </div>
+                </Card>
             </div>
-
-            <Card className="flex flex-col h-50 w-full bg-gray-100 shadow-lg p-7">
-                <h2 className="text-xl font-bold">Latest Announcements</h2>
-
-                <div className="flex flex-col items-start justify-center" >
-                    To be Implemented
-                </div>
-            </Card>
 
             <CourseCalendar
                 dueTasks={myTasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))}
