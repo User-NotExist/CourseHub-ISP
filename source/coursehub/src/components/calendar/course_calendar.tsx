@@ -15,9 +15,15 @@ export function toDateKey(year: number, month: number, day: number) {
 
 export default function CourseCalendar({
     onSelect,
+    dueTasks = [],
 }: {
     onSelect?: (dateKey: string) => void
+    dueTasks?: { date: string; title: string }[] // date: "YYYY-MM-DD"
 }) {
+    // task titles grouped by due date
+    const dueByDate: Record<string, string[]> = {}
+    for (const t of dueTasks) (dueByDate[t.date] ??= []).push(t.title)
+
     const today = new Date()
     const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate())
 
@@ -80,18 +86,35 @@ export default function CourseCalendar({
                     if (day === null) return <span key={`empty-${i}`} />
                     const key = toDateKey(year, month, day)
                     const isToday = key === todayKey
+                    const titles = dueByDate[key] ?? []
+                    const dots = Math.min(titles.length, 4)
                     return (
+                        <div key={key} className="group relative mx-auto">
                         <button
-                            key={key}
                             onClick={() => onSelect?.(key)}
-                            className={`mx-auto size-14 transition-all hover:scale-125 ${
+                            className={`relative size-14 transition-all hover:scale-125 ${
                                 isToday
                                     ? "rounded-xl border-[3px] border-brand font-semibold text-brand"
                                     : "rounded-xl hover:bg-gray-100"
                             }`}
                         >
                             {day}
+                            {dots > 0 && (
+                                <span className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 gap-0.5">
+                                    {Array.from({ length: dots }, (_, n) => (
+                                        <span key={n} className="size-1.5 rounded-full bg-brand" />
+                                    ))}
+                                </span>
+                            )}
                         </button>
+                        {titles.length > 0 && (
+                            <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 hidden w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand-ink px-3 py-2 text-left text-sm text-white shadow-lg group-hover:flex">
+                                {titles.map((title, n) => (
+                                    <span key={n} className="truncate">• {title}</span>
+                                ))}
+                            </div>
+                        )}
+                        </div>
                     )
                 })}
             </div>

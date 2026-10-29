@@ -149,7 +149,7 @@ export default function CoursePage() {
                 </div>
             </Card>
 
-            <CourseCalendar />
+            <CourseCalendar dueTasks={myTasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))} />
 
             <Card className="flex flex-col h-60 w-full bg-gray-100 shadow-lg p-7">
                 <h2 className="text-xl font-bold">Upcoming Tasks / Activities</h2>

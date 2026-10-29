@@ -90,9 +90,22 @@ async def get_self_tasks(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    tasks = db.query(Task).filter(Task.course_id == course_id, Task.user_id == user.user_id).all()
+    tasks = db.query(Task).filter(Task.course_id == course_id).all()
+    my_email = user.user_email.lower()
 
-    return [{"task_id": task.task_id, "task_name": task.task_name, "task_due_date": str(task.task_due_date)} for task in tasks]
+    # only tasks where this user is an assignee
+    def is_assigned(task):
+        assignees = task.tasks if isinstance(task.tasks, list) else []
+        return any(
+            isinstance(a, dict) and str(a.get("task_assignee_gmail", "")).lower() == my_email
+            for a in assignees
+        )
+
+    return [
+        {"task_id": task.task_id, "task_name": task.task_name, "task_due_date": str(task.task_due_date)}
+        for task in tasks
+        if is_assigned(task)
+    ]
 
 
 # keep : might use this for drow down when assigning something for ..
