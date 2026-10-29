@@ -34,7 +34,7 @@ export default function CoursePage() {
     };
 
     return (
-        <div className="flex w-full min-w-0 flex-col p-7 md:p-10 h-screen">
+        <div className="flex w-full min-w-0 flex-col p-7 md:p-10 overflow-y-auto">
             <div className="flex flex-col items-start gap-4">
                 <div className="text-3xl font-semibold tracking-tight text-brand-ink">Course Title</div>
                 <div>Course Description</div>
@@ -71,7 +71,7 @@ export default function CoursePage() {
 
             </div>
 
-            <Card className="h-full w-full bg-gray-100 shadow-lg p-7">
+            <Card className="h-300 w-full bg-gray-100 shadow-lg p-7">
 
             </Card>
         </div>
