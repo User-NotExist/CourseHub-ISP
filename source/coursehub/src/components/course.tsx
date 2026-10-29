@@ -104,12 +104,25 @@ export default function CoursePage() {
 
                     <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10">open</Button>
                 </div>
-
             </div>
 
-            <Card className="h-300 w-full bg-gray-100 shadow-lg p-7">
-
+            <Card className="h-130 w-full bg-gray-100 shadow-lg p-7">
+                Calendar
             </Card>
+
+            <div className="flex flex-col items-start justify-center gap-4 w-full mt-10">
+                <Card className="h-30 w-full bg-gray-100 shadow-lg p-7">
+                    Latest aanouncements
+                </Card>
+
+                <Card className="h-30 w-full bg-gray-100 shadow-lg p-7">
+                    Latest tasks
+                </Card>
+
+                <Card className="h-30 w-full bg-gray-100 shadow-lg p-7">
+                    Latest Act/Mil
+                </Card>
+            </div>
         </div>
     );
 };
