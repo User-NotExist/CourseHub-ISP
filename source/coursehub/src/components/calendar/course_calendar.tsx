@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 const monthNames = [
@@ -11,6 +11,20 @@ const weekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
 export function toDateKey(year: number, month: number, day: number) {
     return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+}
+
+// today's "YYYY-MM-DD" from the browser only ("" on the server),
+// so server (UTC) and browser (local time) never disagree during hydration
+const noSubscribe = () => () => {}
+export function useTodayKey() {
+    return useSyncExternalStore(
+        noSubscribe,
+        () => {
+            const d = new Date()
+            return toDateKey(d.getFullYear(), d.getMonth(), d.getDate())
+        },
+        () => "",
+    )
 }
 
 export default function CourseCalendar({
@@ -33,7 +47,7 @@ export default function CourseCalendar({
     const activityColor = (type: string) => (type === "Milestones" ? "bg-violet-500" : "bg-amber-500")
 
     const today = new Date()
-    const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate())
+    const todayKey = useTodayKey()
 
     const [year, setYear] = useState(today.getFullYear())
     const [month, setMonth] = useState(today.getMonth())
@@ -129,7 +143,7 @@ export default function CourseCalendar({
                             </span>
                         </button>
                         {(dayTasks.length > 0 || dayActivities.length > 0) && (
-                            <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 hidden w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand-ink px-3 py-2 text-left text-sm text-white shadow-lg group-hover:flex">
+                            <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-0 hidden w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand px-3 py-2 text-left text-sm text-brand-foreground shadow-lg group-hover:flex">
                                 {dayTasks.map((t, n) => (
                                     <span key={`t${n}`} className="flex items-center gap-2 truncate">
                                         <span className="h-1 w-3 shrink-0 rounded-full bg-green-400" />{t.title}

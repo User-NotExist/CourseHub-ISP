@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import CourseCalendar from "@/components/calendar/course_calendar"
+import UpcomingLate from "@/components/calendar/upcoming_late"
 
 import { useRouter } from "next/navigation";
 
@@ -22,6 +23,7 @@ type my_tasks = {
     task_id: number;
     task_name: string;
     task_due_date: string;
+    status?: string;
 }
 
 type my_activities = {
@@ -182,12 +184,8 @@ export default function CoursePage() {
                 activities={myActivities.map((a) => ({ date: a.activity_date, title: a.activity_name, type: a.activity_type }))}
             />
 
-            <Card className="flex flex-col h-60 w-full bg-gray-100 shadow-lg p-7">
-                <h2 className="text-xl font-bold">Upcoming Tasks / Activities</h2>
-
-                <div className="flex flex-col items-start justify-center" >
-                    Upcoming Tasks / Activities
-                </div>
+            <Card className="flex flex-col w-full bg-gray-100 shadow-lg p-7 h-63">
+                <UpcomingLate tasks={myTasks} activities={myActivities} />
             </Card>
         </div>
     );

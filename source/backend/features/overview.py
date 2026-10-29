@@ -93,19 +93,27 @@ async def get_self_tasks(
     tasks = db.query(Task).filter(Task.course_id == course_id).all()
     my_email = user.user_email.lower()
 
-    # only tasks where this user is an assignee
-    def is_assigned(task):
+    # this user's assignment on the task (None if not assigned)
+    def my_assignment(task):
         assignees = task.tasks if isinstance(task.tasks, list) else []
-        return any(
-            isinstance(a, dict) and str(a.get("task_assignee_gmail", "")).lower() == my_email
-            for a in assignees
+        return next(
+            (a for a in assignees
+             if isinstance(a, dict) and str(a.get("task_assignee_gmail", "")).lower() == my_email),
+            None,
         )
 
-    return [
-        {"task_id": task.task_id, "task_name": task.task_name, "task_due_date": str(task.task_due_date)}
-        for task in tasks
-        if is_assigned(task)
-    ]
+    result = []
+    for task in tasks:
+        mine = my_assignment(task)
+        if mine is None:
+            continue
+        result.append({
+            "task_id": task.task_id,
+            "task_name": task.task_name,
+            "task_due_date": str(task.task_due_date),
+            "status": mine.get("status", "To-Do"),
+        })
+    return result
 
 
 @router.get("/get_activity_milestone")
