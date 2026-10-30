@@ -12,6 +12,7 @@ from features.task import router as task_router
 from features.consultation_log import router as consultation_logs_router
 from features.faq import router as faq_router, student_router as faq_student_router
 from features.appointments.ta_lec import router as appointments_router
+from features.appointments.student import router as student_appointments_router
 
 app = FastAPI()
 
@@ -35,3 +36,4 @@ app.include_router(consultation_logs_router)
 app.include_router(faq_router)
 app.include_router(faq_student_router)
 app.include_router(appointments_router)
+app.include_router(student_appointments_router)
