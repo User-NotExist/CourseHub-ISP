@@ -5,7 +5,7 @@ import CoursePage from "@/components/course"
 
 export default function InstanceCoursePage() {
     return (
-        <div>
+        <div className="w-full">
             <CoursePage />
         </div>
     )
