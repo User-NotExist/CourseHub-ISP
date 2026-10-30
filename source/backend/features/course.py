@@ -12,7 +12,7 @@ from typing import Optional, Literal
 import string, secrets
 
 from db.database import get_db
-from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments, ConsultationLogs
+from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments, ConsultationLogs, Appointments, AppointmentsAvaliable
 
 router = APIRouter(prefix="/course", tags=["course"])
 
@@ -245,6 +245,8 @@ async def delete_course(
     db.query(Faq).filter(Faq.course_id == course_id).delete()
     db.query(Comments).filter(Comments.course_id == course_id).delete()
     db.query(ConsultationLogs).filter(ConsultationLogs.course_id == course_id).delete()
+    db.query(Appointments).filter(Appointments.course_id == course_id).delete()
+    db.query(AppointmentsAvaliable).filter(AppointmentsAvaliable.course_id == course_id).delete()
     db.query(CourseMember).filter(CourseMember.course_id == course_id).delete()
 
     db.delete(course)
