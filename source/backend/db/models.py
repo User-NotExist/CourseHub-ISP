@@ -148,6 +148,7 @@ class AppointmentsAvaliable(base):
     course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)    # lecturer only
 
+    appointment_head = Column(JSON, nullable=False, default=lambda: {"lecturer": [], "ta": []})    # {"lecturer": ["a@ku.th"], "ta": ["b@ku.th"]}
     avaliable_date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
