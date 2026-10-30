@@ -186,7 +186,7 @@ export default function CoursePage() {
                 highlightDate={hoveredDate}
             />
 
-            <Card className="flex flex-col w-full bg-gray-100 shadow-lg p-7 h-63">
+            <Card className="flex flex-col w-full bg-gray-100 shadow-lg p-7 h-70">
                 <UpcomingLate tasks={myTasks} activities={myActivities} onHoverDate={setHoveredDate} />
             </Card>
         </div>
