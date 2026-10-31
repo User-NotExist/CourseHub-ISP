@@ -21,6 +21,7 @@ class User(base):
     faqs = relationship("Faq", back_populates="user")
     comments = relationship("Comments", back_populates="user")
     consultation_logs = relationship("ConsultationLogs", back_populates="user")
+    appointments_avaliable = relationship("AppointmentsAvaliable", back_populates="user")
 
 
 class Course(base):
@@ -40,6 +41,8 @@ class Course(base):
     activities = relationship("Activity", back_populates="course")
     faqs = relationship("Faq", back_populates="course")
     consultation_logs = relationship("ConsultationLogs", back_populates="course")
+    appointments = relationship("Appointments", back_populates="course")
+    appointments_avaliable = relationship("AppointmentsAvaliable", back_populates="course")
 
 
 class CourseMember(base):
@@ -136,3 +139,42 @@ class ConsultationLogs(base):
 
     user = relationship("User", back_populates="consultation_logs")
     course = relationship("Course", back_populates="consultation_logs")
+
+
+class AppointmentsAvaliable(base):
+    __tablename__ = "appointments_avaliable"
+
+    avaliable_id = Column(Integer, primary_key=True, autoincrement=True)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)    # lecturer only
+
+    appointment_head = Column(JSON, nullable=False, default=lambda: {"lecturer": [], "ta": []})    # {"lecturer": ["a@ku.th"], "ta": ["b@ku.th"]}
+    avaliable_date = Column(Date, nullable=False)
+    start_time = Column(Time, nullable=False)
+    end_time = Column(Time, nullable=False)
+    notes = Column(String)
+    max_bookings = Column(Integer, nullable=False, default=5)
+
+    createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="appointments_avaliable")
+    course = relationship("Course", back_populates="appointments_avaliable")
+    appointments = relationship("Appointments", back_populates="slot")
+
+
+class Appointments(base):
+    __tablename__ = "appointments"
+
+    appointment_id = Column(Integer, primary_key=True, autoincrement=True)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
+    avaliable_id = Column(Integer, ForeignKey("appointments_avaliable.avaliable_id"), nullable=False)    # booked slot
+
+    student_first_name = Column(String, nullable=False)
+    student_last_name = Column(String, nullable=False)
+    student_email = Column(String, nullable=False)
+    appointments_description = Column(Text)
+
+    createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    course = relationship("Course", back_populates="appointments")
+    slot = relationship("AppointmentsAvaliable", back_populates="appointments")
