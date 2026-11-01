@@ -110,7 +110,7 @@ export default function CoursesPage() {
                 </div>
             </div>
 
-            <div className="relative w-full">
+            <div className="relative w-full px-1">
                 <Input
                     placeholder="Search courses..."
                     value={search}
