@@ -74,7 +74,7 @@ export default function Sidebar() {
                         onClick={() => router.push("/courses")}
                     >
                         <FiGrid />
-                        <span>Courses</span>
+                        <span>All Courses</span>
                     </button>
 
                     <button
@@ -100,7 +100,7 @@ export default function Sidebar() {
                         </button>
 
                         {isCoursesOpen && (
-                            <div className="flex flex-col mt-1 gap-1 max-h-60 overflow-y-auto scrollbar-none">
+                            <div className="flex flex-col mt-1 gap-1 max-h-70 overflow-y-auto scrollbar-none">
                                 {courses === null ? (
                                     <span className="px-4 py-2 text-sm text-white/70">Loading...</span>
                                 ) : courses.length === 0 ? (

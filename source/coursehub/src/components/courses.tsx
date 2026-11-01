@@ -102,7 +102,7 @@ export default function CoursesPage() {
 
     return (
         <div className="flex flex-col justify-top items-center h-screen w-max pt-7 overflow-y-auto scrollbar-none gap-4 xl:w-270 lg:w-200 md:w-150 sm:w-100 min-w-90">
-            <div className="flex flex-row justiffy-center items-center gap-4 w-full h-50">
+            <div className="flex flex-row justify-center items-center gap-4 w-full h-50 shrink-0">
                 <div className="bg-[#E8E8E8] w-full h-full rounded-xl drop-shadow-md">
                 </div>
 
@@ -110,7 +110,7 @@ export default function CoursesPage() {
                 </div>
             </div>
 
-            <div className="relative w-full px-1">
+            <div className="relative w-full px-1 shrink-0">
                 <Input
                     placeholder="Search courses..."
                     value={search}
