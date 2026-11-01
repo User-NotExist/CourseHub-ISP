@@ -74,7 +74,7 @@ export default function Sidebar() {
                         onClick={() => router.push("/courses")}
                     >
                         <FiGrid />
-                        <span>All Courses</span>
+                        <span>Main</span>
                     </button>
 
                     <button
