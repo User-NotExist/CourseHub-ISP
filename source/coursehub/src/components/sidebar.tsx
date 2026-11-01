@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { FiGrid, FiCalendar, FiLogOut, FiPlusCircle, FiBookOpen, FiChevronDown } from "react-icons/fi"
+import { FiGrid, FiLogOut, FiPlusCircle, FiBookOpen, FiChevronDown, FiCheckCircle, FiArchive } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -109,11 +109,11 @@ export default function Sidebar() {
                                     courses.map((course) => (
                                         <button
                                             key={course.course_id}
-                                            className="bg-black/5 hover:bg-black/20 transition-colors rounded-lg px-4 py-2 text-sm text-left truncate"
+                                            className="shrink-0 w-full bg-black/5 hover:bg-black/20 transition-colors rounded-lg px-4 py-2 text-sm text-left"
                                             title={course.course_name}
                                             onClick={() => router.push(`/courses/${course.course_id}/main`)}
                                         >
-                                            {course.course_name}
+                                            <span className="block truncate">{course.course_name}</span>
                                         </button>
                                     ))
                                 )}
@@ -125,8 +125,16 @@ export default function Sidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push("/schedule")}
                     >
-                        <FiCalendar />
-                        <span>Schedule</span>
+                        <FiCheckCircle />
+                        <span>Agenda</span>
+                    </button>
+
+                    <button
+                        className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
+                        onClick={() => router.push("/schedule")}
+                    >
+                        <FiArchive />
+                        <span>Archived Courses</span>
                     </button>
                 </nav>
             </div>
