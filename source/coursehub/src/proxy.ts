@@ -66,6 +66,39 @@ function redirectWithoutReturnTo(path: string, request: NextRequest) {
     return response
 }
 
+// Staff pages live under /courses/<id>/*. "/courses/create" is a separate route.
+const STAFF_COURSE_PATH = /^\/courses\/([^/]+)(?:\/|$)/
+const NON_COURSE_SEGMENTS = new Set(["create"])
+// Any path with no route renders the app's 404 page (with a 404 status).
+const NOT_FOUND_PATH = "/_course-not-found"
+
+type CourseAccess = "allowed" | "forbidden" | "not_found" | "unauthenticated" | "unavailable"
+
+function staffCourseId(pathname: string): string | null {
+    const id = pathname.match(STAFF_COURSE_PATH)?.[1]
+    return id && !NON_COURSE_SEGMENTS.has(id) ? decodeURIComponent(id) : null
+}
+
+// Membership and roles change at any time, so ask the backend rather than
+// trusting the token (backend/features/course.py: GET /course/access/{id}).
+async function checkCourseAccess(courseId: string, accessToken: string): Promise<CourseAccess> {
+    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8000"
+    try {
+        const res = await fetch(`${backendUrl}/course/access/${encodeURIComponent(courseId)}`, {
+            headers: { cookie: `access_token=${accessToken}` },
+            cache: "no-store",
+            signal: AbortSignal.timeout(5000),
+        })
+        if (res.ok) return "allowed"
+        if (res.status === 401) return "unauthenticated"
+        if (res.status === 403) return "forbidden"
+        if (res.status === 404) return "not_found"
+        return "unavailable"
+    } catch {
+        return "unavailable"
+    }
+}
+
 export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname
     // The landing page must be public: protected routes redirect guests here.
@@ -101,11 +134,32 @@ export async function proxy(request: NextRequest) {
             return redirectWithoutReturnTo(returnTo, request)
         }
 
-        if (request.cookies.has(RETURN_TO_COOKIE)) {
-            const response = NextResponse.next()
-            response.cookies.delete({ name: RETURN_TO_COOKIE, path: "/" })
-            return response
+        let response = NextResponse.next()
+
+        const courseId = staffCourseId(pathname)
+        if (courseId) {
+            const access = await checkCourseAccess(courseId, request.cookies.get("access_token")!.value)
+            if (access === "unauthenticated") {
+                // Signature was fine but the backend rejects it (e.g. user deleted).
+                response = NextResponse.redirect(new URL("/", request.url))
+                response.cookies.delete({ name: "access_token", path: "/" })
+            } else if (access === "forbidden") {
+                response = NextResponse.redirect(new URL(POST_LOGIN_PATH, request.url))
+            } else if (access === "not_found") {
+                response = NextResponse.rewrite(new URL(NOT_FOUND_PATH, request.url))
+            } else if (access === "unavailable") {
+                // Fail closed, but don't pretend the user is logged out.
+                return new NextResponse("Course service is unavailable. Please try again shortly.", {
+                    status: 503,
+                    headers: { "retry-after": "5", "cache-control": "no-store" },
+                })
+            }
         }
+
+        if (request.cookies.has(RETURN_TO_COOKIE)) {
+            response.cookies.delete({ name: RETURN_TO_COOKIE, path: "/" })
+        }
+        return response
     }
 
     return withClearedToken(NextResponse.next(), status)

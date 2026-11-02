@@ -255,6 +255,36 @@ async def delete_course(
     return {"course_id": course_id, "deleted": True}
 
 
+STAFF_ROLES = ("lecturer", "ta")
+
+
+@router.get("/access/{course_id}")
+async def check_staff_access(course_id: str, access_token: str = Cookie(None), db: Session = Depends(get_db)):
+    """Gate for the staff pages (/courses/{id}/*): 404 if the course doesn't
+    exist, 403 unless the user is a lecturer/TA of it or an admin."""
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        user_id = int(token_payload["sub"])
+    except (JWTError, KeyError, ValueError, TypeError):
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    membership = db.query(CourseMember).filter(
+        CourseMember.course_id == course_id, CourseMember.user_id == user_id,
+    ).first()
+    if membership and membership.role in STAFF_ROLES:
+        return {"course_id": course_id, "role": membership.role}
+    if user.is_admin:
+        return {"course_id": course_id, "role": "admin"}
+    raise HTTPException(status_code=403, detail="Only course lecturers and TAs can access this course")
+
+
 # STUDENT
 @router.get("/get_name/{course_id}")
 async def get_course_name(course_id: str, db: Session = Depends(get_db)):
