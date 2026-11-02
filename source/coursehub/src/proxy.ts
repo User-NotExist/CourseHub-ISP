@@ -40,6 +40,32 @@ function withClearedToken(response: NextResponse, status: TokenStatus) {
     return response
 }
 
+// Where a guest was headed before being sent to log in. A cookie rather than
+// ?next= because the backend's OAuth callback always lands on /courses.
+const RETURN_TO_COOKIE = "return_to"
+const RETURN_TO_MAX_AGE = 60 * 10 // long enough to finish the Google login
+const POST_LOGIN_PATH = "/courses"
+
+// Only same-origin paths; rejects "//evil.com", "/\\evil.com", absolute URLs.
+function safeReturnPath(value: string | undefined, request: NextRequest): string | null {
+    if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
+        return null
+    }
+    try {
+        const url = new URL(value, request.url)
+        if (url.origin !== request.nextUrl.origin) return null
+        return url.pathname + url.search
+    } catch {
+        return null
+    }
+}
+
+function redirectWithoutReturnTo(path: string, request: NextRequest) {
+    const response = NextResponse.redirect(new URL(path, request.url))
+    response.cookies.delete({ name: RETURN_TO_COOKIE, path: "/" })
+    return response
+}
+
 export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname
     // The landing page must be public: protected routes redirect guests here.
@@ -52,11 +78,34 @@ export async function proxy(request: NextRequest) {
     const isAuthenticated = status === "valid"
 
     if (!isAuthenticated && !isLoginRoute) {
-        return withClearedToken(NextResponse.redirect(new URL("/", request.url)), status)
+        const response = NextResponse.redirect(new URL("/", request.url))
+        response.cookies.set(RETURN_TO_COOKIE, pathname + request.nextUrl.search, {
+            path: "/",
+            httpOnly: true,
+            sameSite: "lax",
+            secure: request.nextUrl.protocol === "https:",
+            maxAge: RETURN_TO_MAX_AGE,
+        })
+        return withClearedToken(response, status)
     }
 
-    if (isAuthenticated && isLoginRoute) {
-        return NextResponse.redirect(new URL("/courses", request.url))
+    if (isAuthenticated) {
+        const returnTo = safeReturnPath(request.cookies.get(RETURN_TO_COOKIE)?.value, request)
+
+        if (isLoginRoute) {
+            return redirectWithoutReturnTo(returnTo ?? POST_LOGIN_PATH, request)
+        }
+
+        // First stop after the OAuth callback: forward to the saved page once.
+        if (pathname === POST_LOGIN_PATH && returnTo && returnTo !== POST_LOGIN_PATH) {
+            return redirectWithoutReturnTo(returnTo, request)
+        }
+
+        if (request.cookies.has(RETURN_TO_COOKIE)) {
+            const response = NextResponse.next()
+            response.cookies.delete({ name: RETURN_TO_COOKIE, path: "/" })
+            return response
+        }
     }
 
     return withClearedToken(NextResponse.next(), status)
