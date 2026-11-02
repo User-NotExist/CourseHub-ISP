@@ -14,17 +14,30 @@ if (!jwtSecret) {
 // Verify the token locally instead of calling the backend on every request.
 // This is an optimistic gate for page access only; the backend still
 // authorizes every data request (and catches e.g. deleted users).
-async function isValidToken(token: string): Promise<boolean> {
-    if (!jwtSecret) return false
+// "unverifiable" = server misconfigured (no secret); don't blame the token.
+type TokenStatus = "missing" | "valid" | "invalid" | "unverifiable"
+
+async function checkToken(token: string | undefined): Promise<TokenStatus> {
+    if (!token) return "missing"
+    if (!jwtSecret) return "unverifiable"
     try {
         await jwtVerify(token, jwtSecret, {
             algorithms: [JWT_ALGORITHM],
             requiredClaims: ["sub", "exp"],
         })
-        return true
+        return "valid"
     } catch {
-        return false
+        return "invalid"
     }
+}
+
+// Drop a bad token so later requests don't keep re-checking it.
+// path must match how the backend set it (backend/auth/auth.py).
+function withClearedToken(response: NextResponse, status: TokenStatus) {
+    if (status === "invalid") {
+        response.cookies.delete({ name: "access_token", path: "/" })
+    }
+    return response
 }
 
 export async function proxy(request: NextRequest) {
@@ -35,18 +48,18 @@ export async function proxy(request: NextRequest) {
     }
 
     const isLoginRoute = pathname === "/api_auth/auth"
-    const accessToken = request.cookies.get("access_token")?.value
-    const isAuthenticated = accessToken ? await isValidToken(accessToken) : false
+    const status = await checkToken(request.cookies.get("access_token")?.value)
+    const isAuthenticated = status === "valid"
 
     if (!isAuthenticated && !isLoginRoute) {
-        return NextResponse.redirect(new URL("/", request.url))
+        return withClearedToken(NextResponse.redirect(new URL("/", request.url)), status)
     }
 
     if (isAuthenticated && isLoginRoute) {
         return NextResponse.redirect(new URL("/courses", request.url))
     }
 
-    return NextResponse.next()
+    return withClearedToken(NextResponse.next(), status)
 }
 
 export const config = {
