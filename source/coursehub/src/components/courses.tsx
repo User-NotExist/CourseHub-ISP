@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 
-import { Edit, Trash, Loader2, Trash2Icon } from "lucide-react"
+import { Edit, Trash, Loader2, Trash2Icon, Search } from "lucide-react"
 
 type Course = {
     course_id: string
@@ -39,6 +39,7 @@ export default function CoursesPage() {
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [courseToDelete, setCourseToDelete] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [search, setSearch] = useState("")
 
     const router = useRouter()
 
@@ -59,6 +60,11 @@ export default function CoursesPage() {
 
         fetchCourses()
     }, [])
+
+    const q = search.trim().toLowerCase()
+    const filteredCourses = courses.filter((course) =>
+        course.course_name.toLowerCase().includes(q) || (course.course_description ?? "").toLowerCase().includes(q)
+    )
 
     const handle_view = (course_id: string) => {
         router.push(`/courses/${course_id}/main`)
@@ -95,8 +101,8 @@ export default function CoursesPage() {
     }
 
     return (
-        <div className="flex flex-col justify-top items-center h-screen w-max pt-7 overflow-y-auto scrollbar-none gap-4 xl:w-250 lg:w-200 md:w-150 sm:w-100 min-w-90">
-            <div className="flex flex-row justiffy-center items-center gap-4 w-full h-35">
+        <div className="flex flex-col justify-top items-center h-screen w-max pt-7 overflow-y-auto scrollbar-none gap-4 xl:w-270 lg:w-200 md:w-150 sm:w-100 min-w-90">
+            <div className="flex flex-row justify-center items-center gap-4 w-full h-50 shrink-0">
                 <div className="bg-[#E8E8E8] w-full h-full rounded-xl drop-shadow-md">
                 </div>
 
@@ -104,18 +110,23 @@ export default function CoursesPage() {
                 </div>
             </div>
 
-            <div className="flex flex-row items-center justify-center w-full gap-4">
-                <Input placeholder="Search courses" className="" />
-                <Button className="w-25">Search</Button>
+            <div className="relative w-full px-1 shrink-0">
+                <Input
+                    placeholder="Search courses..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pr-10"
+                />
+                <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2" />
             </div>
 
             {isLoading ? (
                 <div className="flex items-center justify-center py-10">
                     <Loader2 className="animate-spin mt-10" size={45} />
                 </div>
-            ) : courses.length > 0 ? (
+            ) : filteredCourses.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 w-full pb-6">
-                    {courses.map((course) => (
+                    {filteredCourses.map((course) => (
                         <div key={course.course_id} className="pb-4 bg-[#006C67] rounded-xl drop-shadow-lg">
                             <Image
                                 alt="coursebg"
@@ -146,7 +157,9 @@ export default function CoursesPage() {
                     ))}
                 </div>
             ) : (
-                <h1 className="flex flex-col items-center justify-center pt-30">No Assigned Courses</h1>
+                <h1 className="flex flex-col items-center justify-center pt-30">
+                    {courses.length > 0 ? "No courses match your search" : "No Assigned Courses"}
+                </h1>
             )}
 
             <AlertDialog open={!!courseToDelete} onOpenChange={(isOpen) => !isOpen && setCourseToDelete(null)}>

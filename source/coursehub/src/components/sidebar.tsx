@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { FiGrid, FiCalendar, FiLogOut, FiPlusCircle } from "react-icons/fi"
+import { FiGrid, FiLogOut, FiPlusCircle, FiBookOpen, FiChevronDown, FiCheckCircle, FiArchive } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -16,10 +16,17 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
+type SidebarCourse = {
+    course_id: string
+    course_name: string
+}
+
 export default function Sidebar() {
     const router = useRouter()
     const [email, setEmail] = useState<string | null>(null)
     const [isLoggingOut, setIsLoggingOut] = useState(false)
+    const [isCoursesOpen, setIsCoursesOpen] = useState(true)
+    const [courses, setCourses] = useState<SidebarCourse[] | null>(null)
 
     useEffect(() => {
         fetch(`/api_auth/me`, { credentials: "include" })
@@ -31,10 +38,20 @@ export default function Sidebar() {
             .catch(() => setEmail(null))
     }, [])
 
+    useEffect(() => {
+        fetch("/api_course/read", { credentials: "include" })
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to fetch courses")
+                return res.json()
+            })
+            .then((data: SidebarCourse[]) => setCourses(data))
+            .catch(() => setCourses([]))
+    }, [])
+
     const handle_logout = async () => {
         setIsLoggingOut(true)
         await fetch("/api_auth/logout", { method: "POST", credentials: "include" })
-        toast.success("Logout successful.", {position: "top-right"})
+        toast.success("Logout successful.", { position: "top-right" })
         setTimeout(() => {
             router.replace("/")
         }, 1200)
@@ -57,7 +74,7 @@ export default function Sidebar() {
                         onClick={() => router.push("/courses")}
                     >
                         <FiGrid />
-                        <span>Courses</span>
+                        <span>Main</span>
                     </button>
 
                     <button
@@ -68,12 +85,56 @@ export default function Sidebar() {
                         <span>Create Course</span>
                     </button>
 
+                    <div className="flex flex-col">
+                        <button
+                            className="flex items-center justify-between gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
+                            onClick={() => setIsCoursesOpen((prev) => !prev)}
+                        >
+                            <div className="flex items-center gap-5">
+                                <FiBookOpen />
+                                <span>My Courses</span>
+                            </div>
+                            <FiChevronDown
+                                className={`transition-transform ${isCoursesOpen ? "rotate-180" : ""}`}
+                            />
+                        </button>
+
+                        {isCoursesOpen && (
+                            <div className="flex flex-col mt-1 gap-1 max-h-70 overflow-y-auto scrollbar-none">
+                                {courses === null ? (
+                                    <span className="px-4 py-2 text-sm text-white/70">Loading...</span>
+                                ) : courses.length === 0 ? (
+                                    <span className="px-4 py-2 text-sm text-white/70">No courses</span>
+                                ) : (
+                                    courses.map((course) => (
+                                        <button
+                                            key={course.course_id}
+                                            className="shrink-0 w-full bg-black/5 hover:bg-black/20 transition-colors rounded-lg px-4 py-2 text-sm text-left"
+                                            title={course.course_name}
+                                            onClick={() => router.push(`/courses/${course.course_id}/main`)}
+                                        >
+                                            <span className="block truncate">{course.course_name}</span>
+                                        </button>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     <button
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push("/schedule")}
+                        // onClick={() => router.push("/schedule")}
                     >
-                        <FiCalendar />
-                        <span>Schedule</span>
+                        <FiCheckCircle />
+                        <span>Agenda</span>
+                    </button>
+
+                    <button
+                        className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
+                        // onClick={() => router.push("/schedule")}
+                    >
+                        <FiArchive />
+                        <span>Archived Courses</span>
                     </button>
                 </nav>
             </div>
