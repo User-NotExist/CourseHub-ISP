@@ -22,6 +22,7 @@ class User(base):
     comments = relationship("Comments", back_populates="user")
     consultation_logs = relationship("ConsultationLogs", back_populates="user")
     appointments_avaliable = relationship("AppointmentsAvaliable", back_populates="user")
+    announcements = relationship("Announcement", back_populates="user")
 
 
 class Course(base):
@@ -43,6 +44,7 @@ class Course(base):
     consultation_logs = relationship("ConsultationLogs", back_populates="course")
     appointments = relationship("Appointments", back_populates="course")
     appointments_avaliable = relationship("AppointmentsAvaliable", back_populates="course")
+    announcements = relationship("Announcement", back_populates="course")
 
 
 class CourseMember(base):
@@ -113,11 +115,30 @@ class Comments(base):
     comment_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=True)
+    announcement_id = Column(Integer, ForeignKey("announcements.announcement_id"), nullable=True)
 
     comment = Column(Text, nullable=False)
     createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="comments")
+    announcement = relationship("Announcement", back_populates="comments")
+
+
+class Announcement(base):
+    __tablename__ = "announcements"
+
+    announcement_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
+
+    title = Column(String, nullable=False)
+    description = Column(Text)
+    createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updatedAt = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", back_populates="announcements")
+    course = relationship("Course", back_populates="announcements")
+    comments = relationship("Comments", back_populates="announcement")
 
 
 class ConsultationLogs(base):
