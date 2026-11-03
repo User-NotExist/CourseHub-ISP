@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
 
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8000"
     try {
-        const response = await fetch(`${backendUrl}/course/${encodeURIComponent(courseId)}/overview/get_self_tasks`, {
+        const response = await fetch(`${backendUrl}/course/${encodeURIComponent(courseId)}/overview/get_self_tasks_in_this_course`, {
             headers: { cookie: (await cookies()).toString() },
             cache: "no-store",
         })
