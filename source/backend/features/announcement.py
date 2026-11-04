@@ -171,6 +171,28 @@ async def display_announcements(
     ]
 
 
+# Display latest announcement in the course, null if the course has none
+@router.get("/read-latest")
+async def display_latest_announcement(
+    course_id: str,
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    user = get_current_user(access_token, db)
+    role = get_course_role(course_id, user, db)
+
+    announcement = (
+        db.query(Announcement)
+        .filter(Announcement.course_id == course_id)
+        .order_by(Announcement.createdAt.desc(), Announcement.announcement_id.desc())
+        .first()
+    )
+    if not announcement:
+        return None
+
+    return {**announcement_data(announcement), "can_edit": role in ["lecturer", "admin"]}
+
+
 # Announcement detail with comment thread
 @router.get("/read/{announcement_id}")
 async def display_announcement(
