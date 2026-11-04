@@ -12,7 +12,7 @@ from typing import Optional, Literal
 import string, secrets
 
 from db.database import get_db
-from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments, ConsultationLogs, Appointments, AppointmentsAvaliable
+from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments, ConsultationLogs, Appointments, AppointmentsAvaliable, Announcement
 
 router = APIRouter(prefix="/course", tags=["course"])
 
@@ -244,6 +244,7 @@ async def delete_course(
     db.query(Activity).filter(Activity.course_id == course_id).delete()
     db.query(Faq).filter(Faq.course_id == course_id).delete()
     db.query(Comments).filter(Comments.course_id == course_id).delete()
+    db.query(Announcement).filter(Announcement.course_id == course_id).delete()
     db.query(ConsultationLogs).filter(ConsultationLogs.course_id == course_id).delete()
     db.query(Appointments).filter(Appointments.course_id == course_id).delete()
     db.query(AppointmentsAvaliable).filter(AppointmentsAvaliable.course_id == course_id).delete()
@@ -253,6 +254,36 @@ async def delete_course(
     db.commit()
 
     return {"course_id": course_id, "deleted": True}
+
+
+STAFF_ROLES = ("lecturer", "ta")
+
+
+@router.get("/access/{course_id}")
+async def check_staff_access(course_id: str, access_token: str = Cookie(None), db: Session = Depends(get_db)):
+    """Gate for the staff pages (/courses/{id}/*): 404 if the course doesn't
+    exist, 403 unless the user is a lecturer/TA of it or an admin."""
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        user_id = int(token_payload["sub"])
+    except (JWTError, KeyError, ValueError, TypeError):
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    membership = db.query(CourseMember).filter(
+        CourseMember.course_id == course_id, CourseMember.user_id == user_id,
+    ).first()
+    if membership and membership.role in STAFF_ROLES:
+        return {"course_id": course_id, "role": membership.role}
+    if user.is_admin:
+        return {"course_id": course_id, "role": "admin"}
+    raise HTTPException(status_code=403, detail="Only course lecturers and TAs can access this course")
 
 
 # STUDENT
