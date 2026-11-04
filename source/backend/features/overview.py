@@ -1,0 +1,160 @@
+import os
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Cookie
+from jose import jwt, JWTError
+from sqlalchemy.orm import Session
+
+from db.database import get_db
+from db.models import User, Course, CourseMember, Task, Activity
+
+router = APIRouter(prefix="/course/{course_id}/overview", tags=["overview"])
+
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+JWT_ALGORITHM = "HS256"
+
+STAFF_ROLES = ["lecturer", "ta"]
+ROLE_LABELS = {"lecturer": "Lecturer", "ta": "Teaching Assistant"}
+
+
+def get_current_user(access_token: Optional[str], db: Session) -> User:
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+    return user
+
+
+def require_member(db: Session, user: User, course_id: str, roles: Optional[list] = None) -> CourseMember:
+    """User must be in this course (and have one of `roles`, if given)."""
+    query = db.query(CourseMember).filter(
+        CourseMember.course_id == course_id,
+        CourseMember.user_id == user.user_id,
+    )
+    if roles:
+        query = query.filter(CourseMember.role.in_(roles))
+
+    member = query.first()
+    if not member:
+        raise HTTPException(status_code=403, detail="You don't have permission for this course !")
+    return member
+
+
+@router.get("/get_num_lec_ta")
+async def get_num_lec_ta(
+    course_id: str,
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    user = get_current_user(access_token, db)
+    require_member(db, user, course_id)
+
+    ta = db.query(CourseMember).filter(CourseMember.course_id == course_id, CourseMember.role == "ta").count()
+    lec = db.query(CourseMember).filter(CourseMember.course_id == course_id, CourseMember.role == "lecturer").count()
+
+    return {"num_ta": ta, "num_lec": lec}
+
+
+@router.get("/get_title_description")
+async def get_title_description(
+    course_id: str,
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    user = get_current_user(access_token, db)
+    require_member(db, user, course_id, STAFF_ROLES)
+
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found !")
+
+    return {"title": course.course_name, "description": course.course_description}
+
+
+@router.get("/get_self_tasks_in_this_course")
+async def get_self_tasks_in_this_course(
+    course_id: str,
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    user = get_current_user(access_token, db)
+    require_member(db, user, course_id)
+
+    tasks = db.query(Task).filter(Task.course_id == course_id).all()
+    my_email = user.user_email.lower()
+
+    # this user's assignment on the task (None if not assigned)
+    def my_assignment(task):
+        assignees = task.tasks if isinstance(task.tasks, list) else []
+        return next(
+            (a for a in assignees
+             if isinstance(a, dict) and str(a.get("task_assignee_gmail", "")).lower() == my_email),
+            None,
+        )
+
+    result = []
+    for task in tasks:
+        mine = my_assignment(task)
+        if mine is None:
+            continue
+        result.append({
+            "task_id": task.task_id,
+            "task_name": task.task_name,
+            "task_due_date": str(task.task_due_date),
+            "status": mine.get("status", "To-Do"),
+        })
+    return result
+
+
+@router.get("/get_activity_milestone")
+async def get_activity_milestone(
+    course_id: str,
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    user = get_current_user(access_token, db)
+    require_member(db, user, course_id)
+
+    activities = db.query(Activity).filter(Activity.course_id == course_id).all()
+
+    return [
+        {
+            "activity_id": a.activity_id,
+            "activity_name": a.activity_name,
+            "activity_type": a.activity_type,
+            "activity_date": str(a.activity_date),
+        }
+        for a in activities
+    ]
+
+
+# keep : might use this for drop down when assigning something
+@router.get("/get_members_email_and_role")
+async def get_members_email_and_role(
+    course_id: str,
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    user = get_current_user(access_token, db)
+    require_member(db, user, course_id, STAFF_ROLES)
+
+    rows = (
+        db.query(User.user_email, CourseMember.role)
+        .join(CourseMember, CourseMember.user_id == User.user_id)
+        .filter(CourseMember.course_id == course_id)
+        .all()
+    )
+
+    return {
+        "members": [
+            {"email": email, "role": ROLE_LABELS.get(role, role)}
+            for email, role in rows
+        ]
+    }
