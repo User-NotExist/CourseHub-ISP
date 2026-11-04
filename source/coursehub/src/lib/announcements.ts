@@ -10,6 +10,16 @@ export type Announcement = {
   can_edit?: boolean
 }
 
+export type AnnouncementComment = {
+  comment_id: number
+  comment_owner_id: number
+  creator: string
+  comment: string
+  createdAt: string
+  can_edit: boolean
+  can_delete: boolean
+}
+
 export function announcementErrorMessage(data: unknown, fallback: string) {
   if (typeof data !== "object" || data === null || !("detail" in data)) return fallback
   if (typeof data.detail === "string") return data.detail
