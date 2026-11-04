@@ -143,7 +143,13 @@ export default function CoursesPage() {
     return (
         <div className="flex flex-col justify-top items-center h-screen w-max pt-7 overflow-y-auto scrollbar-none gap-4 xl:w-270 lg:w-200 md:w-150 sm:w-100 min-w-90">
             <div className="flex flex-col w-full h-70 shrink-0 [&>div]:gap-4 [&>div>div]:bg-[#E8E8E8] [&>div>div]:rounded-xl [&>div>div]:drop-shadow-md [&>div>div]:p-6">
-                <UpcomingLate tasks={overviewTasks} activities={overviewActivities} />
+            <UpcomingLate tasks={overviewTasks} activities={overviewActivities} />
+            </div>
+
+            <div className="flex w-full gap-6 text-sm text-gray-500 pl-2 shrink-0">
+                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-green-500" /> Task</span>
+                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-amber-500" /> Activity</span>
+                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-violet-500" /> Milestone</span>
             </div>
 
             <div className="relative w-full px-1 shrink-0">
