@@ -158,3 +158,64 @@ async def get_members_email_and_role(
             for email, role in rows
         ]
     }
+
+
+# ---------- Main page (all courses) ----------
+all_courses_router = APIRouter(prefix="/overview", tags=["overview"])
+
+
+def find_my_assignment(task: Task, my_email: str):
+    """Return this user's assignment dict on the task, or None if not assigned."""
+    assignees = task.tasks if isinstance(task.tasks, list) else []
+    return next(
+        (a for a in assignees
+         if isinstance(a, dict) and str(a.get("task_assignee_gmail", "")).lower() == my_email),
+        None,
+    )
+
+
+@all_courses_router.get("/all_courses")
+async def get_all_courses_overview(
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    user = get_current_user(access_token, db)
+
+    memberships = db.query(CourseMember).filter(CourseMember.user_id == user.user_id).all()
+    course_ids = [m.course_id for m in memberships]
+    if not course_ids:
+        return {"tasks": [], "activities": []}
+
+    course_names = {
+        c.course_id: c.course_name
+        for c in db.query(Course).filter(Course.course_id.in_(course_ids)).all()
+    }
+    my_email = user.user_email.lower()
+
+    tasks = []
+    for task in db.query(Task).filter(Task.course_id.in_(course_ids)).all():
+        mine = find_my_assignment(task, my_email)
+        if mine is None:
+            continue
+        tasks.append({
+            "task_id": task.task_id,
+            "task_name": task.task_name,
+            "task_due_date": str(task.task_due_date),
+            "status": mine.get("status", "To-Do"),
+            "course_id": task.course_id,
+            "course_name": course_names.get(task.course_id, ""),
+        })
+
+    activities = [
+        {
+            "activity_id": a.activity_id,
+            "activity_name": a.activity_name,
+            "activity_type": a.activity_type,
+            "activity_date": str(a.activity_date),
+            "course_id": a.course_id,
+            "course_name": course_names.get(a.course_id, ""),
+        }
+        for a in db.query(Activity).filter(Activity.course_id.in_(course_ids)).all()
+    ]
+
+    return {"tasks": tasks, "activities": activities}
