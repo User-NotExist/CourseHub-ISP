@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner"
 
 import { Edit, Trash, Loader2, Trash2Icon, Search } from "lucide-react"
+import UpcomingLate from "@/components/calendar/upcoming_late"
 
 type Course = {
     course_id: string
@@ -34,12 +35,32 @@ type Course = {
     role: string
 }
 
+type OverviewTask = {
+    task_id: number
+    task_name: string
+    task_due_date: string
+    status: string
+    course_id: string
+    course_name: string
+}
+
+type OverviewActivity = {
+    activity_id: number
+    activity_name: string
+    activity_type: string
+    activity_date: string
+    course_id: string
+    course_name: string
+}
+
 export default function CoursesPage() {
     const [courses, setCourses] = useState<Course[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [courseToDelete, setCourseToDelete] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [search, setSearch] = useState("")
+    const [overviewTasks, setOverviewTasks] = useState<OverviewTask[]>([])
+    const [overviewActivities, setOverviewActivities] = useState<OverviewActivity[]>([])
 
     const router = useRouter()
 
@@ -59,6 +80,25 @@ export default function CoursesPage() {
         }
 
         fetchCourses()
+    }, [])
+
+    // Upcoming / late tasks and activities from every course the user is in
+    useEffect(() => {
+        const fetchOverview = async () => {
+            try {
+                const res = await fetch("/api_course/get_details/get_all_overview")
+                if (!res.ok) throw new Error("Failed to fetch overview")
+                const data = await res.json()
+                setOverviewTasks(data.tasks ?? [])
+                setOverviewActivities(data.activities ?? [])
+            } catch (error) {
+                console.error(error)
+                setOverviewTasks([])
+                setOverviewActivities([])
+            }
+        }
+
+        fetchOverview()
     }, [])
 
     const q = search.trim().toLowerCase()
@@ -102,12 +142,8 @@ export default function CoursesPage() {
 
     return (
         <div className="flex flex-col justify-top items-center h-screen w-max pt-7 overflow-y-auto scrollbar-none gap-4 xl:w-270 lg:w-200 md:w-150 sm:w-100 min-w-90">
-            <div className="flex flex-row justify-center items-center gap-4 w-full h-50 shrink-0">
-                <div className="bg-[#E8E8E8] w-full h-full rounded-xl drop-shadow-md">
-                </div>
-
-                <div className="bg-[#E8E8E8] w-full h-full rounded-xl drop-shadow-md">
-                </div>
+            <div className="flex flex-col w-full h-70 shrink-0 [&>div]:gap-4 [&>div>div]:bg-[#E8E8E8] [&>div>div]:rounded-xl [&>div>div]:drop-shadow-md [&>div>div]:p-6">
+                <UpcomingLate tasks={overviewTasks} activities={overviewActivities} />
             </div>
 
             <div className="relative w-full px-1 shrink-0">
