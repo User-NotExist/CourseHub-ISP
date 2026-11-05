@@ -174,9 +174,7 @@ export default function AppointmentsPage() {
                 )}
             </Card>
 
-            <Card className="flex flex-col w-full bg-gray-100 shadow-lg p-7 h-70">
                 <UpcomingAppointments slots={slots} onHoverDate={setHoveredDate} onSelectDate={setPicked} />
-            </Card>
         </div>
     )
 }
