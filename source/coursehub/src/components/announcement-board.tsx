@@ -50,11 +50,11 @@ function formatAnnouncementDate(value: string) {
   }).format(date).replace(",", " ·")
 }
 
-function isNewAnnouncement(value: string) {
-  const createdAt = new Date(value).getTime()
-  const sevenDays = 7 * 24 * 60 * 60 * 1000
-  return !Number.isNaN(createdAt) && Date.now() - createdAt <= sevenDays && createdAt <= Date.now()
-}
+// function isNewAnnouncement(value: string) {
+//   const createdAt = new Date(value).getTime()
+//   const sevenDays = 7 * 24 * 60 * 60 * 1000
+//   return !Number.isNaN(createdAt) && Date.now() - createdAt <= sevenDays && createdAt <= Date.now()
+// }
 
 function formatCommentDate(value: string) {
   const date = new Date(value)
@@ -305,6 +305,7 @@ export default function AnnouncementBoard() {
               <article
                 key={announcement.announcement_id}
                 className="rounded-2xl bg-panel-surface px-6 py-5 text-panel-foreground transition hover:bg-panel-surface-strong"
+                onClick={() => void toggleComments(announcement.announcement_id)}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2.5">
@@ -323,11 +324,11 @@ export default function AnnouncementBoard() {
                       </p>
                     </div>
                   </div>
-                  {isNewAnnouncement(announcement.createdAt) && (
+                  {/* {isNewAnnouncement(announcement.createdAt) && (
                     <span className="shrink-0 rounded-full bg-[#ff791f] px-2.5 py-1 text-[10px] font-bold text-white">
                       NEW
                     </span>
-                  )}
+                  )} */}
                 </div>
 
                 <h2 className="mt-2 text-base font-semibold leading-snug sm:text-lg">
