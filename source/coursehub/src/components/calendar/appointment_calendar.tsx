@@ -111,13 +111,26 @@ export default function AppointmentCalendar({
                     const isSelected = key === selectedDate
                     const isHighlighted = key === highlightDate
                     const daySlots = slotsByDate[key] ?? []
+                    const isPast = todayKey !== "" && key < todayKey
+                    // fill the date by availability: green = a slot with seats left, red = every slot full,
+                    // grey = past, no fill = unavailable (no slots)
+                    const tint =
+                        daySlots.length === 0
+                            ? ""
+                            : isPast
+                              ? "bg-gray-200"
+                              : daySlots.some((s) => !isFull(s))
+                                ? "bg-green-200"
+                                : "bg-red-200"
                     return (
                         <div key={key} className="group relative flex justify-center border-b border-gray-200 py-3">
                             <button
                                 onClick={() => onSelect?.(key)}
                                 className={`peer relative size-14 rounded-xl transition-all hover:scale-125 ${
                                     isToday ? "font-semibold text-brand" : ""
-                                } ${isSelected ? "bg-brand/10 ring-2 ring-brand" : ""} ${isHighlighted ? "scale-125" : ""}`}
+                                } ${tint} ${isSelected ? (tint ? "ring-2 ring-brand" : "bg-brand/10 ring-2 ring-brand") : ""} ${
+                                    isHighlighted ? "scale-125" : ""
+                                }`}
                             >
                                 {isToday && <span className="absolute top-1.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-brand" />}
                                 {day}
@@ -146,10 +159,18 @@ export default function AppointmentCalendar({
                 })}
             </div>
 
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500 pt-3 pl-2">
-                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-sky-500" /> Booked</span>
-                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-red-500" /> Full</span>
-                <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-gray-300" /> No bookings yet</span>
+            <div className="flex flex-col gap-2 pt-3 pl-2 text-lg font-bold text-gray-500">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <span className="flex items-center gap-1.5"><span className="size-4 rounded bg-green-200" /> Available</span>
+                    <span className="flex items-center gap-1.5"><span className="size-4 rounded bg-red-200" /> Fully booked</span>
+                    <span className="flex items-center gap-1.5"><span className="size-4 rounded bg-gray-200" /> Past</span>
+                    <span className="flex items-center gap-1.5"><span className="size-4 rounded border border-gray-300 bg-white" /> Unavailable</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-base">
+                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full bg-sky-500" /> Slot with bookings</span>
+                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full bg-red-500" /> Full slot</span>
+                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full bg-gray-300" /> No bookings yet</span>
+                </div>
             </div>
         </div>
     )
