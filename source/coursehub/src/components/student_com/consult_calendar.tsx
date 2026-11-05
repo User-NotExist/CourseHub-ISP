@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-export type Availability = "available" | "uncertain" | "unavailable"
+export type Availability = "available" | "unavailable"
 
 const monthNames = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -12,7 +12,6 @@ const weekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
 const availabilityStyle: Record<Availability, string> = {
     available: "bg-[#B9F6B0]",
-    uncertain: "bg-[#F3F38A]",
     unavailable: "bg-[#F4A3A3]",
 }
 
@@ -111,7 +110,6 @@ export default function ConsultCalendar({
 
             <div className="flex flex-wrap gap-3 text-xs">
                 <span className="flex items-center gap-1"><span className="size-3 rounded-sm bg-[#B9F6B0]" /> Available</span>
-                <span className="flex items-center gap-1"><span className="size-3 rounded-sm bg-[#F3F38A]" /> Uncertain</span>
                 <span className="flex items-center gap-1"><span className="size-3 rounded-sm bg-[#F4A3A3]" /> Not available</span>
             </div>
         </div>
