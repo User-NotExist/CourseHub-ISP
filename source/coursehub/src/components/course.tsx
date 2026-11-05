@@ -203,8 +203,8 @@ export default function CoursePage() {
                             </InputGroupAddon>
                         </InputGroup>
 
-                        <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10">open</Button>
-                        <Button onClick={() => router.push(`/courses/${courseId}/edit`)} variant="outline" className="px-15">
+                        <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10 font-lg font-bold">open</Button>
+                        <Button onClick={() => router.push(`/courses/${courseId}/edit`)} variant="outline" className="px-15 font-lg font-bold">
                             Edit Course
                         </Button>
                     </div>
