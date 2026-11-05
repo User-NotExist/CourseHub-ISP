@@ -276,14 +276,14 @@ async def delete_appointment_avaliable(
     if not slot:
         raise HTTPException(status_code=404, detail="Avaliable date not found !")
 
-    is_lecturer = db.query(CourseMember).filter(
+    is_staff = db.query(CourseMember).filter(
         CourseMember.course_id == course_id,
         CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
+        CourseMember.role.in_(["lecturer", "ta"]),
     ).first() is not None
 
-    if not is_lecturer:
-        raise HTTPException(status_code=403, detail="Only lecturer can delete avaliable dates !")
+    if not is_staff:
+        raise HTTPException(status_code=403, detail="Only lecturer or TA can delete avaliable dates !")
 
     # no cascade, so delete bookings from students first
     db.query(Appointments).filter(Appointments.avaliable_id == avaliable_id).delete()

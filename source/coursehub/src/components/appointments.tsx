@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import AppointmentCalendar from "@/components/calendar/appointment_calendar"
 import UpcomingAppointments from "@/components/calendar/upcoming_appointments"
+import AvailabilityCards from "@/components/availability_cards"
 import { useTodayKey } from "@/components/calendar/course_calendar"
 import { useCourseName } from "@/lib/use_course_name"
 import {
@@ -40,6 +41,7 @@ export default function AppointmentsPage() {
     const [hoveredDate, setHoveredDate] = useState<string | null>(null)
     const [bookingsBySlot, setBookingsBySlot] = useState<Record<number, BookingState>>({})
     const requested = useRef(new Set<number>())
+    const [reloadKey, setReloadKey] = useState(0) // bump to reload the slots after a change
 
     useEffect(() => {
         let cancelled = false
@@ -49,7 +51,7 @@ export default function AppointmentsPage() {
         return () => {
             cancelled = true
         }
-    }, [courseId])
+    }, [courseId, reloadKey])
 
     const loading = state?.courseId !== courseId
     const slots = useMemo(() => (loading ? [] : state.slots), [loading, state])
@@ -95,6 +97,14 @@ export default function AppointmentsPage() {
                 selectedDate={selected}
                 highlightDate={hoveredDate}
                 onSelect={setPicked}
+            />
+
+            <AvailabilityCards
+                courseId={courseId}
+                selectedDate={selected}
+                slots={slots}
+                loading={loading}
+                onChanged={() => setReloadKey((k) => k + 1)}
             />
 
             <Card className="flex flex-col w-full bg-gray-100 shadow-lg p-7 gap-5">
@@ -174,7 +184,7 @@ export default function AppointmentsPage() {
                 )}
             </Card>
 
-                <UpcomingAppointments slots={slots} onHoverDate={setHoveredDate} onSelectDate={setPicked} />
+            <UpcomingAppointments slots={slots} onHoverDate={setHoveredDate} onSelectDate={setPicked} />
         </div>
     )
 }
