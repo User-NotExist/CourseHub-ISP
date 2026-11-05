@@ -1,5 +1,6 @@
 "use client"
 
+import { Card } from "@/components/ui/card"
 import { slotColor } from "@/components/calendar/appointment_calendar"
 import { useTodayKey } from "@/components/calendar/course_calendar"
 import { daysFromToday, formatDate, type AppointmentSlot } from "@/lib/appointments"
@@ -35,7 +36,7 @@ function Row({
 const byDateThenTime = (a: AppointmentSlot, b: AppointmentSlot) =>
     a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)
 
-// Same two-column card as the Main page's Upcoming / Late Tasks, for appointment slots.
+// Two separate cards (Upcoming / Recent), the appointment version of the Main page's Upcoming / Late Tasks.
 export default function UpcomingAppointments({
     slots, onHoverDate, onSelectDate,
 }: {
@@ -61,8 +62,8 @@ export default function UpcomingAppointments({
     }
 
     return (
-        <div className="grid min-h-0 flex-1 gap-6 md:grid-cols-2">
-            <div className="flex min-h-0 flex-col gap-3">
+        <div className="grid w-full shrink-0 gap-8 md:grid-cols-2">
+            <Card className="flex h-70 min-w-0 flex-col gap-3 bg-gray-100 p-7 shadow-lg">
                 <h3 className="text-lg font-bold">Upcoming</h3>
                 <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto scrollbar-none">
                     {upcoming.length === 0 ? (
@@ -73,9 +74,9 @@ export default function UpcomingAppointments({
                         ))
                     )}
                 </div>
-            </div>
+            </Card>
 
-            <div className="flex min-h-0 flex-col gap-3">
+            <Card className="flex h-70 min-w-0 flex-col gap-3 bg-gray-100 p-7 shadow-lg">
                 <h3 className="text-lg font-bold text-gray-600">Recent</h3>
                 <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto scrollbar-none">
                     {recent.length === 0 ? (
@@ -86,7 +87,7 @@ export default function UpcomingAppointments({
                         ))
                     )}
                 </div>
-            </div>
+            </Card>
         </div>
     )
 }

@@ -55,6 +55,14 @@ export default function AppointmentCalendar({
         setMonth(next.getMonth())
     }
 
+    // jump back to the current month and select today
+    const goToToday = () => {
+        const now = new Date()
+        setYear(now.getFullYear())
+        setMonth(now.getMonth())
+        onSelect?.(toDateKey(now.getFullYear(), now.getMonth(), now.getDate()))
+    }
+
     return (
         <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
             <div className="flex items-center gap-2 pb-4">
@@ -83,6 +91,12 @@ export default function AppointmentCalendar({
                 </select>
                 <button onClick={() => shiftMonth(1)} aria-label="Next month" className="p-1">
                     <ChevronRight className="size-6" />
+                </button>
+                <button
+                    onClick={goToToday}
+                    className="ml-2 shrink-0 rounded-md border border-gray-300 px-4 py-1 text-xl transition-colors hover:bg-gray-100"
+                >
+                    Today
                 </button>
             </div>
 
