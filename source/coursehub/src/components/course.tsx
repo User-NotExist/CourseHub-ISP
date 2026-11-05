@@ -33,6 +33,27 @@ type my_activities = {
     activity_date: string,
 }
 
+type latest_announcement_props = {
+    announcement_id: number,
+    announcement_owner_id: number,
+    creator: string,
+    title: string,
+    description: string,
+    comment_count: number,
+    createdAt: string,
+    updatedAt: string,
+}
+
+function getInitials(name: string) {
+    return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("")
+}
+
+function formatDate(value: string) {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return value
+    return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(date)
+}
+
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -43,6 +64,7 @@ export default function CoursePage() {
     const [totalLecturer, setTotalLecturer] = useState<string>("N/A");
     const [totalTA, setTotalTA] = useState<string>("N/A");
 
+    const [latestAnnouncement, setLatestAnnouncement] = useState<latest_announcement_props | null>(null);
     const [myTasks, setMyTasks] = useState<my_tasks[]>([]);
     const [myActivities, setMyActivities] = useState<my_activities[]>([]);
     const [hoveredDate, setHoveredDate] = useState<string | null>(null);
@@ -125,10 +147,27 @@ export default function CoursePage() {
             }
         }
 
+        const get_latest_announcement = async () => {
+            try {
+                const res = await fetch(`/api_course/get_details/get_latest_announcement?course_id=${courseId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setLatestAnnouncement(data);
+                }
+                else {
+                    setLatestAnnouncement(null);
+                }
+            } catch (error) {
+                console.error("Error fetching latest announcement", error)
+                setLatestAnnouncement(null)
+            }
+        }
+
         get_course_details();
         get_course_numbers();
         get_my_tasks();
         get_my_activities();
+        get_latest_announcement();
     }, [courseId]);
 
     return (
@@ -164,19 +203,38 @@ export default function CoursePage() {
                             </InputGroupAddon>
                         </InputGroup>
 
-                        <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10">open</Button>
-                        <Button onClick={() => router.push(`/courses/${courseId}/edit`)} variant="outline" className="px-15">
+                        <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10 font-lg font-bold">open</Button>
+                        <Button onClick={() => router.push(`/courses/${courseId}/edit`)} variant="outline" className="px-15 font-lg font-bold">
                             Edit Course
                         </Button>
                     </div>
                 </div>
 
-                <Card className="flex flex-col h-50 w-full bg-gray-100 shadow-lg p-7">
+                <Card className="flex flex-col h-auto w-full bg-gray-100 shadow-lg p-7">
                     <h2 className="text-xl font-bold">Latest Announcements</h2>
 
-                    <div className="flex flex-col items-start justify-center" >
-                        To be Implemented
-                    </div>
+                    {latestAnnouncement ? (
+                        <button
+                            type="button"
+                            onClick={() => router.push(`/courses/${courseId}/announcement`)}
+                            className="mt-3 flex min-h-0 flex-1 flex-col rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
+                        >
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-brand-ink">
+                                    {getInitials(latestAnnouncement.creator)}
+                                </div>
+                                <span className="truncate text-sm font-semibold">{latestAnnouncement.creator}</span>
+                                <span className="text-xs text-gray-500">{formatDate(latestAnnouncement.createdAt)}</span>
+                                <span className="ml-auto shrink-0 text-xs text-gray-500">
+                                    {latestAnnouncement.comment_count} comment{latestAnnouncement.comment_count === 1 ? "" : "s"}
+                                </span>
+                            </div>
+                            <span className="mt-2 truncate font-medium">{latestAnnouncement.title}</span>
+                            <span className="line-clamp-1 text-sm text-gray-500">{latestAnnouncement.description || "—"}</span>
+                        </button>
+                    ) : (
+                        <p className="mt-3 text-sm text-gray-500">No announcements yet.</p>
+                    )}
                 </Card>
             </div>
 
@@ -186,9 +244,9 @@ export default function CoursePage() {
                 highlightDate={hoveredDate}
             />
 
-            <Card className="flex flex-col w-full bg-gray-100 shadow-lg p-7 h-70">
+            <div className="flex flex-col w-full h-70 shrink-0 [&>div>div]:rounded-xl [&>div>div]:bg-gray-100 [&>div>div]:p-7 [&>div>div]:shadow-lg">
                 <UpcomingLate tasks={myTasks} activities={myActivities} onHoverDate={setHoveredDate} />
-            </Card>
+            </div>
         </div>
     );
 };

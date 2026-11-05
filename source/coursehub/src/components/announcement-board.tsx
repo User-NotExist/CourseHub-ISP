@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Loader2, Pencil, Plus, Send, Trash2 } from "lucide-react"
+import { ChevronDown, Loader2, Pencil, Plus, Send, Trash2 } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -50,11 +50,11 @@ function formatAnnouncementDate(value: string) {
   }).format(date).replace(",", " ·")
 }
 
-function isNewAnnouncement(value: string) {
-  const createdAt = new Date(value).getTime()
-  const sevenDays = 7 * 24 * 60 * 60 * 1000
-  return !Number.isNaN(createdAt) && Date.now() - createdAt <= sevenDays && createdAt <= Date.now()
-}
+// function isNewAnnouncement(value: string) {
+//   const createdAt = new Date(value).getTime()
+//   const sevenDays = 7 * 24 * 60 * 60 * 1000
+//   return !Number.isNaN(createdAt) && Date.now() - createdAt <= sevenDays && createdAt <= Date.now()
+// }
 
 function formatCommentDate(value: string) {
   const date = new Date(value)
@@ -314,7 +314,7 @@ export default function AnnouncementBoard() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                         <p className="truncate text-sm font-semibold">{announcement.creator}</p>
-                        <span className="rounded-md bg-brand px-2 py-0.5 text-[10px] font-semibold leading-none text-brand-foreground">
+                        <span className="rounded-md bg-brand px-2 py-1.5 text-[10px] font-semibold leading-none text-brand-foreground">
                           Lecturer
                         </span>
                       </div>
@@ -323,11 +323,11 @@ export default function AnnouncementBoard() {
                       </p>
                     </div>
                   </div>
-                  {isNewAnnouncement(announcement.createdAt) && (
+                  {/* {isNewAnnouncement(announcement.createdAt) && (
                     <span className="shrink-0 rounded-full bg-[#ff791f] px-2.5 py-1 text-[10px] font-bold text-white">
                       NEW
                     </span>
-                  )}
+                  )} */}
                 </div>
 
                 <h2 className="mt-2 text-base font-semibold leading-snug sm:text-lg">
@@ -342,10 +342,16 @@ export default function AnnouncementBoard() {
                   type="button"
                   aria-expanded={expandedAnnouncementIds.includes(announcement.announcement_id)}
                   onClick={() => void toggleComments(announcement.announcement_id)}
-                  className="mt-1 text-left text-xs text-panel-muted underline underline-offset-2 hover:text-panel-foreground"
+                  className="mt-2 flex items-center gap-1 text-left text-sm text-panel-muted hover:text-panel-foreground font-bold"
                 >
-                  {announcement.comment_count}{" "}
-                  {announcement.comment_count === 1 ? "comment" : "comments"}
+                  <span className="underline underline-offset-2">
+                    {announcement.comment_count}{" "}
+                    {announcement.comment_count === 1 ? "comment" : "comments"}
+                  </span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={`size-3.5 transition-transform ${expandedAnnouncementIds.includes(announcement.announcement_id) ? "rotate-180" : ""}`}
+                  />
                 </button>
 
                 {expandedAnnouncementIds.includes(announcement.announcement_id) && (
@@ -363,7 +369,7 @@ export default function AnnouncementBoard() {
                         {(commentsByAnnouncement[announcement.announcement_id] ?? []).map((comment) => (
                           <article
                             key={comment.comment_id}
-                            className="rounded-xl bg-panel-surface-strong px-3 py-2.5"
+                            className="px-3 py-2.5"
                           >
                             {editingComment?.announcementId === announcement.announcement_id &&
                             editingComment.commentId === comment.comment_id ? (
