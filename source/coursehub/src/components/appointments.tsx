@@ -79,9 +79,9 @@ export default function AppointmentsPage() {
 
     return (
         <div className="flex w-full min-w-0 flex-col p-6 md:p-10 overflow-y-auto gap-8 scrollbar-none">
-            <div className="flex flex-col items-start gap-4">
-                <div className="text-4xl font-semibold tracking-tight text-brand-ink">Appointments</div>
-                <div className="text-2xl">{courseName ?? "\u00a0"}</div>
+            <div className="min-w-0">
+                <h1 className="text-3xl font-semibold tracking-tight text-brand-ink">Appointments</h1>
+                <p className="mt-2 truncate text-lg font-semibold text-neutral-900">{courseName ?? "\u00a0"}</p>
             </div>
 
             {error && (
