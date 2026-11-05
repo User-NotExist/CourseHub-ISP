@@ -284,8 +284,9 @@ async def delete_course(
         .filter(CourseMember.user_id == user.user_id, CourseMember.course_id == course_id)
         .first()
     )
-    if not membership or membership.role != "lecturer":
-        raise HTTPException(status_code=403, detail="Only the lecturer can delete this course !")
+    is_lecturer = membership is not None and membership.role == "lecturer"
+    if not (user.is_admin or is_lecturer):
+        raise HTTPException(status_code=403, detail="Only the lecturer or an admin can delete this course !")
 
     db.query(Task).filter(Task.course_id == course_id).delete()
     db.query(Activity).filter(Activity.course_id == course_id).delete()
