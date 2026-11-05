@@ -151,14 +151,14 @@ export default function ArchivedCoursePage() {
                             <div className="px-5 flex flex-row justify-between items-center mt-4">
                                 <div className="flex items-center">
                                     {course.can_edit && (
-                                        <Button aria-label={`Delete ${course.course_name}`} onClick={() => setCourseToDelete(course.course_id)}>
-                                            <Trash className="text-red-500" />
+                                        <Button aria-label={`Delete ${course.course_name}`} onClick={() => setCourseToDelete(course.course_id)} className="bg-[#8DBAB2] hover:bg-[#7BADA4]">
+                                            <Trash className="text-panel-danger" />
                                         </Button>
                                     )}
                                 </div>
 
                                 {course.can_edit && (
-                                    <Button onClick={() => handle_restore(course.course_id)} disabled={restoringId === course.course_id}>
+                                    <Button onClick={() => handle_restore(course.course_id)} disabled={restoringId === course.course_id} className="bg-[#8DBAB2] text-brand-ink hover:bg-[#7BADA4]">
                                         {restoringId === course.course_id ? <Loader2 className="animate-spin" /> : <ArchiveRestore />}
                                         Restore
                                     </Button>
