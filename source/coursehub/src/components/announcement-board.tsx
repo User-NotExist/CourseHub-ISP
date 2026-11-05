@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   announcementErrorMessage,
   type Announcement,
@@ -81,6 +82,12 @@ export default function AnnouncementBoard() {
   const [loadingCommentsFor, setLoadingCommentsFor] = useState<number | null>(null)
   const [commentDrafts, setCommentDrafts] = useState<Record<number, string>>({})
   const [submittingCommentFor, setSubmittingCommentFor] = useState<number | null>(null)
+  const [editingAnnouncement, setEditingAnnouncement] = useState<{
+    announcementId: number
+    title: string
+    description: string
+  } | null>(null)
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false)
   const [editingComment, setEditingComment] = useState<{ announcementId: number; commentId: number } | null>(null)
   const [editingDraft, setEditingDraft] = useState("")
   const [savingComment, setSavingComment] = useState(false)
@@ -181,6 +188,49 @@ export default function AnnouncementBoard() {
       toast.error(error instanceof Error ? error.message : "Couldn't submit comment")
     } finally {
       setSubmittingCommentFor(null)
+    }
+  }
+
+  async function saveAnnouncement(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!editingAnnouncement || !editingAnnouncement.title.trim() || savingAnnouncement) return
+
+    setSavingAnnouncement(true)
+    try {
+      const response = await fetch("/api_announcement/edit", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          course_id: courseId,
+          announcement_id: editingAnnouncement.announcementId,
+          title: editingAnnouncement.title.trim(),
+          description: editingAnnouncement.description.trim(),
+        }),
+      })
+      const data: unknown = await response.json().catch(() => null)
+      if (!response.ok) {
+        throw new Error(announcementErrorMessage(data, "Couldn't update this announcement"))
+      }
+
+      const updated = data as Announcement
+      setAnnouncements((current) =>
+        current.map((item) =>
+          item.announcement_id === updated.announcement_id
+            ? {
+                ...item,
+                title: updated.title,
+                description: updated.description,
+                updatedAt: updated.updatedAt,
+              }
+            : item,
+        ),
+      )
+      setEditingAnnouncement(null)
+      toast.success("Announcement updated")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Couldn't update this announcement")
+    } finally {
+      setSavingAnnouncement(false)
     }
   }
 
@@ -323,6 +373,38 @@ export default function AnnouncementBoard() {
                       </p>
                     </div>
                   </div>
+                  {announcement.can_edit && (
+                    <div className="flex shrink-0 gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Edit announcement"
+                        title="Edit announcement"
+                        disabled={savingAnnouncement || editingAnnouncement !== null}
+                        onClick={() =>
+                          setEditingAnnouncement({
+                            announcementId: announcement.announcement_id,
+                            title: announcement.title,
+                            description: announcement.description ?? "",
+                          })
+                        }
+                      >
+                        <Pencil />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Delete announcement (coming soon)"
+                        title="Delete will be available in a later update"
+                        disabled
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  )}
                   {/* {isNewAnnouncement(announcement.createdAt) && (
                     <span className="shrink-0 rounded-full bg-[#ff791f] px-2.5 py-1 text-[10px] font-bold text-white">
                       NEW
@@ -330,13 +412,62 @@ export default function AnnouncementBoard() {
                   )} */}
                 </div>
 
-                <h2 className="mt-2 text-base font-semibold leading-snug sm:text-lg">
-                  {announcement.title}
-                </h2>
+                {editingAnnouncement?.announcementId === announcement.announcement_id ? (
+                  <form onSubmit={saveAnnouncement} className="mt-3 flex flex-col gap-3">
+                    <Input
+                      autoFocus
+                      value={editingAnnouncement.title}
+                      onChange={(event) =>
+                        setEditingAnnouncement((current) =>
+                          current ? { ...current, title: event.target.value } : current,
+                        )
+                      }
+                      aria-label="Announcement title"
+                      disabled={savingAnnouncement}
+                      className="bg-panel-surface text-base font-semibold"
+                    />
+                    <Textarea
+                      value={editingAnnouncement.description}
+                      onChange={(event) =>
+                        setEditingAnnouncement((current) =>
+                          current ? { ...current, description: event.target.value } : current,
+                        )
+                      }
+                      aria-label="Announcement body"
+                      disabled={savingAnnouncement}
+                      className="min-h-24 resize-y bg-panel-surface text-sm"
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={savingAnnouncement}
+                        onClick={() => setEditingAnnouncement(null)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        size="sm"
+                        disabled={savingAnnouncement || !editingAnnouncement.title.trim()}
+                      >
+                        {savingAnnouncement && <Loader2 className="size-3.5 animate-spin" />}
+                        {savingAnnouncement ? "Saving..." : "Save"}
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <h2 className="mt-2 text-base font-semibold leading-snug sm:text-lg">
+                      {announcement.title}
+                    </h2>
 
-                <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-5 text-panel-muted">
-                  {announcement.description || "—"}
-                </p>
+                    <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-5 text-panel-muted">
+                      {announcement.description || "—"}
+                    </p>
+                  </>
+                )}
 
                 <button
                   type="button"
