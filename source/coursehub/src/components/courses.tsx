@@ -6,20 +6,7 @@ import Image from "next/image"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogMedia
-} from "@/components/ui/alert-dialog"
-import { toast } from "sonner"
-
-import { Edit, Trash, Loader2, Trash2Icon, Search } from "lucide-react"
+import { Edit, Loader2, Search } from "lucide-react"
 import UpcomingLate from "@/components/calendar/upcoming_late"
 
 type Course = {
@@ -56,8 +43,6 @@ type OverviewActivity = {
 export default function CoursesPage() {
     const [courses, setCourses] = useState<Course[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [courseToDelete, setCourseToDelete] = useState<string | null>(null)
-    const [isDeleting, setIsDeleting] = useState(false)
     const [search, setSearch] = useState("")
     const [overviewTasks, setOverviewTasks] = useState<OverviewTask[]>([])
     const [overviewActivities, setOverviewActivities] = useState<OverviewActivity[]>([])
@@ -110,36 +95,6 @@ export default function CoursesPage() {
         router.push(`/courses/${course_id}/main`)
     }
 
-    const handle_delete = async () => {
-        if (!courseToDelete) return
-
-        const toastId = toast.loading("Deleting course...", { position: "top-right" })
-
-        try {
-            setIsLoading(true)
-
-            const res = await fetch("/api_course/delete", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ course_id: courseToDelete }),
-            })
-
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}))
-                throw new Error(errorData.detail || "Failed to delete course")
-            }
-
-            setCourses((prev) => prev.filter((course) => course.course_id !== courseToDelete))
-            setCourseToDelete(null)
-        } catch (error) {
-            toast.error(`Error while deleting course: ${error}`, { id: toastId })
-            console.error(error)
-        } finally {
-            setIsLoading(false)
-            toast.success("Course deleted", { id: toastId })
-        }
-    }
-
     return (
         <div className="flex flex-col justify-top items-center h-screen w-max pt-7 overflow-y-auto scrollbar-none gap-4 xl:w-270 lg:w-200 md:w-150 sm:w-100 min-w-90">
             <div className="flex flex-col w-full h-70 shrink-0 [&>div]:gap-4 [&>div>div]:bg-[#E8E8E8] [&>div>div]:rounded-xl [&>div>div]:drop-shadow-md [&>div>div]:p-6">
@@ -185,12 +140,7 @@ export default function CoursesPage() {
 
                             <div className="px-5 flex flex-row justify-between items-center mt-4">
                                 <div className="flex items-center">
-                                    {course.role === "lecturer" && (
-                                        <div>
-                                            <Button onClick={() => setCourseToDelete(course.course_id)}><Trash className="text-red-500"/></Button>
-                                        </div>
-                                    )}
-                                    {(course.role === "lecturer" || course.can_edit) && <Button aria-label={`Edit ${course.course_name}`} onClick={() => router.push(`/courses/${course.course_id}/edit`)} className="ml-1"><Edit /></Button>}
+                                    {(course.role === "lecturer" || course.can_edit) && <Button aria-label={`Edit ${course.course_name}`} onClick={() => router.push(`/courses/${course.course_id}/edit`)} ><Edit /></Button>}
                                 </div>
 
                                 <Button onClick={() => handle_view(course.course_id)} className="w-25">View</Button>
@@ -204,23 +154,6 @@ export default function CoursesPage() {
                 </h1>
             )}
 
-            <AlertDialog open={!!courseToDelete} onOpenChange={(isOpen) => !isOpen && setCourseToDelete(null)}>
-                <AlertDialogContent size="sm">
-                    <AlertDialogHeader>
-                        <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-                            <Trash2Icon />
-                        </AlertDialogMedia>
-                        <AlertDialogTitle>Delete this course?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel variant="outline" disabled={isDeleting} >Cancel</AlertDialogCancel>
-                        <AlertDialogAction variant="destructive" onClick={handle_delete} disabled={isDeleting}>Delete</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </div>
     )
 }

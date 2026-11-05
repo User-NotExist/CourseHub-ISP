@@ -131,7 +131,7 @@ export default function Sidebar() {
 
                     <button
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        // onClick={() => router.push("/schedule")}
+                        onClick={() => router.push("/archived")}
                     >
                         <FiArchive />
                         <span>Archived Courses</span>

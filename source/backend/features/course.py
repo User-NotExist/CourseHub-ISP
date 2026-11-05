@@ -36,7 +36,48 @@ async def display_me_courses(access_token: str = Cookie(None), db: Session = Dep
 
     memberships = (
         db.query(CourseMember)
-        .filter(CourseMember.user_id == user.user_id)
+        .join(Course)
+        .filter(CourseMember.user_id == user.user_id, Course.course_status != "archived")
+        .all()
+    )
+
+    courses = []
+    for i in memberships:
+        course = i.course
+        courses.append({
+            "course_id": course.course_id,
+            "course_unique_for_lecturer": course.course_unique_for_lecturer,
+            "course_unique_for_ta": course.course_unique_for_ta,
+            "course_unique_for_student": course.course_unique_for_student,
+            "course_name": course.course_name,
+            "course_description": course.course_description,
+            "course_thumbnail": course.course_thumbnail,
+            "createdAt": str(course.createdAt),
+            "role": i.role,
+            "can_edit": user.is_admin or i.role == "lecturer",
+        })
+
+    return courses
+
+
+@router.get("/display-course-archived")
+async def display_archived_courses(access_token: str = Cookie(None), db: Session = Depends(get_db)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    memberships = (
+        db.query(CourseMember)
+        .join(Course)
+        .filter(CourseMember.user_id == user.user_id, Course.course_status == "archived")
         .all()
     )
 
@@ -76,6 +117,11 @@ class CourseEdit(BaseModel):
     course_description: str = Field(min_length=1, max_length=70)
     members: Optional[list[MemberEdit]] = None
 
+
+class CourseStatusForm(BaseModel):
+    course_status: Literal["online", "archived"]
+
+
 @router.post("/create")
 async def create_course(
     payload: CourseCreate,
@@ -108,6 +154,7 @@ async def create_course(
         course_name=payload.course_name,
         course_description=payload.course_description,
         course_thumbnail=payload.course_thumbnail,
+        course_status="online"
     )
     db.add(new_course)
     db.commit()
@@ -237,8 +284,9 @@ async def delete_course(
         .filter(CourseMember.user_id == user.user_id, CourseMember.course_id == course_id)
         .first()
     )
-    if not membership or membership.role != "lecturer":
-        raise HTTPException(status_code=403, detail="Only the lecturer can delete this course !")
+    is_lecturer = membership is not None and membership.role == "lecturer"
+    if not (user.is_admin or is_lecturer):
+        raise HTTPException(status_code=403, detail="Only the lecturer or an admin can delete this course !")
 
     db.query(Task).filter(Task.course_id == course_id).delete()
     db.query(Activity).filter(Activity.course_id == course_id).delete()
@@ -254,6 +302,39 @@ async def delete_course(
     db.commit()
 
     return {"course_id": course_id, "deleted": True}
+
+
+@router.patch("/set_course_status/{course_id}")
+async def set_course_status(payload: CourseStatusForm, course_id: str, access_token: str = Cookie(None), db: Session = Depends(get_db)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated !")
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token !")
+
+    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found !")
+
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found !")
+
+    membership = (
+        db.query(CourseMember)
+        .filter(CourseMember.user_id == user.user_id, CourseMember.course_id == course_id)
+        .first()
+    )
+    is_lecturer = membership is not None and membership.role == "lecturer"
+    if not (user.is_admin or is_lecturer):
+        raise HTTPException(status_code=403, detail="Only the lecturer or an admin can change this course status !")
+
+    course.course_status = payload.course_status
+    db.commit()
+
+    return {"course_id": course_id, "course_status": course.course_status}
 
 
 STAFF_ROLES = ("lecturer", "ta")

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Loader2, Plus, Trash2, Users } from "lucide-react"
+import { Archive, ArrowLeft, Loader2, Plus, Trash2, Users } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -44,6 +44,8 @@ export default function EditCoursePage() {
     const [role, setRole] = useState<Role>("ta")
     const [removing, setRemoving] = useState<Member | null>(null)
     const [leaving, setLeaving] = useState(false)
+    const [confirmArchive, setConfirmArchive] = useState(false)
+    const [archiving, setArchiving] = useState(false)
     const dirty = !!course && JSON.stringify(course) !== original
     const description = course?.course_description ?? ""
     const validDetails = !!course?.course_name.trim() && !!description.trim() && description.length <= DESCRIPTION_MAX_LENGTH
@@ -109,6 +111,28 @@ export default function EditCoursePage() {
         } finally { setSaving(false) }
     }
 
+    async function archiveCourse() {
+        if (archiving) return
+        setArchiving(true)
+        try {
+            const response = await fetch("/api_course/set_status", {
+                method: "PATCH", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ course_id: id, course_status: "archived" }),
+            })
+            const data = await response.json().catch(() => ({}))
+            if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Unable to archive this course")
+            toast.success("Course archived")
+            setOriginal(JSON.stringify(course))
+            router.push("/courses")
+            router.refresh()
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Unable to archive this course")
+        } finally {
+            setArchiving(false)
+            setConfirmArchive(false)
+        }
+    }
+
     if (error) return <div className="mx-auto w-full max-w-3xl p-8"><p role="alert" className="mb-4 text-destructive">{error}</p><Button onClick={() => { setError(""); setReload((value) => value + 1) }}>Try again</Button><Button variant="ghost" onClick={() => router.push("/courses")}>Back to courses</Button></div>
     if (!course) return <div role="status" className="flex min-h-64 items-center gap-2"><Loader2 className="size-5 animate-spin" />Loading course…</div>
 
@@ -169,9 +193,16 @@ export default function EditCoursePage() {
                     </ul>
                 </CardContent>
             </Card>
+            <Card>
+                <CardHeader><CardTitle className="flex items-center gap-2"><Archive className="size-5" />Archive course</CardTitle><CardDescription>Hide this course from everyone&apos;s course list. You can find it later in Archived Courses.</CardDescription></CardHeader>
+                <CardContent><Button variant="destructive" onClick={() => setConfirmArchive(true)} disabled={saving || archiving}><Archive />Archive course</Button></CardContent>
+            </Card>
             <div className="flex flex-wrap items-center justify-end gap-3"><p role="status" className="mr-auto text-sm text-muted-foreground">{dirty ? "You have unsaved changes" : "All changes saved"}</p><Button variant="outline" onClick={back} disabled={saving}>Cancel</Button><Button form="course-details" type="submit" disabled={saving || !dirty || !validDetails}>{saving && <Loader2 className="size-4 animate-spin" />}{saving ? "Saving…" : "Save changes"}</Button></div>
             <AlertDialog open={!!removing} onOpenChange={(open) => !open && setRemoving(null)}>
                 <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Remove member?</AlertDialogTitle><AlertDialogDescription>{removing?.email} will lose access to this course when you save changes.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction variant="destructive" onClick={() => { setCourse({ ...course, members: course.members.filter((member) => member.email !== removing?.email) }); setRemoving(null) }}>Remove member</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog open={confirmArchive} onOpenChange={(open) => !archiving && setConfirmArchive(open)}>
+                <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Archive this course?</AlertDialogTitle><AlertDialogDescription>It will be hidden from all members&apos; course lists. Unsaved changes on this page will be lost.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={archiving}>Cancel</AlertDialogCancel><AlertDialogAction variant="destructive" onClick={() => void archiveCourse()} disabled={archiving}>{archiving && <Loader2 className="size-4 animate-spin" />}Archive</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
             </AlertDialog>
             <AlertDialog open={leaving} onOpenChange={setLeaving}>
                 <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle><AlertDialogDescription>Your course and member changes have not been saved.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Keep editing</AlertDialogCancel><AlertDialogAction onClick={() => router.push("/courses")}>Discard changes</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
