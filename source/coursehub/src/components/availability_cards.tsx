@@ -58,7 +58,17 @@ export default function AvailabilityCards({
                 permissionNote={permissionNote}
                 onChanged={onChanged}
             />
-            <QuickSelectCard />
+            <QuickSelectCard
+                courseId={courseId}
+                slots={slots}
+                canEdit={canEdit}
+                checking={checking}
+                loading={loading}
+                hostEmail={hostEmail}
+                hostRole={hostRole}
+                permissionNote={permissionNote}
+                onChanged={onChanged}
+            />
         </div>
     )
 }
