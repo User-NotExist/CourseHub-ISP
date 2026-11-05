@@ -33,6 +33,17 @@ type my_activities = {
     activity_date: string,
 }
 
+type latest_announcement_props = {
+    announcement_id: number,
+    announcement_owner_id: number,
+    creator: string,
+    title: string,
+    description: string,
+    comment_count: number,
+    createdAt: string,
+    updatedAt: string,
+}
+
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -43,6 +54,7 @@ export default function CoursePage() {
     const [totalLecturer, setTotalLecturer] = useState<string>("N/A");
     const [totalTA, setTotalTA] = useState<string>("N/A");
 
+    const [latestAnnouncement, setLatestAnnouncement] = useState<latest_announcement_props[] | null>([]);
     const [myTasks, setMyTasks] = useState<my_tasks[]>([]);
     const [myActivities, setMyActivities] = useState<my_activities[]>([]);
     const [hoveredDate, setHoveredDate] = useState<string | null>(null);
@@ -125,10 +137,27 @@ export default function CoursePage() {
             }
         }
 
+        const get_latest_announcement = async () => {
+            try {
+                const res = await fetch(`/api_course/get_details/get_latest_announcement?course_id=${courseId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setLatestAnnouncement(data);
+                }
+                else {
+                    setLatestAnnouncement([]);
+                }
+            } catch (error) {
+                console.error("Error fetching latest announcement", error)
+                setLatestAnnouncement([])            
+            }
+        }
+
         get_course_details();
         get_course_numbers();
         get_my_tasks();
         get_my_activities();
+        get_latest_announcement();
     }, [courseId]);
 
     return (
