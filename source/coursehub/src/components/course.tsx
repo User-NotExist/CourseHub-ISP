@@ -44,6 +44,16 @@ type latest_announcement_props = {
     updatedAt: string,
 }
 
+function getInitials(name: string) {
+    return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("")
+}
+
+function formatDate(value: string) {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return value
+    return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(date)
+}
+
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -54,7 +64,7 @@ export default function CoursePage() {
     const [totalLecturer, setTotalLecturer] = useState<string>("N/A");
     const [totalTA, setTotalTA] = useState<string>("N/A");
 
-    const [latestAnnouncement, setLatestAnnouncement] = useState<latest_announcement_props[] | null>([]);
+    const [latestAnnouncement, setLatestAnnouncement] = useState<latest_announcement_props | null>(null);
     const [myTasks, setMyTasks] = useState<my_tasks[]>([]);
     const [myActivities, setMyActivities] = useState<my_activities[]>([]);
     const [hoveredDate, setHoveredDate] = useState<string | null>(null);
@@ -145,11 +155,11 @@ export default function CoursePage() {
                     setLatestAnnouncement(data);
                 }
                 else {
-                    setLatestAnnouncement([]);
+                    setLatestAnnouncement(null);
                 }
             } catch (error) {
                 console.error("Error fetching latest announcement", error)
-                setLatestAnnouncement([])            
+                setLatestAnnouncement(null)
             }
         }
 
@@ -200,12 +210,31 @@ export default function CoursePage() {
                     </div>
                 </div>
 
-                <Card className="flex flex-col h-50 w-full bg-gray-100 shadow-lg p-7">
+                <Card className="flex flex-col h-auto w-full bg-gray-100 shadow-lg p-7">
                     <h2 className="text-xl font-bold">Latest Announcements</h2>
 
-                    <div className="flex flex-col items-start justify-center" >
-                        To be Implemented
-                    </div>
+                    {latestAnnouncement ? (
+                        <button
+                            type="button"
+                            onClick={() => router.push(`/courses/${courseId}/announcement`)}
+                            className="mt-3 flex min-h-0 flex-1 flex-col rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
+                        >
+                            <div className="flex items-center gap-2.5">
+                                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-brand-ink">
+                                    {getInitials(latestAnnouncement.creator)}
+                                </div>
+                                <span className="truncate text-sm font-semibold">{latestAnnouncement.creator}</span>
+                                <span className="text-xs text-gray-500">{formatDate(latestAnnouncement.createdAt)}</span>
+                                <span className="ml-auto shrink-0 text-xs text-gray-500">
+                                    {latestAnnouncement.comment_count} comment{latestAnnouncement.comment_count === 1 ? "" : "s"}
+                                </span>
+                            </div>
+                            <span className="mt-2 truncate font-medium">{latestAnnouncement.title}</span>
+                            <span className="line-clamp-1 text-sm text-gray-500">{latestAnnouncement.description || "—"}</span>
+                        </button>
+                    ) : (
+                        <p className="mt-3 text-sm text-gray-500">No announcements yet.</p>
+                    )}
                 </Card>
             </div>
 
