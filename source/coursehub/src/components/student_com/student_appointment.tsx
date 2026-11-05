@@ -1,47 +1,29 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
-import { Plus } from "lucide-react"
+import { useParams, useRouter } from "next/navigation"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import ConsultCalendar, { toDateKey, type Availability } from "@/components/student_com/consult_calendar"
 import BookConsultationForm, { type BookingInput } from "@/components/student_com/book_consultation_form"
 
-type Consultation = {
-    consultant_email: string
-    start_time: string // 
+// One open time slot created by a lecturer/TA (backend: features/appointments/student.py)
+type Slot = {
+    avaliable_id: number // (sic) the backend spells it this way
+    appointment_head: { lecturer?: string[]; ta?: string[] } | null
+    avaliable_date: string // "YYYY-MM-DD"
+    start_time: string // "HH:MM:SS"
     end_time: string
+    notes: string | null
+    max_bookings: number
+    booked: number
+    is_full: boolean
 }
-
-const mock_consultants = [
-    "chargerplug@ku.ac.th",
-    "bananaman@ku.ac.th",
-    "craigtucker@ku.ac.th",
-    "lecturer@ku.ac.th",
-]
 
 const today = new Date()
 const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate())
-const mockKey = (offset: number) => {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + offset)
-    return toDateKey(d.getFullYear(), d.getMonth(), d.getDate())
-}
-
-const mock_availability: Record<string, Availability> = {
-    [mockKey(1)]: "available",
-    [mockKey(2)]: "uncertain",
-    [mockKey(3)]: "unavailable",
-}
-
-const mock_consultations: Record<string, Consultation[]> = {
-    [mockKey(0)]: [
-        { consultant_email: "chargerplug@ku.ac.th", start_time: "08:00", end_time: "10:00" },
-        { consultant_email: "bananaman@ku.ac.th", start_time: "11:00", end_time: "13:00" },
-        { consultant_email: "craigtucker@ku.ac.th", start_time: "19:00", end_time: "19:30" },
-    ],
-}
 
 const monthFull = [
     "January", "February", "March", "April", "May", "June",
@@ -53,15 +35,36 @@ function ordinal(day: number) {
     return `${day}${["th", "st", "nd", "rd"][day % 10] ?? "th"}`
 }
 
+function toDisplayDate(dateKey: string) {
+    const [y, m, d] = dateKey.split("-")
+    return `${d}/${m}/${y}`
+}
+
+const shortTime = (time: string) => time.slice(0, 5) // "10:00:00" -> "10:00"
+
+async function fetchSlots(courseId: string): Promise<Slot[]> {
+    const res = await fetch(`/api_appointment/student_read?course_id=${encodeURIComponent(courseId)}`)
+    const data = await res.json()
+    if (!res.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Failed to load appointments")
+    return data
+}
+
+function hostsOf(slot: Slot) {
+    return [...(slot.appointment_head?.lecturer ?? []), ...(slot.appointment_head?.ta ?? [])]
+}
+
 export default function StudentAppointment() {
     const { id: courseId } = useParams<{ id: string }>()
+    const router = useRouter()
 
     const [courseName, setCourseName] = useState<string | null>(null)
     const [viewYear, setViewYear] = useState(today.getFullYear())
     const [viewMonth, setViewMonth] = useState(today.getMonth())
     const [selected, setSelected] = useState(todayKey)
-    const [consultations, setConsultations] = useState(mock_consultations)
-    const [isFormOpen, setIsFormOpen] = useState(false)
+    const [slots, setSlots] = useState<Slot[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [loadError, setLoadError] = useState<string | null>(null)
+    const [bookingSlot, setBookingSlot] = useState<Slot | null>(null)
 
     useEffect(() => {
         fetch(`/api_course/read_name?course_id=${encodeURIComponent(courseId)}`)
@@ -73,39 +76,82 @@ export default function StudentAppointment() {
             .catch(() => setCourseName("Course not found"))
     }, [courseId])
 
-    const [selYear, selMonth, selDay] = selected.split("-").map(Number)
-    const heading = `${ordinal(selDay)} ${monthFull[selMonth - 1]} ${selYear}`
-    const dateLabel = `${String(selDay).padStart(2, "0")}/${String(selMonth).padStart(2, "0")}/${selYear}`
-    const onThisDate = consultations[selected] ?? []
+    // First load: if today has no slots, jump to the first date that has one
+    useEffect(() => {
+        fetchSlots(courseId)
+            .then((loaded) => {
+                setSlots(loaded)
+                if (loaded.length === 0 || loaded.some((s) => s.avaliable_date === todayKey)) return
+                const first = loaded[0].avaliable_date
+                const [y, m] = first.split("-").map(Number)
+                setSelected(first)
+                setViewYear(y)
+                setViewMonth(m - 1)
+            })
+            .catch((error) => setLoadError(error instanceof Error ? error.message : "Failed to load appointments"))
+            .finally(() => setIsLoading(false))
+    }, [courseId])
 
-    const validate_booking = (input: BookingInput) => {
-        if (selected < todayKey) return "Cannot book a date that has already passed"
-        if (mock_availability[selected] === "unavailable") return "This date is not available for consultation"
-        const overlaps = onThisDate.some(
-            (c) =>
-                c.consultant_email === input.consultant_email &&
-                input.start_time < c.end_time &&
-                input.end_time > c.start_time,
-        )
-        if (overlaps) return "This time overlaps with an existing consultation for this TA / lecturer"
-        return null
+    const reloadSlots = async () => {
+        try {
+            setSlots(await fetchSlots(courseId))
+        } catch {
+            // keep the current list if the refresh fails
+        }
     }
 
-    const handle_confirm = (input: BookingInput) => {
-        setConsultations((prev) => ({
-            ...prev,
-            [selected]: [
-                ...(prev[selected] ?? []),
-                { consultant_email: input.consultant_email, start_time: input.start_time, end_time: input.end_time },
-            ],
-        }))
-        setIsFormOpen(false)
+    const slotsByDate: Record<string, Slot[]> = {}
+    for (const slot of slots) {
+        ;(slotsByDate[slot.avaliable_date] ??= []).push(slot)
+    }
+
+    // green = at least one slot still open, red = every slot on that date is full
+    const availability: Record<string, Availability> = {}
+    for (const [date, daySlots] of Object.entries(slotsByDate)) {
+        availability[date] = daySlots.some((s) => !s.is_full) ? "available" : "unavailable"
+    }
+
+    const [selYear, selMonth, selDay] = selected.split("-").map(Number)
+    const heading = `${ordinal(selDay)} ${monthFull[selMonth - 1]} ${selYear}`
+    const onThisDate = slotsByDate[selected] ?? []
+
+    const handle_book = async (input: BookingInput) => {
+        if (!bookingSlot) return
+        const res = await fetch("/api_appointment/student_book", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                course_id: courseId,
+                avaliable_id: bookingSlot.avaliable_id,
+                student_first_name: input.first_name,
+                student_last_name: input.last_name,
+                student_email: input.email,
+                appointments_description: input.description || null,
+            }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+            const detail = typeof data.detail === "string" ? data.detail : "Failed to book consultation"
+            await reloadSlots() // the slot may have just become full
+            throw new Error(detail)
+        }
+
+        setBookingSlot(null)
         toast.success("Consultation booked.", { position: "top-right" })
+        await reloadSlots()
     }
 
     return (
         <div className="flex min-h-screen w-full flex-col">
             <div className="flex flex-col gap-4 bg-[#054a46] p-6 md:flex-row">
+                <Button
+                    variant="outline"
+                    onClick={() => router.push(`/students/${courseId}`)}
+                    className="h-auto gap-2 rounded-2xl px-5 py-3 text-base"
+                >
+                    <ArrowLeft className="size-4" />
+                    Back to FAQ
+                </Button>
                 <div className="flex items-center rounded-2xl bg-[#006c67] px-6 py-3 text-2xl font-bold text-white">
                     Book Consultation
                 </div>
@@ -121,7 +167,7 @@ export default function StudentAppointment() {
                         year={viewYear}
                         month={viewMonth}
                         selected={selected}
-                        availability={mock_availability}
+                        availability={availability}
                         onMonthChange={(y, m) => {
                             setViewYear(y)
                             setViewMonth(m)
@@ -133,29 +179,40 @@ export default function StudentAppointment() {
                 <div className="flex flex-col gap-3">
                     <h2 className="text-2xl font-bold">{heading}</h2>
                     <div className="flex flex-col gap-4 rounded-2xl border border-gray-300 p-5">
-                        <div>
-                            <Button
-                                onClick={() => setIsFormOpen(true)}
-                                className="gap-2 bg-[#054a46] text-white hover:bg-[#054a46]/90"
-                            >
-                                <Plus className="size-4" />
-                                Book Consultation
-                            </Button>
-                        </div>
-
-                        <h3 className="text-xl font-bold">Consultations on this date</h3>
-                        <div className="grid grid-cols-[1fr_auto] px-5 text-gray-500">
+                        <h3 className="text-xl font-bold">Available times on this date</h3>
+                        <div className="grid grid-cols-[1fr_8rem_5rem_6rem] gap-4 px-5 text-gray-500">
                             <span>TA / Lecturer</span>
                             <span>Time</span>
+                            <span>Booked</span>
+                            <span />
                         </div>
-                        <div className="flex max-h-64 flex-col overflow-y-auto rounded-lg border border-gray-300 bg-[#f8f8f8] p-3">
-                            {onThisDate.length === 0 ? (
-                                <p className="py-6 text-center text-sm text-gray-500">No consultations on this date.</p>
+                        <div className="flex max-h-80 flex-col overflow-y-auto rounded-lg border border-gray-300 bg-[#f8f8f8] p-3">
+                            {isLoading ? (
+                                <div className="flex justify-center py-6"><Loader2 className="size-5 animate-spin" /></div>
+                            ) : loadError ? (
+                                <p role="alert" className="py-6 text-center text-sm text-red-600">{loadError}</p>
+                            ) : onThisDate.length === 0 ? (
+                                <p className="py-6 text-center text-sm text-gray-500">No available times on this date.</p>
                             ) : (
-                                onThisDate.map((c, i) => (
-                                    <div key={i} className="grid grid-cols-[1fr_auto] gap-4 border-b border-gray-300 px-2 py-2">
-                                        <span className="truncate">{c.consultant_email}</span>
-                                        <span>{c.start_time} - {c.end_time}</span>
+                                onThisDate.map((slot) => (
+                                    <div
+                                        key={slot.avaliable_id}
+                                        className="grid grid-cols-[1fr_8rem_5rem_6rem] items-center gap-4 border-b border-gray-300 px-2 py-2"
+                                    >
+                                        <div className="min-w-0">
+                                            <p className="truncate">{hostsOf(slot).join(", ") || "-"}</p>
+                                            {slot.notes && <p className="truncate text-sm text-gray-500">{slot.notes}</p>}
+                                        </div>
+                                        <span>{shortTime(slot.start_time)} - {shortTime(slot.end_time)}</span>
+                                        <span>{slot.booked}/{slot.max_bookings}</span>
+                                        <Button
+                                            size="sm"
+                                            disabled={slot.is_full}
+                                            onClick={() => setBookingSlot(slot)}
+                                            className="bg-[#054a46] text-white hover:bg-[#054a46]/90"
+                                        >
+                                            {slot.is_full ? "Full" : "Book"}
+                                        </Button>
                                     </div>
                                 ))
                             )}
@@ -164,13 +221,11 @@ export default function StudentAppointment() {
                 </div>
             </div>
 
-            {isFormOpen && (
+            {bookingSlot && (
                 <BookConsultationForm
-                    dateLabel={dateLabel}
-                    consultants={mock_consultants}
-                    validate={validate_booking}
-                    onCancel={() => setIsFormOpen(false)}
-                    onConfirm={handle_confirm}
+                    slotLabel={`${toDisplayDate(bookingSlot.avaliable_date)}, ${shortTime(bookingSlot.start_time)} - ${shortTime(bookingSlot.end_time)}`}
+                    onCancel={() => setBookingSlot(null)}
+                    onConfirm={handle_book}
                 />
             )}
         </div>

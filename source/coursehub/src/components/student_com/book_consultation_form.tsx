@@ -1,62 +1,55 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
+import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 export type BookingInput = {
     first_name: string
     last_name: string
-    contact: string
-    consultant_email: string
-    start_time: string 
-    end_time: string
+    email: string
+    description: string
 }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function BookConsultationForm({
-    dateLabel,
-    consultants,
-    validate,
+    slotLabel,
     onCancel,
     onConfirm,
 }: {
-    dateLabel: string // 
-    consultants: string[] // 
-    validate: (input: BookingInput) => string | null 
+    slotLabel: string // e.g. "09/11/2026, 10:00 - 11:00"
     onCancel: () => void
-    onConfirm: (input: BookingInput) => void
+    onConfirm: (input: BookingInput) => Promise<void> // throws an Error with the message to show
 }) {
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
-    const [contact, setContact] = useState("")
-    const [consultant, setConsultant] = useState(consultants[0] ?? "")
-    const [startTime, setStartTime] = useState("")
-    const [endTime, setEndTime] = useState("")
+    const [email, setEmail] = useState("")
+    const [description, setDescription] = useState("")
     const [formError, setFormError] = useState<string | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const handle_submit = (event: FormEvent) => {
+    const handle_submit = async (event: FormEvent) => {
         event.preventDefault()
         if (!firstName.trim() || !lastName.trim()) return setFormError("First name and last name are required")
-        if (!emailPattern.test(contact.trim())) return setFormError("Invalid email")
-        if (!consultant) return setFormError("Please choose a TA or lecturer")
-        if (!startTime || !endTime) return setFormError("Start time and end time are required")
-        if (endTime <= startTime) return setFormError("End time must be after start time")
-
-        const input: BookingInput = {
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            contact: contact.trim(),
-            consultant_email: consultant,
-            start_time: startTime,
-            end_time: endTime,
-        }
-        const pageError = validate(input)
-        if (pageError) return setFormError(pageError)
+        if (!emailPattern.test(email.trim())) return setFormError("Invalid email")
 
         setFormError(null)
-        onConfirm(input)
+        setIsSubmitting(true)
+        try {
+            await onConfirm({
+                first_name: firstName.trim(),
+                last_name: lastName.trim(),
+                email: email.trim(),
+                description: description.trim(),
+            })
+        } catch (error) {
+            setFormError(error instanceof Error ? error.message : "Failed to book consultation")
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -67,58 +60,47 @@ export default function BookConsultationForm({
                 onClick={(event) => event.stopPropagation()}
                 className="flex w-full max-w-2xl flex-col gap-4 rounded-2xl bg-white p-6"
             >
-                <h2 className="text-2xl font-bold">Book Consultation ({dateLabel})</h2>
+                <h2 className="text-2xl font-bold">Book Consultation ({slotLabel})</h2>
 
                 <div className="flex flex-col gap-3 rounded-2xl border border-gray-300 p-5">
                     <label className="flex max-w-md flex-col gap-1">
                         First Name
-                        <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} className="bg-[#f8f8f8]" />
+                        <Input value={firstName} disabled={isSubmitting} onChange={(e) => setFirstName(e.target.value)} className="bg-[#f8f8f8]" />
                     </label>
                     <label className="flex max-w-md flex-col gap-1">
                         Last Name
-                        <Input value={lastName} onChange={(e) => setLastName(e.target.value)} className="bg-[#f8f8f8]" />
+                        <Input value={lastName} disabled={isSubmitting} onChange={(e) => setLastName(e.target.value)} className="bg-[#f8f8f8]" />
                     </label>
                     <label className="flex max-w-md flex-col gap-1">
                         Contact
                         <Input
                             type="email"
-                            value={contact}
-                            onChange={(e) => setContact(e.target.value)}
+                            value={email}
+                            disabled={isSubmitting}
+                            onChange={(e) => setEmail(e.target.value)}
                             placeholder="example@ku.th"
                             className="bg-[#f8f8f8]"
                         />
                     </label>
-                    <label className="flex max-w-xs flex-col gap-1">
-                        Choose TA / Lecturer
-                        <select
-                            value={consultant}
-                            onChange={(e) => setConsultant(e.target.value)}
-                            className="h-8 rounded-lg border border-input bg-[#f8f8f8] px-2 text-sm"
-                        >
-                            {consultants.map((email) => (
-                                <option key={email} value={email}>{email}</option>
-                            ))}
-                        </select>
+                    <label className="flex flex-col gap-1">
+                        What do you want to consult about? (optional)
+                        <Textarea
+                            rows={3}
+                            value={description}
+                            disabled={isSubmitting}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="bg-[#f8f8f8]"
+                        />
                     </label>
-                    <div className="flex items-end gap-4">
-                        <label className="flex flex-col gap-1">
-                            Start Time
-                            <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="bg-[#f8f8f8]" />
-                        </label>
-                        <span className="pb-1">-</span>
-                        <label className="flex flex-col gap-1">
-                            End Time
-                            <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="bg-[#f8f8f8]" />
-                        </label>
-                    </div>
 
                     {formError && <p role="alert" className="text-sm font-bold text-red-600">{formError}</p>}
 
                     <div className="flex justify-end gap-3">
-                        <Button type="button" variant="outline" onClick={onCancel}>
+                        <Button type="button" variant="outline" disabled={isSubmitting} onClick={onCancel}>
                             Cancel
                         </Button>
-                        <Button type="submit" className="bg-[#054a46] text-white hover:bg-[#054a46]/90">
+                        <Button type="submit" disabled={isSubmitting} className="gap-2 bg-[#054a46] text-white hover:bg-[#054a46]/90">
+                            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
                             Confirm
                         </Button>
                     </div>
