@@ -93,6 +93,8 @@ export default function AnnouncementBoard() {
   const [savingComment, setSavingComment] = useState(false)
   const [commentToDelete, setCommentToDelete] = useState<{ announcementId: number; comment: AnnouncementComment } | null>(null)
   const [isDeletingComment, setIsDeletingComment] = useState(false)
+  const [announcementToDelete, setAnnouncementToDelete] = useState<Announcement | null>(null)
+  const [isDeletingAnnouncement, setIsDeletingAnnouncement] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -305,6 +307,47 @@ export default function AnnouncementBoard() {
     }
   }
 
+  async function deleteAnnouncement() {
+    if (!announcementToDelete || isDeletingAnnouncement) return
+
+    setIsDeletingAnnouncement(true)
+    try {
+      const response = await fetch("/api_announcement/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          course_id: courseId,
+          announcement_id: announcementToDelete.announcement_id,
+        }),
+      })
+      const data: unknown = await response.json().catch(() => null)
+      if (!response.ok) {
+        throw new Error(announcementErrorMessage(data, "Couldn't delete this announcement"))
+      }
+
+      setAnnouncements((current) =>
+        current.filter((item) => item.announcement_id !== announcementToDelete.announcement_id),
+      )
+      setCommentsByAnnouncement((current) => {
+        const next = { ...current }
+        delete next[announcementToDelete.announcement_id]
+        return next
+      })
+      setExpandedAnnouncementIds((current) =>
+        current.filter((id) => id !== announcementToDelete.announcement_id),
+      )
+      setEditingAnnouncement((current) =>
+        current?.announcementId === announcementToDelete.announcement_id ? null : current,
+      )
+      setAnnouncementToDelete(null)
+      toast.success("Announcement deleted")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Couldn't delete this announcement")
+    } finally {
+      setIsDeletingAnnouncement(false)
+    }
+  }
+
   useEffect(() => {
     async function loadCourse() {
       setIsLoading(true)
@@ -396,9 +439,9 @@ export default function AnnouncementBoard() {
                         type="button"
                         variant="ghost"
                         size="icon-sm"
-                        aria-label="Delete announcement (coming soon)"
-                        title="Delete will be available in a later update"
-                        disabled
+                        aria-label="Delete announcement"
+                        title="Delete announcement"
+                        onClick={() => setAnnouncementToDelete(announcement)}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 />
@@ -639,6 +682,37 @@ export default function AnnouncementBoard() {
           )}
         </div>
       </div>
+
+      <AlertDialog
+        open={announcementToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeletingAnnouncement) setAnnouncementToDelete(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this announcement?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete &quot;{announcementToDelete?.title}&quot; and its comments.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingAnnouncement}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeletingAnnouncement}
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={(event) => {
+                event.preventDefault()
+                void deleteAnnouncement()
+              }}
+            >
+              {isDeletingAnnouncement && <Loader2 className="size-4 animate-spin" />}
+              {isDeletingAnnouncement ? "Deleting..." : "Delete announcement"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={commentToDelete !== null}
