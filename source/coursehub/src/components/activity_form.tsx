@@ -44,7 +44,7 @@ export type Course = {
 }
 
 export function canManageActivities(course: Course | null) {
-    return course?.role === "lecturer" || course?.role === "ta"
+    return course?.role === "lecturer" || course?.role === "ta" || course?.role === "admin"
 }
 
 export function formatDate(date: string | null) {

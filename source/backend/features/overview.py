@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import User, Course, CourseMember, Task, Activity
+from auth.permissions import course_role
 
 router = APIRouter(prefix="/course/{course_id}/overview", tags=["overview"])
 
@@ -32,19 +33,10 @@ def get_current_user(access_token: Optional[str], db: Session) -> User:
     return user
 
 
-def require_member(db: Session, user: User, course_id: str, roles: Optional[list] = None) -> CourseMember:
-    """User must be in this course (and have one of `roles`, if given)."""
-    query = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-    )
-    if roles:
-        query = query.filter(CourseMember.role.in_(roles))
-
-    member = query.first()
-    if not member:
-        raise HTTPException(status_code=403, detail="You don't have permission for this course !")
-    return member
+def require_member(db: Session, user: User, course_id: str, roles: Optional[list] = None) -> str:
+    """User must be in this course (and have one of `roles`, if given), or be an admin.
+    Returns the role ("admin" for admins)."""
+    return course_role(course_id, user, db, roles=roles)
 
 
 @router.get("/get_num_lec_ta")

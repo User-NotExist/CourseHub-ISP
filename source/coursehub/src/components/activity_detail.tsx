@@ -42,7 +42,7 @@ export default function ActivityDetailPage() {
     const [isDeleting, setIsDeleting] = useState(false)
     const [userId, setUserId] = useState<number | null>(null)
 
-    const canEdit = course?.role === "lecturer" || (activity !== null && activity.user_id === userId)
+    const canEdit = course?.role === "lecturer" || course?.role === "admin" || (activity !== null && activity.user_id === userId)
 
     useEffect(() => {
         const load = async () => {

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import User, CourseMember, Appointments, AppointmentsAvaliable
+from auth.permissions import STAFF_ROLES, course_role
 
 router = APIRouter(prefix="/course/{course_id}/appointments", tags=["appointments"])
 
@@ -55,7 +56,7 @@ def slot_to_dict(s: AppointmentsAvaliable):
     }
 
 
-# Lecturer or TA can create
+# Lecturer, TA or admin can create
 @router.post("/avaliable/create")
 async def create_appointment_avaliable(
     course_id: str,
@@ -75,13 +76,7 @@ async def create_appointment_avaliable(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first()
-    if not is_member:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can create avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can create avaliable dates !")
 
     validate_slot(payload)
 
@@ -121,13 +116,7 @@ async def display_appointments_avaliable(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first()
-    if not is_member:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can view avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view avaliable dates !")
 
     all_slots = (
         db.query(AppointmentsAvaliable)
@@ -165,13 +154,7 @@ async def display_appointment_avaliable(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first()
-    if not is_member:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can view avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view avaliable dates !")
 
     slot = db.query(AppointmentsAvaliable).filter(
         AppointmentsAvaliable.avaliable_id == avaliable_id,
@@ -223,14 +206,7 @@ async def edit_appointment_avaliable(
     if not slot:
         raise HTTPException(status_code=404, detail="Avaliable date not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first() is not None
-
-    if not is_member:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can edit avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can edit avaliable dates !")
 
     validate_slot(payload)
 
@@ -276,14 +252,7 @@ async def delete_appointment_avaliable(
     if not slot:
         raise HTTPException(status_code=404, detail="Avaliable date not found !")
 
-    is_staff = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first() is not None
-
-    if not is_staff:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can delete avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can delete avaliable dates !")
 
     # no cascade, so delete bookings from students first
     db.query(Appointments).filter(Appointments.avaliable_id == avaliable_id).delete()

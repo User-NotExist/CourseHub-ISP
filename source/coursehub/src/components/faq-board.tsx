@@ -115,7 +115,7 @@ export default function FaqBoard() {
 
   // FAQ management is for Lecturers/TAs. The backend must still enforce this;
   // hiding the button is only a UX convenience.
-  const canCreate = course?.role === "lecturer" || course?.role === "ta"
+  const canCreate = course?.role === "lecturer" || course?.role === "ta" || course?.role === "admin"
 
   return (
     <div className="flex w-full flex-1 min-w-0 flex-col p-7 md:p-10 h-screen">

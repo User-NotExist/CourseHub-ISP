@@ -72,12 +72,12 @@ export function validateSlotInput(i: { start: string; end: string; max: string }
 }
 
 export type StaffContext = {
-  role: "lecturer" | "ta" | null; // null = not a lecturer/TA of this course (or unknown)
+  role: "lecturer" | "ta" | "admin" | null; // null = not a lecturer/TA of this course or an admin (or unknown)
   email: string;
   problem: string | null; // set when the permission check itself failed
 };
 
-// Lecturers and TAs of the course can change availability (the backend enforces this too).
+// Lecturers and TAs of the course, and admins, can change availability (the backend enforces this too).
 export async function fetchStaffContext(courseId: string): Promise<StaffContext> {
   const failed = { role: null, email: "", problem: "Couldn't check your permissions." } as const;
   try {
@@ -89,7 +89,7 @@ export async function fetchStaffContext(courseId: string): Promise<StaffContext>
     const courses: { course_id: string; role: string }[] = await coursesRes.json();
     const me: { email: string } = await meRes.json();
     const role = courses.find((c) => c.course_id === courseId)?.role;
-    return { role: role === "lecturer" || role === "ta" ? role : null, email: me.email ?? "", problem: null };
+    return { role: role === "lecturer" || role === "ta" || role === "admin" ? role : null, email: me.email ?? "", problem: null };
   } catch {
     return failed;
   }

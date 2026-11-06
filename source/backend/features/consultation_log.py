@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import User, CourseMember, ConsultationLogs
+from auth.permissions import STAFF_ROLES, MANAGER_ROLES, course_role, is_lecturer_or_admin
 
 router = APIRouter(prefix="/course/{course_id}/consultation_logs", tags=["consul_logs"])
 
@@ -27,7 +28,7 @@ class ConsultationLogCreate(BaseModel):
     end_time: Optional[time] = None
 
 
-# Lecturer or TA can create
+# Lecturer, TA or admin can create
 @router.post("/create")
 async def create_consultation_log(
     course_id: str,
@@ -47,13 +48,7 @@ async def create_consultation_log(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first()
-    if not is_member:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can create consultation logs !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can create consultation logs !")
 
     new_log = ConsultationLogs(
         user_id=user.user_id,
@@ -104,13 +99,7 @@ async def display_consultation_logs(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first()
-    if not is_member:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can view consultation logs !")
+    role = course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view consultation logs !")
 
     all_logs = (
         db.query(ConsultationLogs)
@@ -118,7 +107,7 @@ async def display_consultation_logs(
         .all()
     )
 
-    is_lecturer = is_member.role == "lecturer"
+    is_lecturer = role in MANAGER_ROLES
 
     logs = []
     for l in all_logs:
@@ -159,13 +148,7 @@ async def display_consultation_log(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first()
-    if not is_member:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can view consultation logs !")
+    role = course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view consultation logs !")
 
     log = db.query(ConsultationLogs).filter(
         ConsultationLogs.consultation_id == consultation_id,
@@ -174,11 +157,7 @@ async def display_consultation_log(
     if not log:
         raise HTTPException(status_code=404, detail="Consultation log not found !")
 
-    is_lecturer = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
-    ).first() is not None
+    is_lecturer = role in MANAGER_ROLES
 
     return {
         "log_owner_id": log.user_id,
@@ -222,14 +201,10 @@ async def edit_consultation_log(
     if not log:
         raise HTTPException(status_code=404, detail="Consultation log not found !")
 
-    is_lecturer = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
-    ).first() is not None
+    is_lecturer = is_lecturer_or_admin(course_id, user, db)
 
     if log.user_id != user.user_id and not is_lecturer:
-        raise HTTPException(status_code=403, detail="Only the log owner or lecturer can edit this log !")
+        raise HTTPException(status_code=403, detail="Only the log owner, lecturer or admin can edit this log !")
 
     log.title = payload.title
     log.description = payload.description
@@ -283,14 +258,10 @@ async def delete_consultation_log(
     if not log:
         raise HTTPException(status_code=404, detail="Consultation log not found !")
 
-    is_lecturer = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
-    ).first() is not None
+    is_lecturer = is_lecturer_or_admin(course_id, user, db)
 
     if log.user_id != user.user_id and not is_lecturer:
-        raise HTTPException(status_code=403, detail="Only the log owner or lecturer can delete this log !")
+        raise HTTPException(status_code=403, detail="Only the log owner, lecturer or admin can delete this log !")
 
     db.delete(log)
     db.commit()
