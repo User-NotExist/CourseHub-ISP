@@ -1,9 +1,9 @@
 "use client"
 
-export default function Schedule() {
+export default function Agenda() {
     return (
         <div className="flex flex-col items-center justify-center">
-            Schedule Page
+            Agenda Page
         </div>
     )
 }
