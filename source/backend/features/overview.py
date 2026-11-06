@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Cookie
 from jose import jwt, JWTError
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
@@ -211,3 +212,58 @@ async def get_all_courses_overview(
     ]
 
     return {"tasks": tasks, "activities": activities}
+
+@all_courses_router.get("/agenda")
+async def get_agenda(
+    access_token: Optional[str] = Cookie(None),
+    db: Session = Depends(get_db),
+):
+    """Calendar data: activities/milestones of the user's courses + tasks assigned to them.
+    Admins get every task and activity of every (non-archived) course."""
+    user = get_current_user(access_token, db)
+
+    course_query = db.query(Course).filter(
+        or_(Course.course_status.is_(None), Course.course_status != "archived")
+    )
+    if not user.is_admin:
+        course_query = course_query.join(
+            CourseMember, CourseMember.course_id == Course.course_id
+        ).filter(CourseMember.user_id == user.user_id)
+
+    course_names = {c.course_id: c.course_name for c in course_query.all()}
+    if not course_names:
+        return {"is_admin": bool(user.is_admin), "tasks": [], "activities": []}
+    course_ids = list(course_names.keys())
+    my_email = user.user_email.lower()
+
+    tasks = []
+    for task in db.query(Task).filter(Task.course_id.in_(course_ids), Task.task_due_date.isnot(None)).all():
+        mine = find_my_assignment(task, my_email)
+        if mine is None and not user.is_admin:
+            continue
+        tasks.append({
+            "task_id": task.task_id,
+            "task_name": task.task_name,
+            "task_description": task.task_description,
+            "task_due_date": str(task.task_due_date),
+            "course_id": task.course_id,
+            "course_name": course_names.get(task.course_id, ""),
+            "my_status": mine.get("status", "To-Do") if mine else None,
+            "assignees": task.tasks if isinstance(task.tasks, list) else [],
+        })
+
+    activities = [
+        {
+            "activity_id": a.activity_id,
+            "activity_name": a.activity_name,
+            "activity_type": a.activity_type,
+            "activity_description": a.activity_description,
+            "activity_date": str(a.activity_date),
+            "activity_time": a.activity_time.strftime("%H:%M") if a.activity_time else None,
+            "course_id": a.course_id,
+            "course_name": course_names.get(a.course_id, ""),
+        }
+        for a in db.query(Activity).filter(Activity.course_id.in_(course_ids), Activity.activity_date.isnot(None)).all()
+    ]
+
+    return {"is_admin": bool(user.is_admin), "tasks": tasks, "activities": activities}
