@@ -144,14 +144,6 @@ export default function StudentAppointment() {
     return (
         <div className="flex min-h-screen w-full flex-col">
             <div className="flex flex-col gap-4 bg-[#054a46] p-6 md:flex-row">
-                <Button
-                    variant="outline"
-                    onClick={() => router.push(`/students/${courseId}`)}
-                    className="h-auto gap-2 rounded-2xl px-5 py-3 text-base"
-                >
-                    <ArrowLeft className="size-4" />
-                    Back to FAQ
-                </Button>
                 <div className="flex items-center rounded-2xl bg-[#006c67] px-6 py-3 text-2xl font-bold text-white">
                     Book Consultation
                 </div>
@@ -160,7 +152,18 @@ export default function StudentAppointment() {
                 </div>
             </div>
 
-            <div className="grid gap-8 p-6 md:grid-cols-[1fr_2fr] md:p-10">
+            <div className="px-6 pt-6 md:px-10">
+                <Button
+                    variant="outline"
+                    onClick={() => router.push(`/students/${courseId}`)}
+                    className="h-auto gap-2 rounded-xl border-brand/30 bg-white px-5 py-3 text-base font-semibold text-brand-ink shadow-sm transition hover:bg-brand hover:text-brand-foreground"
+                >
+                    <ArrowLeft />
+                    Back to FAQ
+                </Button>
+            </div>
+
+            <div className="grid gap-8 p-6 md:grid-cols-[1fr_2fr] md:px-10 md:pt-6 md:pb-10">
                 <div className="flex flex-col gap-3">
                     <h2 className="text-2xl font-bold">Choose consultation Date</h2>
                     <ConsultCalendar
