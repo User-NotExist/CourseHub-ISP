@@ -16,6 +16,7 @@ import string, secrets
 
 from db.database import get_db
 from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments
+from auth.permissions import course_role, is_lecturer_or_admin
 
 router = APIRouter(prefix="/course/{course_id}/tasks", tags=["task"])
 
@@ -59,12 +60,7 @@ async def create_task(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-    ).first()
-    if not is_member:
-        raise HTTPException(status_code=403, detail="You are not a member of this course !")
+    course_role(course_id, user, db, detail="You are not a member of this course !")
 
     new_task = Task(
         user_id=user.user_id,
@@ -106,12 +102,7 @@ async def display_me_tasks(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    is_member = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-    ).first()
-    if not is_member:
-        raise HTTPException(status_code=403, detail="You are not a member of this course !")
+    course_role(course_id, user, db, detail="You are not a member of this course !")
 
     all_task = (
         db.query(Task)
@@ -119,11 +110,7 @@ async def display_me_tasks(
         .all()
     )
 
-    is_lecturer = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
-    ).first() is not None
+    is_lecturer = is_lecturer_or_admin(course_id, user, db)
 
     taskss = []
     for t in all_task:
@@ -163,11 +150,7 @@ async def display_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
 
-    is_lecturer = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
-    ).first() is not None
+    is_lecturer = is_lecturer_or_admin(course_id, user, db)
 
     return {
         "task_owner_id": task.user_id,
@@ -180,7 +163,7 @@ async def display_task(
     }
 
 
-# Owner, assignee, or lecturer can update status
+# Owner, assignee, lecturer or admin can update status
 @router.patch("/{task_id}") #The router already includes /course/{course_id}/tasks, so using {task_id} to distinct from existing task endpoints
 async def update_task_status(
     course_id: str,
@@ -206,11 +189,7 @@ async def update_task_status(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
 
-    is_lecturer = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
-    ).first() is not None
+    is_lecturer = is_lecturer_or_admin(course_id, user, db)
     is_owner = task.user_id == user.user_id
 
     target_email = payload.task_assignee_gmail or user.user_email
@@ -228,7 +207,7 @@ async def update_task_status(
     is_self_assignee = matching_assignment is not None and target_email.lower() == user.user_email.lower()
 
     if not (is_owner or is_lecturer or is_self_assignee):
-        raise HTTPException(status_code=403, detail="Only the task owner, lecturer, or assignee can update status !")
+        raise HTTPException(status_code=403, detail="Only the task owner, lecturer, admin or assignee can update status !")
     if not matching_assignment:
         raise HTTPException(status_code=404, detail="Assignee not found on this task !")
 
@@ -266,14 +245,10 @@ async def edit_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
 
-    is_lecturer = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
-    ).first() is not None
+    is_lecturer = is_lecturer_or_admin(course_id, user, db)
 
     if task.user_id != user.user_id and not is_lecturer:
-        raise HTTPException(status_code=403, detail="Only the task owner or lecturer can edit this task !")
+        raise HTTPException(status_code=403, detail="Only the task owner, lecturer or admin can edit this task !")
 
     task.task_name = payload.task_name
     task.task_description = payload.task_description
@@ -316,14 +291,10 @@ async def delete_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
 
-    is_lecturer = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role == "lecturer",
-    ).first() is not None
+    is_lecturer = is_lecturer_or_admin(course_id, user, db)
 
     if task.user_id != user.user_id and not is_lecturer:
-        raise HTTPException(status_code=403, detail="Only the task owner or lecturer can delete this task !")
+        raise HTTPException(status_code=403, detail="Only the task owner, lecturer or admin can delete this task !")
 
     db.delete(task)
     db.commit()

@@ -20,6 +20,38 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 JWT_ALGORITHM = "HS256"
 
 
+def course_list_item(course, role):
+    return {
+        "course_id": course.course_id,
+        "course_unique_for_lecturer": course.course_unique_for_lecturer,
+        "course_unique_for_ta": course.course_unique_for_ta,
+        "course_unique_for_student": course.course_unique_for_student,
+        "course_name": course.course_name,
+        "course_description": course.course_description,
+        "course_thumbnail": course.course_thumbnail,
+        "createdAt": str(course.createdAt),
+        "role": role,
+        "can_edit": role in ("admin", "lecturer"),
+    }
+
+
+# Members see their own courses; admins see every course with role "admin".
+def list_courses(user, db, archived):
+    status_filter = Course.course_status == "archived" if archived else Course.course_status != "archived"
+    if user.is_admin:
+        courses = db.query(Course).filter(status_filter).all()
+        return [course_list_item(course, "admin") for course in courses]
+
+    memberships = (
+        db.query(CourseMember)
+        .join(Course)
+        .filter(CourseMember.user_id == user.user_id, status_filter)
+        .all()
+    )
+    return [course_list_item(m.course, m.role) for m in memberships]
+
+
+
 @router.get("/display-course")
 async def display_me_courses(access_token: str = Cookie(None), db: Session = Depends(get_db)):
     if not access_token:
@@ -34,30 +66,7 @@ async def display_me_courses(access_token: str = Cookie(None), db: Session = Dep
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    memberships = (
-        db.query(CourseMember)
-        .join(Course)
-        .filter(CourseMember.user_id == user.user_id, Course.course_status != "archived")
-        .all()
-    )
-
-    courses = []
-    for i in memberships:
-        course = i.course
-        courses.append({
-            "course_id": course.course_id,
-            "course_unique_for_lecturer": course.course_unique_for_lecturer,
-            "course_unique_for_ta": course.course_unique_for_ta,
-            "course_unique_for_student": course.course_unique_for_student,
-            "course_name": course.course_name,
-            "course_description": course.course_description,
-            "course_thumbnail": course.course_thumbnail,
-            "createdAt": str(course.createdAt),
-            "role": i.role,
-            "can_edit": user.is_admin or i.role == "lecturer",
-        })
-
-    return courses
+    return list_courses(user, db, archived=False)
 
 
 @router.get("/display-course-archived")
@@ -74,30 +83,7 @@ async def display_archived_courses(access_token: str = Cookie(None), db: Session
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    memberships = (
-        db.query(CourseMember)
-        .join(Course)
-        .filter(CourseMember.user_id == user.user_id, Course.course_status == "archived")
-        .all()
-    )
-
-    courses = []
-    for i in memberships:
-        course = i.course
-        courses.append({
-            "course_id": course.course_id,
-            "course_unique_for_lecturer": course.course_unique_for_lecturer,
-            "course_unique_for_ta": course.course_unique_for_ta,
-            "course_unique_for_student": course.course_unique_for_student,
-            "course_name": course.course_name,
-            "course_description": course.course_description,
-            "course_thumbnail": course.course_thumbnail,
-            "createdAt": str(course.createdAt),
-            "role": i.role,
-            "can_edit": user.is_admin or i.role == "lecturer",
-        })
-
-    return courses
+    return list_courses(user, db, archived=True)
 
 
 class CourseCreate(BaseModel):

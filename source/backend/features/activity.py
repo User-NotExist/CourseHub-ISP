@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import Activity, Course, CourseMember, User
+from auth.permissions import course_role
 
 router = APIRouter(prefix="/course/{course_id}/activities", tags=["activity"])
 
@@ -82,18 +83,13 @@ def activity_member(course_id: str, access_token: Optional[str], db: Session):
     course = db.query(Course).filter(Course.course_id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
-    membership = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user_id,
-    ).first()
-    if not membership:
-        raise HTTPException(status_code=403, detail="Only course members can view activities")
-    return user, membership
+    role = course_role(course_id, user, db, detail="Only course members can view activities")
+    return user, role
 
 
 def activity_editor(course_id: str, access_token: Optional[str], db: Session):
-    user, membership = activity_member(course_id, access_token, db)
-    if membership.role not in ("lecturer", "ta"):
+    user, role = activity_member(course_id, access_token, db)
+    if role not in ("lecturer", "ta", "admin"):
         raise HTTPException(status_code=403, detail="Only course lecturers and TAs can manage activities")
     return user
 

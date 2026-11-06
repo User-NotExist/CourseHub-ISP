@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import User, Course, CourseMember, Faq
+from auth.permissions import STAFF_ROLES, MANAGER_ROLES, course_role
 
 # Staff (lecturer / TA) endpoints, require authentication
 router = APIRouter(prefix="/course/{course_id}/faqs", tags=["faq"])
@@ -39,15 +40,9 @@ def get_current_user(access_token, db):
     return user
 
 
-def get_staff_membership(course_id, user, db):
-    membership = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id,
-        CourseMember.user_id == user.user_id,
-        CourseMember.role.in_(["lecturer", "ta"]),
-    ).first()
-    if not membership:
-        raise HTTPException(status_code=403, detail="Only lecturer or TA can access FAQs !")
-    return membership
+# Returns "admin", "lecturer" or "ta". Admin overrides course membership.
+def get_staff_role(course_id, user, db):
+    return course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can access FAQs !")
 
 
 def get_faq(course_id, faq_id, db):
@@ -81,7 +76,7 @@ async def create_faq(
     db: Session = Depends(get_db),
 ):
     user = get_current_user(access_token, db)
-    get_staff_membership(course_id, user, db)
+    get_staff_role(course_id, user, db)
 
     if not payload.title.strip():
         raise HTTPException(status_code=422, detail="Title is required !")
@@ -107,8 +102,8 @@ async def display_faqs(
     db: Session = Depends(get_db),
 ):
     user = get_current_user(access_token, db)
-    membership = get_staff_membership(course_id, user, db)
-    is_lecturer = membership.role == "lecturer"
+    role = get_staff_role(course_id, user, db)
+    is_lecturer = role in MANAGER_ROLES
 
     all_faqs = (
         db.query(Faq)
@@ -136,16 +131,16 @@ async def display_faq(
     db: Session = Depends(get_db),
 ):
     user = get_current_user(access_token, db)
-    membership = get_staff_membership(course_id, user, db)
+    role = get_staff_role(course_id, user, db)
     faq = get_faq(course_id, faq_id, db)
 
     return {
         **faq_data(faq),
-        "can_edit": faq.user_id == user.user_id or membership.role == "lecturer",
+        "can_edit": faq.user_id == user.user_id or role in MANAGER_ROLES,
     }
 
 
-# FAQ creator or lecturer can edit
+# FAQ creator, lecturer or admin can edit
 @router.put("/edit/{faq_id}")
 async def edit_faq(
     course_id: str,
@@ -155,11 +150,11 @@ async def edit_faq(
     db: Session = Depends(get_db),
 ):
     user = get_current_user(access_token, db)
-    membership = get_staff_membership(course_id, user, db)
+    role = get_staff_role(course_id, user, db)
     faq = get_faq(course_id, faq_id, db)
 
-    if faq.user_id != user.user_id and membership.role != "lecturer":
-        raise HTTPException(status_code=403, detail="Only the FAQ creator or lecturer can edit this FAQ !")
+    if faq.user_id != user.user_id and role not in MANAGER_ROLES:
+        raise HTTPException(status_code=403, detail="Only the FAQ creator, lecturer or admin can edit this FAQ !")
 
     if not payload.title.strip():
         raise HTTPException(status_code=422, detail="Title is required !")
@@ -173,7 +168,7 @@ async def edit_faq(
     return faq_data(faq)
 
 
-# FAQ creator or lecturer can delete
+# FAQ creator, lecturer or admin can delete
 @router.delete("/delete/{faq_id}")
 async def delete_faq(
     course_id: str,
@@ -182,11 +177,11 @@ async def delete_faq(
     db: Session = Depends(get_db),
 ):
     user = get_current_user(access_token, db)
-    membership = get_staff_membership(course_id, user, db)
+    role = get_staff_role(course_id, user, db)
     faq = get_faq(course_id, faq_id, db)
 
-    if faq.user_id != user.user_id and membership.role != "lecturer":
-        raise HTTPException(status_code=403, detail="Only the FAQ creator or lecturer can delete this FAQ !")
+    if faq.user_id != user.user_id and role not in MANAGER_ROLES:
+        raise HTTPException(status_code=403, detail="Only the FAQ creator, lecturer or admin can delete this FAQ !")
 
     db.delete(faq)
     db.commit()

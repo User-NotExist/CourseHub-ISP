@@ -35,11 +35,12 @@ export default function AvailabilityCards({
     const checking = staff?.courseId !== courseId
     const canEdit = !checking && staff.role !== null && staff.email !== ""
     const hostEmail = checking ? "" : staff.email
-    const hostRole = checking || staff.role === null ? "lecturer" : staff.role
+    // Slots only have lecturer / TA hosts, so an admin is listed as a lecturer host.
+    const hostRole = checking || staff.role === null || staff.role === "admin" ? "lecturer" : staff.role
     // only shown when the controls are locked because of permissions
     const permissionNote = checking
         ? null
-        : staff.problem ?? (staff.role === null ? "You aren't a lecturer or TA of this course." : null)
+        : staff.problem ?? (staff.role === null ? "You aren't a lecturer or TA of this course, or an admin." : null)
 
     const daySlots = useMemo(() => slots.filter((s) => s.date === selectedDate), [slots, selectedDate])
 
