@@ -93,13 +93,14 @@ export default function ConsultCalendar({
                         <button
                             key={key}
                             onClick={() => onSelect(key)}
+                            disabled={!status} // only dates with slots can be picked
                             data-date={key}
                             className={`mx-auto size-8 rounded-md transition-colors ${
                                 isSelected
                                     ? "bg-[#054a46] text-white"
                                     : status
                                       ? availabilityStyle[status]
-                                      : "hover:bg-gray-100"
+                                      : "cursor-not-allowed text-gray-300"
                             }`}
                         >
                             {day}
@@ -110,7 +111,8 @@ export default function ConsultCalendar({
 
             <div className="flex flex-wrap gap-3 text-xs">
                 <span className="flex items-center gap-1"><span className="size-3 rounded-sm bg-[#B9F6B0]" /> Available</span>
-                <span className="flex items-center gap-1"><span className="size-3 rounded-sm bg-[#F4A3A3]" /> Not available</span>
+                <span className="flex items-center gap-1"><span className="size-3 rounded-sm bg-[#F4A3A3]" /> Fully booked</span>
+                <span className="flex items-center gap-1"><span className="size-3 rounded-sm border border-gray-300 bg-white" /> No slots</span>
             </div>
         </div>
     )
