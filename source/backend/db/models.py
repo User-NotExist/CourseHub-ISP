@@ -21,7 +21,7 @@ class User(base):
     faqs = relationship("Faq", back_populates="user")
     comments = relationship("Comments", back_populates="user")
     consultation_logs = relationship("ConsultationLogs", back_populates="user")
-    appointments_avaliable = relationship("AppointmentsAvaliable", back_populates="user")
+    appointments_available = relationship("AppointmentsAvailable", back_populates="user")
     announcements = relationship("Announcement", back_populates="user")
 
 
@@ -44,7 +44,7 @@ class Course(base):
     faqs = relationship("Faq", back_populates="course")
     consultation_logs = relationship("ConsultationLogs", back_populates="course")
     appointments = relationship("Appointments", back_populates="course")
-    appointments_avaliable = relationship("AppointmentsAvaliable", back_populates="course")
+    appointments_available = relationship("AppointmentsAvailable", back_populates="course")
     announcements = relationship("Announcement", back_populates="course")
 
 
@@ -163,15 +163,15 @@ class ConsultationLogs(base):
     course = relationship("Course", back_populates="consultation_logs")
 
 
-class AppointmentsAvaliable(base):
-    __tablename__ = "appointments_avaliable"
+class AppointmentsAvailable(base):
+    __tablename__ = "appointments_available"
 
-    avaliable_id = Column(Integer, primary_key=True, autoincrement=True)
+    available_id = Column(Integer, primary_key=True, autoincrement=True)
     course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)    # lecturer only
 
     appointment_head = Column(JSON, nullable=False, default=lambda: {"lecturer": [], "ta": []})    # {"lecturer": ["a@ku.th"], "ta": ["b@ku.th"]}
-    avaliable_date = Column(Date, nullable=False)
+    available_date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
     notes = Column(String)
@@ -179,8 +179,8 @@ class AppointmentsAvaliable(base):
 
     createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
-    user = relationship("User", back_populates="appointments_avaliable")
-    course = relationship("Course", back_populates="appointments_avaliable")
+    user = relationship("User", back_populates="appointments_available")
+    course = relationship("Course", back_populates="appointments_available")
     appointments = relationship("Appointments", back_populates="slot")
 
 
@@ -189,7 +189,7 @@ class Appointments(base):
 
     appointment_id = Column(Integer, primary_key=True, autoincrement=True)
     course_id = Column(String(12), ForeignKey("courses.course_id"), nullable=False)
-    avaliable_id = Column(Integer, ForeignKey("appointments_avaliable.avaliable_id"), nullable=False)    # booked slot
+    available_id = Column(Integer, ForeignKey("appointments_available.available_id"), nullable=False)    # booked slot
 
     student_first_name = Column(String, nullable=False)
     student_last_name = Column(String, nullable=False)
@@ -199,4 +199,4 @@ class Appointments(base):
     createdAt = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     course = relationship("Course", back_populates="appointments")
-    slot = relationship("AppointmentsAvaliable", back_populates="appointments")
+    slot = relationship("AppointmentsAvailable", back_populates="appointments")

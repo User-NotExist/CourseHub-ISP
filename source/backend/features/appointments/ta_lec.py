@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.models import User, CourseMember, Appointments, AppointmentsAvaliable
+from db.models import User, CourseMember, Appointments, AppointmentsAvailable
 from auth.permissions import STAFF_ROLES, course_role
 
 router = APIRouter(prefix="/course/{course_id}/appointments", tags=["appointments"])
@@ -22,16 +22,16 @@ class AppointmentHead(BaseModel):
     ta: List[str] = []
 
 
-class AppointmentAvaliableCreate(BaseModel):
+class AppointmentAvailableCreate(BaseModel):
     appointment_head: AppointmentHead
-    avaliable_date: date
+    available_date: date
     start_time: time
     end_time: time
     notes: Optional[str] = None
     max_bookings: int = 5
 
 
-def validate_slot(payload: AppointmentAvaliableCreate):
+def validate_slot(payload: AppointmentAvailableCreate):
     if not payload.appointment_head.lecturer and not payload.appointment_head.ta:
         raise HTTPException(status_code=400, detail="At least one lecturer or TA is required !")
 
@@ -42,12 +42,12 @@ def validate_slot(payload: AppointmentAvaliableCreate):
         raise HTTPException(status_code=400, detail="Max bookings must be at least 1 !")
 
 
-def slot_to_dict(s: AppointmentsAvaliable):
+def slot_to_dict(s: AppointmentsAvailable):
     return {
         "slot_owner_id": s.user_id,
-        "avaliable_id": s.avaliable_id,
+        "available_id": s.available_id,
         "appointment_head": s.appointment_head,
-        "avaliable_date": str(s.avaliable_date),
+        "available_date": str(s.available_date),
         "start_time": str(s.start_time),
         "end_time": str(s.end_time),
         "notes": s.notes,
@@ -57,10 +57,10 @@ def slot_to_dict(s: AppointmentsAvaliable):
 
 
 # Lecturer, TA or admin can create
-@router.post("/avaliable/create")
-async def create_appointment_avaliable(
+@router.post("/available/create")
+async def create_appointment_available(
     course_id: str,
-    payload: AppointmentAvaliableCreate,
+    payload: AppointmentAvailableCreate,
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
@@ -76,15 +76,15 @@ async def create_appointment_avaliable(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can create avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can create available dates !")
 
     validate_slot(payload)
 
-    new_slot = AppointmentsAvaliable(
+    new_slot = AppointmentsAvailable(
         user_id=user.user_id,
         course_id=course_id,
         appointment_head=payload.appointment_head.model_dump(),
-        avaliable_date=payload.avaliable_date,
+        available_date=payload.available_date,
         start_time=payload.start_time,
         end_time=payload.end_time,
         notes=payload.notes,
@@ -97,9 +97,9 @@ async def create_appointment_avaliable(
     return slot_to_dict(new_slot)
 
 
-# Display all course's avaliable dates
-@router.get("/avaliable/read")
-async def display_appointments_avaliable(
+# Display all course's available dates
+@router.get("/available/read")
+async def display_appointments_available(
     course_id: str,
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
@@ -116,12 +116,12 @@ async def display_appointments_avaliable(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view available dates !")
 
     all_slots = (
-        db.query(AppointmentsAvaliable)
-        .filter(AppointmentsAvaliable.course_id == course_id)
-        .order_by(AppointmentsAvaliable.avaliable_date, AppointmentsAvaliable.start_time)
+        db.query(AppointmentsAvailable)
+        .filter(AppointmentsAvailable.course_id == course_id)
+        .order_by(AppointmentsAvailable.available_date, AppointmentsAvailable.start_time)
         .all()
     )
 
@@ -134,11 +134,11 @@ async def display_appointments_avaliable(
     return slots
 
 
-# For avaliable date edit, also shows who booked
-@router.get("/avaliable/read/{avaliable_id}")
-async def display_appointment_avaliable(
+# For available date edit, also shows who booked
+@router.get("/available/read/{available_id}")
+async def display_appointment_available(
     course_id: str,
-    avaliable_id: int,
+    available_id: int,
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
@@ -154,14 +154,14 @@ async def display_appointment_avaliable(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view available dates !")
 
-    slot = db.query(AppointmentsAvaliable).filter(
-        AppointmentsAvaliable.avaliable_id == avaliable_id,
-        AppointmentsAvaliable.course_id == course_id,
+    slot = db.query(AppointmentsAvailable).filter(
+        AppointmentsAvailable.available_id == available_id,
+        AppointmentsAvailable.course_id == course_id,
     ).first()
     if not slot:
-        raise HTTPException(status_code=404, detail="Avaliable date not found !")
+        raise HTTPException(status_code=404, detail="Available date not found !")
 
     result = slot_to_dict(slot)
     result["can_edit"] = True
@@ -179,11 +179,11 @@ async def display_appointment_avaliable(
     return result
 
 
-@router.put("/avaliable/edit/{avaliable_id}")
-async def edit_appointment_avaliable(
+@router.put("/available/edit/{available_id}")
+async def edit_appointment_available(
     course_id: str,
-    avaliable_id: int,
-    payload: AppointmentAvaliableCreate,
+    available_id: int,
+    payload: AppointmentAvailableCreate,
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
@@ -199,14 +199,14 @@ async def edit_appointment_avaliable(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    slot = db.query(AppointmentsAvaliable).filter(
-        AppointmentsAvaliable.avaliable_id == avaliable_id,
-        AppointmentsAvaliable.course_id == course_id,
+    slot = db.query(AppointmentsAvailable).filter(
+        AppointmentsAvailable.available_id == available_id,
+        AppointmentsAvailable.course_id == course_id,
     ).first()
     if not slot:
-        raise HTTPException(status_code=404, detail="Avaliable date not found !")
+        raise HTTPException(status_code=404, detail="Available date not found !")
 
-    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can edit avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can edit available dates !")
 
     validate_slot(payload)
 
@@ -214,7 +214,7 @@ async def edit_appointment_avaliable(
         raise HTTPException(status_code=400, detail="Max bookings is less than current bookings !")
 
     slot.appointment_head = payload.appointment_head.model_dump()
-    slot.avaliable_date = payload.avaliable_date
+    slot.available_date = payload.available_date
     slot.start_time = payload.start_time
     slot.end_time = payload.end_time
     slot.notes = payload.notes
@@ -226,10 +226,10 @@ async def edit_appointment_avaliable(
     return slot_to_dict(slot)
 
 
-@router.delete("/avaliable/delete/{avaliable_id}")
-async def delete_appointment_avaliable(
+@router.delete("/available/delete/{available_id}")
+async def delete_appointment_available(
     course_id: str,
-    avaliable_id: int,
+    available_id: int,
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
@@ -245,18 +245,18 @@ async def delete_appointment_avaliable(
     if not user:
         raise HTTPException(status_code=404, detail="User not found !")
 
-    slot = db.query(AppointmentsAvaliable).filter(
-        AppointmentsAvaliable.avaliable_id == avaliable_id,
-        AppointmentsAvaliable.course_id == course_id,
+    slot = db.query(AppointmentsAvailable).filter(
+        AppointmentsAvailable.available_id == available_id,
+        AppointmentsAvailable.course_id == course_id,
     ).first()
     if not slot:
-        raise HTTPException(status_code=404, detail="Avaliable date not found !")
+        raise HTTPException(status_code=404, detail="Available date not found !")
 
-    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can delete avaliable dates !")
+    course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can delete available dates !")
 
     # no cascade, so delete bookings from students first
-    db.query(Appointments).filter(Appointments.avaliable_id == avaliable_id).delete()
+    db.query(Appointments).filter(Appointments.available_id == available_id).delete()
     db.delete(slot)
     db.commit()
 
-    return {"avaliable_id": avaliable_id, "deleted": True}
+    return {"available_id": available_id, "deleted": True}

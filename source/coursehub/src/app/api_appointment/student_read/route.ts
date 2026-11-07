@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
 
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8000"
     try {
-        const response = await fetch(`${backendUrl}/students/${encodeURIComponent(courseId)}/appointments/avaliable/read`, {
+        const response = await fetch(`${backendUrl}/students/${encodeURIComponent(courseId)}/appointments/available/read`, {
             cache: "no-store",
         })
         return NextResponse.json(await response.json(), { status: response.status })
