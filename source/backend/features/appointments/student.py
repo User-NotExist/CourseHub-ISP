@@ -133,11 +133,35 @@ async def student_book_appointment(
         """,
     }
 
+    student_params: resend.Emails.SendParams = {
+        "from": "CourseHub <onboarding@resend.dev>",
+        "to": [new_appointment.student_email],
+        "subject": f"Appointment confirmed - {course_name}",
+        "html": f"""
+            <p>Hi {esc(new_appointment.student_first_name)} {esc(new_appointment.student_last_name)},</p>
+            <p>Your consultation for <strong>{esc(course_name)}</strong> is booked.</p>
+            <ul>
+                <li><strong>Date:</strong> {esc(slot.available_date)}</li>
+                <li><strong>Time:</strong> {slot.start_time.strftime("%H:%M")} - {slot.end_time.strftime("%H:%M")}</li>
+                <li><strong>With:</strong> {esc(consultants)}</li>
+                <li><strong>Notes:</strong> {esc(slot.notes) or "-"}</li>
+                <li><strong>Your message:</strong> {esc(new_appointment.appointments_description) or "-"}</li>
+            </ul>
+            <p>CourseHub</p>
+        """,
+    }
+
     # booking is already saved, this one just send the eamil notification to the lecturer / TA who posted the available date
     try:
         resend.Emails.send(params)
     except Exception as e:
         print(f"Failed to send booking email: {e}")
+
+    # confirmation email back to the student
+    try:
+        resend.Emails.send(student_params)
+    except Exception as e:
+        print(f"Failed to send student confirmation email: {e}")
 
     return {
         "appointment_id": new_appointment.appointment_id,
