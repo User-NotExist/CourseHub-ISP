@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useRef, useState, type FormEvent } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -16,17 +16,23 @@ export default function AnnouncementForm() {
   const [title, setTitle] = useState("")
   const [body, setBody] = useState("")
   const [isPublishing, setIsPublishing] = useState(false)
+  const publishButtonRef = useRef<HTMLButtonElement>(null)
+  const publishInFlight = useRef(false)
 
   const backHref = `/courses/${courseId}/announcement`
 
   async function handlePublish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (isPublishing) return
+    if (publishInFlight.current) return
     if (!title.trim() || !body.trim()) {
       toast.error("Title and body are required")
       return
     }
 
+    publishInFlight.current = true
+    if (publishButtonRef.current) {
+      publishButtonRef.current.disabled = true
+    }
     setIsPublishing(true)
     try {
       const response = await fetch("/api_announcement/create", {
@@ -46,9 +52,12 @@ export default function AnnouncementForm() {
       toast.success("Announcement published")
       router.push(backHref)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Couldn't publish this announcement")
-    } finally {
+      publishInFlight.current = false
+      if (publishButtonRef.current) {
+        publishButtonRef.current.disabled = false
+      }
       setIsPublishing(false)
+      toast.error(error instanceof Error ? error.message : "Couldn't publish this announcement")
     }
   }
 
@@ -72,6 +81,7 @@ export default function AnnouncementForm() {
               Cancel
             </Button>
             <Button
+              ref={publishButtonRef}
               type="submit"
               disabled={isPublishing}
               className="h-12 w-36 rounded-[10px] bg-[#006c67] text-xl font-bold text-white hover:bg-[#054a46]"
