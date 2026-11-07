@@ -11,9 +11,9 @@ import BookConsultationForm, { type BookingInput } from "@/components/student_co
 
 // One open time slot created by a lecturer/TA (backend: features/appointments/student.py)
 type Slot = {
-    avaliable_id: number // (sic) the backend spells it this way
+    available_id: number // (sic) the backend spells it this way
     appointment_head: { lecturer?: string[]; ta?: string[] } | null
-    avaliable_date: string // "YYYY-MM-DD"
+    available_date: string // "YYYY-MM-DD"
     start_time: string // "HH:MM:SS"
     end_time: string
     notes: string | null
@@ -81,8 +81,8 @@ export default function StudentAppointment() {
         fetchSlots(courseId)
             .then((loaded) => {
                 setSlots(loaded)
-                if (loaded.length === 0 || loaded.some((s) => s.avaliable_date === todayKey)) return
-                const first = loaded[0].avaliable_date
+                if (loaded.length === 0 || loaded.some((s) => s.available_date === todayKey)) return
+                const first = loaded[0].available_date
                 const [y, m] = first.split("-").map(Number)
                 setSelected(first)
                 setViewYear(y)
@@ -102,7 +102,7 @@ export default function StudentAppointment() {
 
     const slotsByDate: Record<string, Slot[]> = {}
     for (const slot of slots) {
-        ;(slotsByDate[slot.avaliable_date] ??= []).push(slot)
+        ;(slotsByDate[slot.available_date] ??= []).push(slot)
     }
 
     // green = at least one slot still open, red = every slot on that date is full
@@ -122,7 +122,7 @@ export default function StudentAppointment() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 course_id: courseId,
-                avaliable_id: bookingSlot.avaliable_id,
+                available_id: bookingSlot.available_id,
                 student_first_name: input.first_name,
                 student_last_name: input.last_name,
                 student_email: input.email,
@@ -199,7 +199,7 @@ export default function StudentAppointment() {
                             ) : (
                                 onThisDate.map((slot) => (
                                     <div
-                                        key={slot.avaliable_id}
+                                        key={slot.available_id}
                                         className="grid grid-cols-[1fr_8rem_5rem_6rem] items-center gap-4 border-b border-gray-300 px-2 py-2"
                                     >
                                         <div className="min-w-0">
@@ -226,7 +226,7 @@ export default function StudentAppointment() {
 
             {bookingSlot && (
                 <BookConsultationForm
-                    slotLabel={`${toDisplayDate(bookingSlot.avaliable_date)}, ${shortTime(bookingSlot.start_time)} - ${shortTime(bookingSlot.end_time)}`}
+                    slotLabel={`${toDisplayDate(bookingSlot.available_date)}, ${shortTime(bookingSlot.start_time)} - ${shortTime(bookingSlot.end_time)}`}
                     onCancel={() => setBookingSlot(null)}
                     onConfirm={handle_book}
                 />

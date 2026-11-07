@@ -21,9 +21,9 @@ export type AppointmentSlot = {
 };
 
 type RawSlot = {
-  avaliable_id: number; // (sic) the backend spells it this way
+  available_id: number; // (sic) the backend spells it this way
   appointment_head: { lecturer?: string[]; ta?: string[] } | null;
-  avaliable_date: string;
+  available_date: string;
   start_time: string; // "HH:MM:SS"
   end_time: string;
   notes: string | null;
@@ -42,8 +42,8 @@ type RawSlotDetail = RawSlot & {
 };
 
 const toSlot = (raw: RawSlot): AppointmentSlot => ({
-  id: raw.avaliable_id,
-  date: raw.avaliable_date,
+  id: raw.available_id,
+  date: raw.available_date,
   startTime: raw.start_time.slice(0, 5),
   endTime: raw.end_time.slice(0, 5),
   hosts: [

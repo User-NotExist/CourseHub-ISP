@@ -3,15 +3,15 @@ import { NextRequest, NextResponse } from "next/server"
 export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => null)
     const courseId = body?.course_id
-    const avaliableId = body?.avaliable_id
-    if (typeof courseId !== "string" || !courseId || (typeof avaliableId !== "number" && typeof avaliableId !== "string")) {
+    const availableId = body?.available_id
+    if (typeof courseId !== "string" || !courseId || (typeof availableId !== "number" && typeof availableId !== "string")) {
         return NextResponse.json({ detail: "Course ID and slot ID are required" }, { status: 400 })
     }
 
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8000"
     try {
         const response = await fetch(
-            `${backendUrl}/students/${encodeURIComponent(courseId)}/appointments/book/${encodeURIComponent(String(avaliableId))}`,
+            `${backendUrl}/students/${encodeURIComponent(courseId)}/appointments/book/${encodeURIComponent(String(availableId))}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

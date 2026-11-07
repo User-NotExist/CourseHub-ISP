@@ -29,7 +29,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const response = await fetch(
-      `${backendUrl}/course/${encodeURIComponent(body.course_id)}/appointments/avaliable/delete/${body.slot_id}`,
+      `${backendUrl}/course/${encodeURIComponent(body.course_id)}/appointments/available/delete/${body.slot_id}`,
       { method: "DELETE", headers: { cookie: cookieStore.toString() } },
     )
     return NextResponse.json(await response.json(), { status: response.status })
