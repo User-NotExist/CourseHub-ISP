@@ -47,7 +47,7 @@ export async function createSlot(courseId: string, input: NewSlotInput) {
         input.hostRole === "ta"
           ? { lecturer: [], ta: [input.hostEmail] }
           : { lecturer: [input.hostEmail], ta: [] },
-      avaliable_date: input.date,
+      available_date: input.date,
       start_time: `${input.startTime}:00`,
       end_time: `${input.endTime}:00`,
       notes: null,

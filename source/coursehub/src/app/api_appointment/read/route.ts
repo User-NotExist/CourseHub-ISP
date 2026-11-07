@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ detail: "Not authenticated" }, { status: 401 })
   }
 
-  const path = slotId ? `/avaliable/read/${slotId}` : "/avaliable/read"
+  const path = slotId ? `/available/read/${slotId}` : "/available/read"
   try {
     const response = await fetch(
       `${backendUrl}/course/${encodeURIComponent(courseId)}/appointments${path}`,

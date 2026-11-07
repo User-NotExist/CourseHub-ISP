@@ -7,7 +7,7 @@ const isStringList = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every((item) => typeof item === "string")
 
 // Mark a date as available = create an appointment slot (lecturer or TA).
-// POST /api_appointment/create  body: { course_id, appointment_head, avaliable_date, start_time, end_time, notes, max_bookings }
+// POST /api_appointment/create  body: { course_id, appointment_head, available_date, start_time, end_time, notes, max_bookings }
 export async function POST(request: NextRequest) {
   const body: unknown = await request.json().catch(() => null)
 
@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
     !isStringList(body.appointment_head.lecturer) ||
     !("ta" in body.appointment_head) ||
     !isStringList(body.appointment_head.ta) ||
-    !("avaliable_date" in body) ||
-    typeof body.avaliable_date !== "string" ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(body.avaliable_date) ||
+    !("available_date" in body) ||
+    typeof body.available_date !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(body.available_date) ||
     !("start_time" in body) ||
     typeof body.start_time !== "string" ||
     !/^\d{2}:\d{2}(:\d{2})?$/.test(body.start_time) ||
@@ -50,13 +50,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const response = await fetch(
-      `${backendUrl}/course/${encodeURIComponent(body.course_id)}/appointments/avaliable/create`,
+      `${backendUrl}/course/${encodeURIComponent(body.course_id)}/appointments/available/create`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json", cookie: cookieStore.toString() },
         body: JSON.stringify({
           appointment_head: body.appointment_head,
-          avaliable_date: body.avaliable_date,
+          available_date: body.available_date,
           start_time: body.start_time,
           end_time: body.end_time,
           notes: body.notes,
