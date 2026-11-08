@@ -5,6 +5,16 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export type BookingInput = {
     first_name: string
@@ -20,9 +30,9 @@ export default function BookConsultationForm({
     onCancel,
     onConfirm,
 }: {
-    slotLabel: string // e.g. "09/11/2026, 10:00 - 11:00"
+    slotLabel: string
     onCancel: () => void
-    onConfirm: (input: BookingInput) => Promise<void> // throws an Error with the message to show
+    onConfirm: (input: BookingInput) => Promise<void>
 }) {
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
@@ -30,13 +40,18 @@ export default function BookConsultationForm({
     const [description, setDescription] = useState("")
     const [formError, setFormError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
-    const handle_submit = async (event: FormEvent) => {
+    const handle_submit = (event: FormEvent) => {
         event.preventDefault()
         if (!firstName.trim() || !lastName.trim()) return setFormError("First name and last name are required")
         if (!emailPattern.test(email.trim())) return setFormError("Invalid email")
 
         setFormError(null)
+        setIsConfirmOpen(true)
+    }
+
+    const handle_confirm = async () => {
         setIsSubmitting(true)
         try {
             await onConfirm({
@@ -46,6 +61,7 @@ export default function BookConsultationForm({
                 description: description.trim(),
             })
         } catch (error) {
+            setIsConfirmOpen(false)
             setFormError(error instanceof Error ? error.message : "Failed to book consultation")
         } finally {
             setIsSubmitting(false)
@@ -60,7 +76,10 @@ export default function BookConsultationForm({
                 onClick={(event) => event.stopPropagation()}
                 className="flex w-full max-w-2xl flex-col gap-4 rounded-2xl bg-white p-6"
             >
-                <h2 className="text-2xl font-bold">Book Consultation ({slotLabel})</h2>
+                <h2 className="flex flex-col text-2xl font-bold">
+                    Book Consultation
+                    <span className="text-base font-normal text-gray-500">{slotLabel}</span>
+                </h2>
 
                 <div className="flex flex-col gap-3 rounded-2xl border border-gray-300 p-5">
                     <label className="flex max-w-md flex-col gap-1">
@@ -106,6 +125,37 @@ export default function BookConsultationForm({
                     </div>
                 </div>
             </form>
+
+            <AlertDialog
+                open={isConfirmOpen}
+                onOpenChange={(open) => {
+                    if (!open && !isSubmitting) setIsConfirmOpen(false)
+                }}
+            >
+                <AlertDialogContent onClick={(event) => event.stopPropagation()}>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Book this consultation?</AlertDialogTitle>
+                        <AlertDialogDescription className="flex flex-col gap-1">
+                            <span className="font-medium text-foreground">{slotLabel}</span>
+                            <span>Are you sure? This action cannot be undone.</span>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={isSubmitting}
+                            className="bg-[#054a46] text-white hover:bg-[#054a46]/90"
+                            onClick={(event) => {
+                                event.preventDefault()
+                                void handle_confirm()
+                            }}
+                        >
+                            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                            {isSubmitting ? "Booking..." : "Book"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
