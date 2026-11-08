@@ -30,9 +30,9 @@ export default function BookConsultationForm({
     onCancel,
     onConfirm,
 }: {
-    slotLabel: string // e.g. "09/11/2026, 10:00 - 11:00"
+    slotLabel: string
     onCancel: () => void
-    onConfirm: (input: BookingInput) => Promise<void> // throws an Error with the message to show
+    onConfirm: (input: BookingInput) => Promise<void>
 }) {
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
@@ -42,7 +42,6 @@ export default function BookConsultationForm({
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
-    // validate first, then ask the student to confirm (a booking cannot be cancelled)
     const handle_submit = (event: FormEvent) => {
         event.preventDefault()
         if (!firstName.trim() || !lastName.trim()) return setFormError("First name and last name are required")
@@ -77,7 +76,10 @@ export default function BookConsultationForm({
                 onClick={(event) => event.stopPropagation()}
                 className="flex w-full max-w-2xl flex-col gap-4 rounded-2xl bg-white p-6"
             >
-                <h2 className="text-2xl font-bold">Book Consultation ({slotLabel})</h2>
+                <h2 className="flex flex-col text-2xl font-bold">
+                    Book Consultation
+                    <span className="text-base font-normal text-gray-500">{slotLabel}</span>
+                </h2>
 
                 <div className="flex flex-col gap-3 rounded-2xl border border-gray-300 p-5">
                     <label className="flex max-w-md flex-col gap-1">
@@ -133,8 +135,9 @@ export default function BookConsultationForm({
                 <AlertDialogContent onClick={(event) => event.stopPropagation()}>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Book this consultation?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {slotLabel}. Are you sure? This action cannot be undone.
+                        <AlertDialogDescription className="flex flex-col gap-1">
+                            <span className="font-medium text-foreground">{slotLabel}</span>
+                            <span>Are you sure? This action cannot be undone.</span>
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
