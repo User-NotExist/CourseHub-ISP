@@ -17,6 +17,9 @@ router = APIRouter(prefix="/students/{course_id}/appointments", tags=["student_a
 
 resend.api_key = os.environ["RESEND_API_KEY"]
 
+sender_secret = os.environ.get("SENDER_SECRET") # no have will crase entire backend
+if not sender_secret:
+    raise ValueError("SENDER_SECRET environment variable is not set")
 
 class AppointmentBook(BaseModel):
     student_first_name: str = Field(min_length=1)
@@ -114,7 +117,7 @@ async def student_book_appointment(
     poster = slot.user  # lecturer / TA who posted the available date
 
     params: resend.Emails.SendParams = {
-        "from": "CourseHub <noreply@noreply.user-notexist.com>",
+        "from": f"CourseHub <{sender_secret}>",
         "to": [poster.user_email],
         "subject": f"New appointment booked - {course_name}",
         "html": f"""
@@ -135,7 +138,7 @@ async def student_book_appointment(
     }
 
     student_params: resend.Emails.SendParams = {
-        "from": "CourseHub <noreply@noreply.user-notexist.com>",
+        "from": f"CourseHub <{sender_secret}>",
         "to": [new_appointment.student_email],
         "subject": f"Appointment confirmed - {course_name}",
         "html": f"""
