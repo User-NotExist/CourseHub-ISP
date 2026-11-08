@@ -114,7 +114,7 @@ async def student_book_appointment(
     poster = slot.user  # lecturer / TA who posted the available date
 
     params: resend.Emails.SendParams = {
-        "from": "CourseHub <onboarding@resend.dev>",
+        "from": "CourseHub <noreply@noreply.user-notexist.com>",
         "to": [poster.user_email],
         "subject": f"New appointment booked - {course_name}",
         "html": f"""
@@ -130,11 +130,12 @@ async def student_book_appointment(
                 <li><strong>Booked:</strong> {booked}/{slot.max_bookings}</li>
             </ul>
             <p>CourseHub</p>
+            <p style="color:#888;font-size:12px;">This is an automated email. Please do not reply.</p>
         """,
     }
 
     student_params: resend.Emails.SendParams = {
-        "from": "CourseHub <onboarding@resend.dev>",
+        "from": "CourseHub <noreply@noreply.user-notexist.com>",
         "to": [new_appointment.student_email],
         "subject": f"Appointment confirmed - {course_name}",
         "html": f"""
@@ -143,23 +144,26 @@ async def student_book_appointment(
             <ul>
                 <li><strong>Date:</strong> {esc(slot.available_date)}</li>
                 <li><strong>Time:</strong> {slot.start_time.strftime("%H:%M")} - {slot.end_time.strftime("%H:%M")}</li>
-                <li><strong>With:</strong> {esc(consultants)}</li>
-                <li><strong>Notes:</strong> {esc(slot.notes) or "-"}</li>
+                <li><strong>Consult With:</strong> {esc(consultants)}</li>
                 <li><strong>Your message:</strong> {esc(new_appointment.appointments_description) or "-"}</li>
             </ul>
+
             <p>CourseHub</p>
+            <p style="color:#888;font-size:12px;">This is an automated email. Please do not reply.</p>
         """,
     }
 
     # booking is already saved, this one just send the eamil notification to the lecturer / TA who posted the available date
     try:
         resend.Emails.send(params)
+        print(f"Booking email sent to {poster.user_email}")
     except Exception as e:
         print(f"Failed to send booking email: {e}")
 
     # confirmation email back to the student
     try:
         resend.Emails.send(student_params)
+        print(f"Student confirmation email sent to {new_appointment.student_email}")
     except Exception as e:
         print(f"Failed to send student confirmation email: {e}")
 
