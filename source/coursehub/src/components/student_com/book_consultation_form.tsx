@@ -5,6 +5,16 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export type BookingInput = {
     first_name: string
@@ -30,13 +40,19 @@ export default function BookConsultationForm({
     const [description, setDescription] = useState("")
     const [formError, setFormError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
-    const handle_submit = async (event: FormEvent) => {
+    // validate first, then ask the student to confirm (a booking cannot be cancelled)
+    const handle_submit = (event: FormEvent) => {
         event.preventDefault()
         if (!firstName.trim() || !lastName.trim()) return setFormError("First name and last name are required")
         if (!emailPattern.test(email.trim())) return setFormError("Invalid email")
 
         setFormError(null)
+        setIsConfirmOpen(true)
+    }
+
+    const handle_confirm = async () => {
         setIsSubmitting(true)
         try {
             await onConfirm({
@@ -46,6 +62,7 @@ export default function BookConsultationForm({
                 description: description.trim(),
             })
         } catch (error) {
+            setIsConfirmOpen(false)
             setFormError(error instanceof Error ? error.message : "Failed to book consultation")
         } finally {
             setIsSubmitting(false)
@@ -106,6 +123,36 @@ export default function BookConsultationForm({
                     </div>
                 </div>
             </form>
+
+            <AlertDialog
+                open={isConfirmOpen}
+                onOpenChange={(open) => {
+                    if (!open && !isSubmitting) setIsConfirmOpen(false)
+                }}
+            >
+                <AlertDialogContent onClick={(event) => event.stopPropagation()}>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Book this consultation?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {slotLabel}. Are you sure? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={isSubmitting}
+                            className="bg-[#054a46] text-white hover:bg-[#054a46]/90"
+                            onClick={(event) => {
+                                event.preventDefault()
+                                void handle_confirm()
+                            }}
+                        >
+                            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                            {isSubmitting ? "Booking..." : "Book"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
