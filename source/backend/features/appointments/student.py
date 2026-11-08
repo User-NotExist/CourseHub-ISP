@@ -17,9 +17,10 @@ router = APIRouter(prefix="/students/{course_id}/appointments", tags=["student_a
 
 resend.api_key = os.environ["RESEND_API_KEY"]
 
-sender_secret = os.environ.get("SENDER_SECRET") # no have will crase entire backend
-if not sender_secret:
-    raise ValueError("SENDER_SECRET environment variable is not set")
+FALLBACK_SENDER = "fallback-sender@test.com"
+sender_secret = os.environ.get("SENDER_SECRET", FALLBACK_SENDER)
+if sender_secret == FALLBACK_SENDER:
+    print(f"WARNING: SENDER_SECRET not set, using fallback sender {FALLBACK_SENDER}")
 
 class AppointmentBook(BaseModel):
     student_first_name: str = Field(min_length=1)
