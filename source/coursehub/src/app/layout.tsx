@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner"
+import RateLimitWatcher from "@/components/security/rate_limit_watcher"
 import { Geist_Mono, Inria_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inriaSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <RateLimitWatcher />
         {children}
         <Toaster />
       </body>
