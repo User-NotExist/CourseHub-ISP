@@ -10,4 +10,7 @@ authlib
 itsdangerous
 python-jose
 
+# gmail sending
+resend
+
 psycopg[binary]

@@ -1,3 +1,6 @@
+import os
+import html
+
 from datetime import date
 from typing import Optional
 
@@ -8,8 +11,16 @@ from sqlalchemy.orm import Session
 from db.database import get_db
 from db.models import Course, Appointments, AppointmentsAvailable
 
+import resend
+
 router = APIRouter(prefix="/students/{course_id}/appointments", tags=["student_appointments"])
 
+resend.api_key = os.environ["RESEND_API_KEY"]
+
+FALLBACK_SENDER = "fallback-sender@test.com"
+sender_secret = os.environ.get("SENDER_SECRET", FALLBACK_SENDER)
+if sender_secret == FALLBACK_SENDER:
+    print(f"WARNING: SENDER_SECRET not set, using fallback sender {FALLBACK_SENDER}")
 
 class AppointmentBook(BaseModel):
     student_first_name: str = Field(min_length=1)
@@ -98,6 +109,67 @@ async def student_book_appointment(
     db.add(new_appointment)
     db.commit()
     db.refresh(new_appointment)
+
+    esc = lambda v: html.escape(str(v or ""))
+    heads = slot.appointment_head or {}
+    consultants = ", ".join((heads.get("lecturer") or []) + (heads.get("ta") or [])) or "-"
+    course_name = slot.course.course_name if slot.course else ""
+    booked = len(slot.appointments)
+    poster = slot.user  # lecturer / TA who posted the available date
+
+    params: resend.Emails.SendParams = {
+        "from": f"CourseHub <{sender_secret}>",
+        "to": [poster.user_email],
+        "subject": f"New appointment booked - {course_name}",
+        "html": f"""
+            <p>Hi {esc(poster.name)},</p>
+            <p>A student booked your available date in <strong>{esc(course_name)}</strong>.</p>
+            <ul>
+                <li><strong>Student:</strong> {esc(new_appointment.student_first_name)} {esc(new_appointment.student_last_name)}</li>
+                <li><strong>Email:</strong> {esc(new_appointment.student_email)}</li>
+                <li><strong>Message:</strong> {esc(new_appointment.appointments_description) or "-"}</li>
+                <li><strong>Date:</strong> {esc(slot.available_date)}</li>
+                <li><strong>Time:</strong> {slot.start_time.strftime("%H:%M")} - {slot.end_time.strftime("%H:%M")}</li>
+                <li><strong>With:</strong> {esc(consultants)}</li>
+                <li><strong>Booked:</strong> {booked}/{slot.max_bookings}</li>
+            </ul>
+            <p>CourseHub</p>
+            <p style="color:#888;font-size:12px;">This is an automated email. Please do not reply.</p>
+        """,
+    }
+
+    student_params: resend.Emails.SendParams = {
+        "from": f"CourseHub <{sender_secret}>",
+        "to": [new_appointment.student_email],
+        "subject": f"Appointment confirmed - {course_name}",
+        "html": f"""
+            <p>Hi {esc(new_appointment.student_first_name)} {esc(new_appointment.student_last_name)},</p>
+            <p>Your consultation for <strong>{esc(course_name)}</strong> is booked.</p>
+            <ul>
+                <li><strong>Date:</strong> {esc(slot.available_date)}</li>
+                <li><strong>Time:</strong> {slot.start_time.strftime("%H:%M")} - {slot.end_time.strftime("%H:%M")}</li>
+                <li><strong>Consult With:</strong> {esc(consultants)}</li>
+                <li><strong>Your message:</strong> {esc(new_appointment.appointments_description) or "-"}</li>
+            </ul>
+
+            <p>CourseHub</p>
+            <p style="color:#888;font-size:12px;">This is an automated email. Please do not reply.</p>
+        """,
+    }
+
+    # booking is already saved, this one just send the eamil notification to the lecturer / TA who posted the available date
+    try:
+        resend.Emails.send(params)
+        print(f"Booking email sent to {poster.user_email}")
+    except Exception as e:
+        print(f"Failed to send booking email: {e}")
+
+    # confirmation email back to the student
+    try:
+        resend.Emails.send(student_params)
+        print(f"Student confirmation email sent to {new_appointment.student_email}")
+    except Exception as e:
+        print(f"Failed to send student confirmation email: {e}")
 
     return {
         "appointment_id": new_appointment.appointment_id,
