@@ -397,7 +397,7 @@ export default function AnnouncementBoard() {
             announcements.map((announcement) => (
               <article
                 key={announcement.announcement_id}
-                className="rounded-2xl bg-panel-surface px-6 py-5 text-panel-foreground transition hover:bg-panel-surface-strong"
+                className="rounded-2xl bg-panel-surface px-6 py-5 text-panel-foreground transition "
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2.5">
@@ -448,11 +448,6 @@ export default function AnnouncementBoard() {
                       </Button>
                     </div>
                   )}
-                  {/* {isNewAnnouncement(announcement.createdAt) && (
-                    <span className="shrink-0 rounded-full bg-[#ff791f] px-2.5 py-1 text-[10px] font-bold text-white">
-                      NEW
-                    </span>
-                  )} */}
                 </div>
 
                 {editingAnnouncement?.announcementId === announcement.announcement_id ? (
