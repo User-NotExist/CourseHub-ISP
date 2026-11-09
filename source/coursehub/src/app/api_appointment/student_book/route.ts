@@ -1,4 +1,7 @@
+// PUBLIC ROUTE (NO LOGIN)
+
 import { NextRequest, NextResponse } from "next/server"
+import { clientIpHeader } from "@/lib/client_ip"
 
 export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => null)
@@ -14,7 +17,7 @@ export async function POST(request: NextRequest) {
             `${backendUrl}/students/${encodeURIComponent(courseId)}/appointments/book/${encodeURIComponent(String(availableId))}`,
             {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...clientIpHeader(request) },
                 body: JSON.stringify({
                     student_first_name: body.student_first_name,
                     student_last_name: body.student_last_name,

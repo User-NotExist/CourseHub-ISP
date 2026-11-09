@@ -16,6 +16,8 @@ from features.appointments.ta_lec import router as appointments_router
 from features.appointments.student import router as student_appointments_router
 from features.announcement import router as announcement_router
 
+from rate_limit import RateLimitMiddleware
+
 app = FastAPI()
 
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("JWT_SECRET_KEY"))
@@ -27,6 +29,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(RateLimitMiddleware)
 
 base.metadata.create_all(bind=engine)
 
