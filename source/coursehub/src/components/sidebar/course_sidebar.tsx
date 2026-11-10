@@ -24,6 +24,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import UserAvatar from "@/components/user_avatar"
 
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
@@ -36,6 +37,7 @@ export default function CourseSidebar() {
 
     const router = useRouter()
     const [email, setEmail] = useState<string | null>(null)
+    const [name, setName] = useState<string | null>(null)
     const [isLoggingOut, setIsLoggingOut] = useState(false)
     const [isConsultationOpen, setIsConsultationOpen] = useState(false)
 
@@ -45,8 +47,8 @@ export default function CourseSidebar() {
                 if (!res.ok) throw new Error("Not authenticated")
                 return res.json()
             })
-            .then((data) => { setEmail(data.email) })
-            .catch(() => setEmail(null))
+            .then((data) => { setEmail(data.email); setName(data.name ?? null) })
+            .catch(() => { setEmail(null); setName(null) })
     }, [])
 
     const handle_logout = async () => {
@@ -151,8 +153,12 @@ export default function CourseSidebar() {
                         Back to courses
                     </Button>
                 </div>
-                <div className="bg-black/10 px-4 py-2 text-sm">
-                    Hi, {email ?? "..."}
+                <div className="flex items-center gap-3 bg-black/10 px-4 py-3 text-sm">
+                    <UserAvatar name={name} />
+                    <div className="min-w-0">
+                        <p className="truncate font-semibold">{name ?? "..."}</p>
+                        <p className="truncate text-xs text-white/70">{email ?? "..."}</p>
+                    </div>
                 </div>
                 <AlertDialog>
                     <AlertDialogTrigger
