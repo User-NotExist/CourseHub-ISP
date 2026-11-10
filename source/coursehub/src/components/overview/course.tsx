@@ -2,7 +2,7 @@
 
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useState, useEffect, useSyncExternalStore } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
     InputGroup,
     InputGroupAddon,
@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import CourseCalendar from "@/components/calendar/course_calendar"
 import UpcomingLate from "@/components/calendar/upcoming_late"
-
-import { useRouter } from "next/navigation";
 
 const subscribe = () => () => { };
 

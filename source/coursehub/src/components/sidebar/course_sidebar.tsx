@@ -11,7 +11,7 @@ import {
     FiLogOut,
     FiChevronDown,
 } from "react-icons/fi"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
     AlertDialog,
@@ -28,8 +28,6 @@ import UserAvatar from "@/components/user_avatar"
 
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
-
-import { useParams } from "next/navigation"
 
 export default function CourseSidebar() {
     const params = useParams()

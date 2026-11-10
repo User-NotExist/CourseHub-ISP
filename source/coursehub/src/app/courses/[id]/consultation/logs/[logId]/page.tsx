@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import ConsultationLogDetail from "@/components/consultant_details";
+import ConsultationLogDetail from "@/components/consultation/consultant_details";
 import { ApiError, fetchConsultationLog, type ConsultationLog } from "@/lib/consultation";
 import { useCourseName } from "@/lib/use_course_name";
 

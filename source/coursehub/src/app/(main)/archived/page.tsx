@@ -1,7 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
-
 import ArchivedCoursePage from "@/components/courses_archived"
 
 export default function ArchivedCourse() {

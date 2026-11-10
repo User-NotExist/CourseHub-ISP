@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import AppointmentCalendar from "@/components/calendar/appointment_calendar"
 import UpcomingAppointments from "@/components/calendar/upcoming_appointments"
-import AvailabilityCards from "@/components/availability_cards"
+import AvailabilityCards from "@/components/appointment/availability_cards"
 import { useTodayKey } from "@/components/calendar/course_calendar"
 import { useCourseName } from "@/lib/use_course_name"
 import {

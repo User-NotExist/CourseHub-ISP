@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 
-import DateAvailabilityCard from "@/components/date_availability_card"
-import QuickSelectCard from "@/components/quick_select_card"
+import DateAvailabilityCard from "@/components/appointment/date_availability_card"
+import QuickSelectCard from "@/components/appointment/quick_select_card"
 import type { AppointmentSlot } from "@/lib/appointments"
 import { fetchStaffContext, type StaffContext } from "@/lib/availability"
 

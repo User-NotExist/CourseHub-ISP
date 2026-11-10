@@ -1,4 +1,4 @@
-import AppointmentsPage from "@/components/appointments";
+import AppointmentsPage from "@/components/appointment/appointments";
 
 // Route: /courses/[id]/consultation/appointments
 // The w-full wrapper matches the Main page route; without it the cards get squashed by the layout.

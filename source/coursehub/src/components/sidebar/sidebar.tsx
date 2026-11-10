@@ -113,7 +113,7 @@ export default function Sidebar() {
                                             key={course.course_id}
                                             className="shrink-0 w-full bg-black/5 hover:bg-black/20 transition-colors rounded-lg px-4 py-2 text-sm text-left"
                                             title={course.course_name}
-                                            onClick={() => router.push(`/courses/${course.course_id}/main`)}
+                                            onClick={() => router.push(`/courses/${course.course_id}/dashboard`)}
                                         >
                                             <span className="block truncate">{course.course_name}</span>
                                         </button>
