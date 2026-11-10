@@ -6,6 +6,18 @@ import { Edit, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } fr
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { useParams, useRouter } from "next/navigation"
+import {
+  DndContext,
+  DragOverlay,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core"
+import { DraggableTask } from "@/components/task/draggable_tasks"
+import { DroppableColumn } from "@/components/task/droppable_columns"
 
 type TaskStatus = "todo" | "in_progress" | "done"
 
@@ -176,6 +188,14 @@ export default function TasksBoard() {
   const [course, setCourse] = useState<Course | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+
+  // Small activation distance / delay so clicking the edit link or the arrow
+  // buttons inside a card (and scrolling on touch screens) still works.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
+  )
 
   useEffect(() => {
     async function load() {
@@ -262,6 +282,26 @@ export default function TasksBoard() {
     }
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveTaskId(String(event.active.id))
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveTaskId(null)
+    const { active, over } = event
+    if (!over) return
+
+    const target = over.id as TaskStatus
+    if (!STATUS_ORDER.includes(target)) return
+
+    const task = tasks.find((t) => t.task_id === String(active.id))
+    if (!task || task.status === target || !task.can_update_status) return
+
+    updateTaskStatus(task, target)
+  }
+
+  const activeTask = tasks.find((t) => t.task_id === activeTaskId) ?? null
+
   return (
     <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10 overflow-y-auto md:overflow-hidden h-screen scrollbar-none">
       {/* Page header */}
@@ -285,38 +325,58 @@ export default function TasksBoard() {
       </div>
 
       {/* Board */}
-      <div className="grid flex-1 grid-cols-1 gap-6 md:min-h-0 md:grid-cols-3 md:grid-rows-[minmax(0,1fr)]">
-        {STATUS_CONFIG.map(({ key, label }) => {
-          const columnTasks = tasks.filter((t) => t.status === key)
-          return (
-            <div
-              key={key}
-              className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-0 shadow-sm ring-1 ring-panel-border"
-            >
-              <h2 className="text-panel-foreground text-xl font-semibold bg-panel-surface-strong rounded-2xl px-5 py-2.5 w-fit">
-                {label}
-              </h2>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveTaskId(null)}
+      >
+        <div className="grid flex-1 grid-cols-1 gap-6 md:min-h-0 md:grid-cols-3 md:grid-rows-[minmax(0,1fr)]">
+          {STATUS_CONFIG.map(({ key, label }) => {
+            const columnTasks = tasks.filter((t) => t.status === key)
+            return (
+              <DroppableColumn
+                key={key}
+                id={key}
+                className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-0 shadow-sm ring-1 ring-panel-border"
+              >
+                <h2 className="text-panel-foreground text-xl font-semibold bg-panel-surface-strong rounded-2xl px-5 py-2.5 w-fit">
+                  {label}
+                </h2>
 
-              <div className="flex flex-1 flex-col gap-4 overflow-y-auto scrollbar-none">
-                {isLoading ? (
-                  <p className="text-panel-muted text-sm">Loading...</p>
-                ) : columnTasks.length === 0 ? (
-                  <p className="text-panel-muted text-sm">No tasks here yet.</p>
-                ) : (
-                  columnTasks.map((task) => (
-                    <TaskCard
-                      key={task.task_id}
-                      task={task}
-                      courseId={courseId}
-                      onMove={updateTaskStatus}
-                    />
-                  ))
-                )}
-              </div>
+                <div className="flex flex-1 flex-col gap-4 overflow-y-auto scrollbar-none">
+                  {isLoading ? (
+                    <p className="text-panel-muted text-sm">Loading...</p>
+                  ) : columnTasks.length === 0 ? (
+                    <p className="text-panel-muted text-sm">No tasks here yet.</p>
+                  ) : (
+                    columnTasks.map((task) => (
+                      <DraggableTask
+                        key={task.task_id}
+                        id={task.task_id}
+                        disabled={!task.can_update_status}
+                      >
+                        <TaskCard
+                          task={task}
+                          courseId={courseId}
+                          onMove={updateTaskStatus}
+                        />
+                      </DraggableTask>
+                    ))
+                  )}
+                </div>
+              </DroppableColumn>
+            )
+          })}
+        </div>
+        <DragOverlay>
+          {activeTask ? (
+            <div className="cursor-grabbing rounded-2xl shadow-xl">
+              <TaskCard task={activeTask} courseId={courseId} onMove={() => {}} />
             </div>
-          )
-        })}
-      </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     </div>
   )
 }
