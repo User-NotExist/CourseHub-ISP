@@ -9,7 +9,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 JWT_ALGORITHM = "HS256"
 
-RATE_LIMIT = parse("25/minute")
+RATE_LIMIT = parse("60/minute")
 
 _limiter = strategies.FixedWindowRateLimiter(storage.MemoryStorage())
 
