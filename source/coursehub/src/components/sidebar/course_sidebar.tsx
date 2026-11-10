@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import {
-    FiHome,
+    FiGrid,
     FiCheckSquare,
     FiTrendingUp,
     FiBell,
@@ -72,10 +72,10 @@ export default function CourseSidebar() {
                 <nav className="flex flex-col gap-1 px-3">
                     <button
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
-                        onClick={() => router.push(`/courses/${courseId}/main`)}
+                        onClick={() => router.push(`/courses/${courseId}/dashboard`)}
                     >
-                        <FiHome />
-                        <span>Main</span>
+                        <FiGrid />
+                        <span>Dashboard</span>
                     </button>
 
                     <button

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { FiGrid, FiLogOut, FiPlusCircle, FiBookOpen, FiChevronDown, FiCheckCircle, FiArchive } from "react-icons/fi"
+import { FiHome, FiLogOut, FiPlusCircle, FiBookOpen, FiChevronDown, FiCheckCircle, FiArchive } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -73,7 +73,7 @@ export default function Sidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push("/courses")}
                     >
-                        <FiGrid />
+                        <FiHome />
                         <span>Main</span>
                     </button>
 
