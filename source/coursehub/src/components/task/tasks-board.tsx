@@ -228,6 +228,12 @@ export default function TasksBoard() {
           const status = mine?.status ?? (assignees.length
             ? STATUS_ORDER[Math.min(...assignees.map((assignee) => STATUS_ORDER.indexOf(assignee.status)))]
             : "todo")
+
+            console.table(tasks.map(t => ({
+              id: t.task_id, can_update: t.can_update_status,
+              can_edit: t.can_edit, assignees: t.assignees.length, mine: t.my_assignee,
+            })))
+
           return {
             task_id: String(task.task_id),
             title: task.task_name,
@@ -238,7 +244,7 @@ export default function TasksBoard() {
             my_assignee: mine?.email ?? null,
             owner_email: task.task_owner_id === user.user_id ? user.email : (assignees[0]?.email ?? null),
             can_edit: task.can_edit,
-            can_update_status: !!mine || (task.can_edit && assignees.length > 0),
+            can_update_status: !!mine || task.can_edit,
           }
         }))
       } catch {
@@ -253,7 +259,10 @@ export default function TasksBoard() {
   // Assigned user moves only their own status; owner/lecturer (not assigned) moves everyone.
   async function updateTaskStatus(target: Task, status: TaskStatus) {
     const emails = target.my_assignee ? [target.my_assignee] : target.assignees.map((assignee) => assignee.email)
-    if (emails.length === 0) return
+    if (emails.length === 0) {
+      toast.error("Assign someone to this task before moving it (edit the task to add an assignee)")
+      return
+    }
     const prev = tasks
     setTasks((current) => current.map((task) => (
       task.task_id === target.task_id
