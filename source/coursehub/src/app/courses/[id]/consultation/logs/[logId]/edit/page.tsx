@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import ConsultationLogForm from "@/components/consultant_log_form";
+import ConsultationLogForm from "@/components/consultation/consultant_log_form";
 import { fetchConsultationLog, type ConsultationLog } from "@/lib/consultation";
 
 export default function EditConsultationLogPage() {

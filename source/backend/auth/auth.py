@@ -111,7 +111,7 @@ async def get_me(access_token: str = Cookie(None), db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="User not found")
 
     # print(user.user_email)
-    return {"user_id": user.user_id, "email": user.user_email, "is_admin": bool(user.is_admin)}
+    return {"user_id": user.user_id, "email": user.user_email, "name": user.name, "is_admin": bool(user.is_admin)}
 
 
 @router.post("/logout")

@@ -1,7 +1,7 @@
 // Date-range logic for the Quick select card on the staff Appointments page.
 // Pure functions (no React), dates are "YYYY-MM-DD" keys like everywhere else on the page.
 
-import type { AppointmentSlot } from "./appointments";
+import type { AppointmentSlot } from "@/lib/appointments";
 
 export const MAX_RANGE_DAYS = 120; // a bulk change makes one request per date, so keep it bounded
 export const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;

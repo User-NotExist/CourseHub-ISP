@@ -1,4 +1,4 @@
-import AnnouncementBoard from "@/components/announcement-board"
+import AnnouncementBoard from "@/components/announcement/announcement-board"
 
 export default function Page() {
   return <AnnouncementBoard />

@@ -6,8 +6,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 url = os.getenv("DATABASE_URL")
-# print(url)
-engine = create_engine(url, echo=True)
+
+# engine = create_engine(url, echo=True)
+engine = create_engine(
+    url,
+    echo=True,          # print SQL queries to logs
+    pool_pre_ping=True, # check connection before use; reconnect if dead
+    pool_recycle=300,   # replace connections older than 5 min
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect} from "react"
-import CoursePage from "@/components/course"
+import CoursePage from "@/components/overview/course"
 
 export default function InstanceCoursePage() {
     return (

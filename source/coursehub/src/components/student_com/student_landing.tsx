@@ -55,7 +55,7 @@ export default function StudentLanding() {
             <div className="flex items-start justify-between gap-4">
                 <p className="font-bold">{courseName ?? "Loading..."}</p>
                 <Button
-                    className="gap-2 bg-[#006c67] text-white hover:bg-[#054a46] px-6"
+                    className="gap-2 bg-[#006c67] text-white hover:bg-[#054a46] px-4 font-bold"
                     onClick={() => router.push(`/students/${courseId}/appointment`)}
                 >
                     <Plus className="size-4" />
@@ -85,7 +85,7 @@ export default function StudentLanding() {
                 ) : error ? (
                     <p className="text-center text-sm text-red-600">{error}</p>
                 ) : faqs.length === 0 ? (
-                    <p className="text-center text-sm text-muted-foreground">No FAQ found.</p>
+                    <p className="text-center text-sm text-muted-foreground pt-3">No FAQ found.</p>
                 ) : (
                     faqs.map((faq) => (
                         <div key={faq.faq_id} className="rounded-md bg-[#f2f2f2]">

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { FiGrid, FiLogOut, FiPlusCircle, FiBookOpen, FiChevronDown, FiCheckCircle, FiArchive } from "react-icons/fi"
+import { FiHome, FiLogOut, FiPlusCircle, FiBookOpen, FiChevronDown, FiCheckCircle, FiArchive } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -15,6 +15,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import UserAvatar from "@/components/user_avatar"
 
 type SidebarCourse = {
     course_id: string
@@ -24,6 +25,7 @@ type SidebarCourse = {
 export default function Sidebar() {
     const router = useRouter()
     const [email, setEmail] = useState<string | null>(null)
+    const [name, setName] = useState<string | null>(null)
     const [isLoggingOut, setIsLoggingOut] = useState(false)
     const [isCoursesOpen, setIsCoursesOpen] = useState(true)
     const [courses, setCourses] = useState<SidebarCourse[] | null>(null)
@@ -34,8 +36,8 @@ export default function Sidebar() {
                 if (!res.ok) throw new Error("Not authenticated")
                 return res.json()
             })
-            .then((data) => { setEmail(data.email) })
-            .catch(() => setEmail(null))
+            .then((data) => { setEmail(data.email); setName(data.name ?? null) })
+            .catch(() => { setEmail(null); setName(null) })
     }, [])
 
     useEffect(() => {
@@ -73,7 +75,7 @@ export default function Sidebar() {
                         className="flex items-center gap-5 bg-black/10 hover:bg-black/20 transition-colors rounded-lg px-4 py-3"
                         onClick={() => router.push("/courses")}
                     >
-                        <FiGrid />
+                        <FiHome />
                         <span>Main</span>
                     </button>
 
@@ -111,7 +113,7 @@ export default function Sidebar() {
                                             key={course.course_id}
                                             className="shrink-0 w-full bg-black/5 hover:bg-black/20 transition-colors rounded-lg px-4 py-2 text-sm text-left"
                                             title={course.course_name}
-                                            onClick={() => router.push(`/courses/${course.course_id}/main`)}
+                                            onClick={() => router.push(`/courses/${course.course_id}/dashboard`)}
                                         >
                                             <span className="block truncate">{course.course_name}</span>
                                         </button>
@@ -140,8 +142,12 @@ export default function Sidebar() {
             </div>
 
             <div>
-                <div className="bg-black/10 px-4 py-2 text-sm">
-                    Hi, {email ?? "..."}
+                <div className="flex items-center gap-3 bg-black/10 px-4 py-3 text-sm">
+                    <UserAvatar name={name} />
+                    <div className="min-w-0">
+                        <p className="truncate font-semibold">{name ?? "..."}</p>
+                        <p className="truncate text-xs text-white/70">{email ?? "..."}</p>
+                    </div>
                 </div>
                 <AlertDialog>
                     <AlertDialogTrigger

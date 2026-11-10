@@ -15,7 +15,7 @@ import {
     type Activity,
     type ActivityInput,
     type Course,
-} from "@/components/activity_form"
+} from "@/components/activity/activity_form"
 
 const tabs = ["All", "Activities", "Milestones"] as const
 type Tab = (typeof tabs)[number]

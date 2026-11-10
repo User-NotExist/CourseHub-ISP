@@ -24,7 +24,7 @@ import {
     type Activity,
     type ActivityInput,
     type Course,
-} from "@/components/activity_form"
+} from "@/components/activity/activity_form"
 
 export default function ActivityDetailPage() {
     const params = useParams()

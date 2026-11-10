@@ -2,7 +2,7 @@
 
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useState, useEffect, useSyncExternalStore } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
     InputGroup,
     InputGroupAddon,
@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import CourseCalendar from "@/components/calendar/course_calendar"
 import UpcomingLate from "@/components/calendar/upcoming_late"
-
-import { useRouter } from "next/navigation";
 
 const subscribe = () => () => { };
 
@@ -51,7 +49,7 @@ function getInitials(name: string) {
 function formatDate(value: string) {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return value
-    return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(date)
+    return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "long", year: "numeric" }).format(date)
 }
 
 export default function CoursePage() {

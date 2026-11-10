@@ -82,7 +82,7 @@ export default function Agenda() {
         .filter((a) => a.activity_date === selectedDate)
         .sort((a, b) => (a.activity_time ?? "").localeCompare(b.activity_time ?? ""))
 
-    const openCourse = (course_id: string) => router.push(`/courses/${course_id}/main`)
+    const openCourse = (course_id: string) => router.push(`/courses/${course_id}/dashboard`)
 
     return (
         <div className="flex flex-col h-screen w-max pt-7 pb-6 overflow-y-auto scrollbar-none gap-4 xl:w-270 lg:w-200 md:w-150 sm:w-100 min-w-90">

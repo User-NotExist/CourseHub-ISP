@@ -43,7 +43,7 @@ function formatAnnouncementDate(value: string) {
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
-    month: "short",
+    month: "long",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -63,7 +63,7 @@ function formatCommentDate(value: string) {
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
-    month: "short",
+    month: "long",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
