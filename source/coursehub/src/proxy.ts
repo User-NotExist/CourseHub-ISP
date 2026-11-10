@@ -72,7 +72,7 @@ const NON_COURSE_SEGMENTS = new Set(["create"])
 // Any path with no route renders the app's 404 page (with a 404 status).
 const NOT_FOUND_PATH = "/_course-not-found"
 
-type CourseAccess = "allowed" | "forbidden" | "not_found" | "unauthenticated" | "unavailable"
+type CourseAccess = "allowed" | "forbidden" | "not_found" | "unauthenticated" | "rate_limited" | "unavailable"
 
 function staffCourseId(pathname: string): string | null {
     const id = pathname.match(STAFF_COURSE_PATH)?.[1]
@@ -93,6 +93,7 @@ async function checkCourseAccess(courseId: string, accessToken: string): Promise
         if (res.status === 401) return "unauthenticated"
         if (res.status === 403) return "forbidden"
         if (res.status === 404) return "not_found"
+        if (res.status === 429) return "rate_limited"
         return "unavailable"
     } catch {
         return "unavailable"
@@ -147,6 +148,9 @@ export async function proxy(request: NextRequest) {
                 response = NextResponse.redirect(new URL(POST_LOGIN_PATH, request.url))
             } else if (access === "not_found") {
                 response = NextResponse.rewrite(new URL(NOT_FOUND_PATH, request.url))
+            } else if (access === "rate_limited") {
+                const from = encodeURIComponent(pathname + request.nextUrl.search)
+                return NextResponse.redirect(new URL(`/rate-limited?from=${from}`, request.url))
             } else if (access === "unavailable") {
                 // Fail closed, but don't pretend the user is logged out.
                 return new NextResponse("Course service is unavailable. Please try again shortly.", {
