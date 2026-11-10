@@ -89,6 +89,87 @@ function moveStatus(
   return STATUS_ORDER[nextIdx]
 }
 
+function TaskCard({
+  task,
+  courseId,
+  onMove,
+}: {
+  task: Task
+  courseId: string
+  onMove: (task: Task, status: TaskStatus) => void
+}) {
+  return (
+    <div className="bg-panel-surface rounded-2xl p-4 flex flex-col gap-2 transition hover:bg-panel-surface-strong">
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-panel-foreground font-semibold">{task.title}</h3>
+        {task.can_edit && (
+          <Link
+            href={`/courses/${courseId}/task/${task.task_id}/edit`}
+            className="bg-brand rounded-md p-1.5 shadow-sm hover:bg-brand-hover transition"
+            aria-label="Edit task"
+          >
+            <Edit className="size-4 text-brand-foreground" />
+          </Link>
+        )}
+      </div>
+      <p className="text-panel-muted text-sm">{task.description}</p>
+      <div className="text-sm text-panel-muted space-y-0.5">
+        <p>
+          <span className="font-semibold text-panel-foreground">Owner: </span>
+          {task.owner_email ?? "Unknown"}
+        </p>
+        <p>
+          <span className="font-semibold text-panel-foreground">Assignee: </span>
+          {task.assignees
+            .filter((assignee) => assignee.email.toLowerCase() !== task.owner_email?.toLowerCase())
+            .map((assignee) => assignee.email)
+            .join(", ") || "None"}
+        </p>
+      </div>
+      <p className="text-panel-foreground text-sm font-semibold">
+        Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}
+      </p>
+
+      {/* Move between columns */}
+      <div className="flex items-center gap-1 mt-1">
+        <button
+          onClick={() => onMove(task, moveStatus(task.status, "leftmost"))}
+          disabled={task.status === "todo" || !task.can_update_status}
+          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
+          aria-label="Move to first column"
+        >
+          <ChevronsLeft className="size-5" />
+        </button>
+        <button
+          onClick={() => onMove(task, moveStatus(task.status, "left"))}
+          disabled={task.status === "todo" || !task.can_update_status}
+          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
+          aria-label="Move left"
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+        <div className="flex-1" />
+        <button
+          onClick={() => onMove(task, moveStatus(task.status, "right"))}
+          disabled={task.status === "done" || !task.can_update_status}
+          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
+          aria-label="Move right"
+        >
+          <ChevronRight className="size-5" />
+        </button>
+        <button
+          onClick={() => onMove(task, moveStatus(task.status, "rightmost"))}
+          disabled={task.status === "done" || !task.can_update_status}
+          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
+          aria-label="Move to last column"
+        >
+          <ChevronsRight className="size-5" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function TasksBoard() {
   const { id: courseId } = useParams<{ id: string }>()
   const router = useRouter()
@@ -223,74 +304,12 @@ export default function TasksBoard() {
                   <p className="text-panel-muted text-sm">No tasks here yet.</p>
                 ) : (
                   columnTasks.map((task) => (
-                    <div key={task.task_id} className="bg-panel-surface rounded-2xl p-4 flex flex-col gap-2 transition hover:bg-panel-surface-strong">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-panel-foreground font-semibold">{task.title}</h3>
-                        {task.can_edit && (
-                          <Link
-                            href={`/courses/${courseId}/task/${task.task_id}/edit`}
-                            className="bg-brand rounded-md p-1.5 shadow-sm hover:bg-brand-hover transition"
-                            aria-label="Edit task"
-                          >
-                            <Edit className="size-4 text-brand-foreground" />
-                          </Link>
-                        )}
-                      </div>
-                      <p className="text-panel-muted text-sm">{task.description}</p>
-                      <div className="text-sm text-panel-muted space-y-0.5">
-                        <p>
-                          <span className="font-semibold text-panel-foreground">Owner: </span>
-                          {task.owner_email ?? "Unknown"}
-                        </p>
-                        <p>
-                          <span className="font-semibold text-panel-foreground">Assignee: </span>
-                          {task.assignees
-                            .filter((assignee) => assignee.email.toLowerCase() !== task.owner_email?.toLowerCase())
-                            .map((assignee) => assignee.email)
-                            .join(", ") || "None"}
-                        </p>
-                      </div>
-                      <p className="text-panel-foreground text-sm font-semibold">
-                        Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}
-                      </p>
-
-                      {/* Move between columns */}
-                      <div className="flex items-center gap-1 mt-1">
-                        <button
-                          onClick={() => updateTaskStatus(task, moveStatus(key, "leftmost"))}
-                          disabled={key === "todo" || !task.can_update_status}
-                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
-                          aria-label="Move to first column"
-                        >
-                          <ChevronsLeft className="size-5" />
-                        </button>
-                        <button
-                          onClick={() => updateTaskStatus(task, moveStatus(key, "left"))}
-                          disabled={key === "todo" || !task.can_update_status}
-                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
-                          aria-label="Move left"
-                        >
-                          <ChevronLeft className="size-5" />
-                        </button>
-                        <div className="flex-1" />
-                        <button
-                          onClick={() => updateTaskStatus(task, moveStatus(key, "right"))}
-                          disabled={key === "done" || !task.can_update_status}
-                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
-                          aria-label="Move right"
-                        >
-                          <ChevronRight className="size-5" />
-                        </button>
-                        <button
-                          onClick={() => updateTaskStatus(task, moveStatus(key, "rightmost"))}
-                          disabled={key === "done" || !task.can_update_status}
-                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
-                          aria-label="Move to last column"
-                        >
-                          <ChevronsRight className="size-5" />
-                        </button>
-                      </div>
-                    </div>
+                    <TaskCard
+                      key={task.task_id}
+                      task={task}
+                      courseId={courseId}
+                      onMove={updateTaskStatus}
+                    />
                   ))
                 )}
               </div>
