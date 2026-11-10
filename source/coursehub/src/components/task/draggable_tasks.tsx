@@ -1,14 +1,22 @@
 import { useDraggable } from "@dnd-kit/core";
 import type { ReactNode } from "react";
 
-export function DraggableTask({ id, children }: { id: string | number; children: ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id });
+export function DraggableTask({
+  id,
+  disabled = false,
+  children,
+}: {
+  id: string | number;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id, disabled });
 
+  // The card itself stays in place while dragging; a <DragOverlay> renders the
+  // floating copy, so the column's overflow doesn't clip it.
   const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     opacity: isDragging ? 0.4 : 1,
-    cursor: "grab",
-    touchAction: "none",
+    cursor: disabled ? "default" : "grab",
   };
 
   return (
