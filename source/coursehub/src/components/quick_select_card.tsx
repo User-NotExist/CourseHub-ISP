@@ -250,8 +250,8 @@ export default function QuickSelectCard({
                             {saving
                                 ? `Working... ${progress.done}/${progress.total}`
                                 : action === "available"
-                                  ? "Mark range available"
-                                  : "Mark range unavailable"}
+                                  ? "Mark range as available"
+                                  : "Mark range as unavailable"}
                         </Button>
                     </div>
                 </>
