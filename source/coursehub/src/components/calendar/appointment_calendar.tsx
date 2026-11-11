@@ -159,17 +159,17 @@ export default function AppointmentCalendar({
                 })}
             </div>
 
-            <div className="flex flex-col gap-2 pt-3 pl-2 text-lg font-bold text-gray-500">
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                    <span className="flex items-center gap-1.5"><span className="size-4 rounded bg-green-200" /> Available</span>
-                    <span className="flex items-center gap-1.5"><span className="size-4 rounded bg-red-200" /> Fully booked</span>
-                    <span className="flex items-center gap-1.5"><span className="size-4 rounded bg-gray-200" /> Past</span>
-                    <span className="flex items-center gap-1.5"><span className="size-4 rounded border border-gray-300 bg-white" /> Unavailable</span>
+            <div className="flex flex-wrap justify-between gap-x-10 gap-y-3 pt-3 pl-2 text-base font-bold text-gray-500">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                    <span className="flex items-center gap-2"><span className="h-4 w-5 rounded bg-green-200" /> Available</span>
+                    <span className="flex items-center gap-2"><span className="h-4 w-5 rounded bg-red-200" /> Fully booked</span>
+                    <span className="flex items-center gap-2"><span className="h-4 w-5 rounded bg-gray-200" /> Past</span>
+                    <span className="flex items-center gap-2"><span className="h-4 w-5 rounded border border-gray-300 bg-white" /> Unavailable</span>
                 </div>
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-base">
-                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full bg-sky-500" /> Slot with bookings</span>
-                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full bg-red-500" /> Full slot</span>
-                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-5 rounded-full bg-gray-300" /> No bookings yet</span>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <span className="flex items-center gap-2"><span className="h-1.5 w-5 rounded-full bg-sky-500" /> Slot with bookings</span>
+                    <span className="flex items-center gap-2"><span className="h-1.5 w-5 rounded-full bg-red-500" /> Full slot</span>
+                    <span className="flex items-center gap-2"><span className="h-1.5 w-5 rounded-full bg-gray-300" /> No bookings yet</span>
                 </div>
             </div>
         </div>
