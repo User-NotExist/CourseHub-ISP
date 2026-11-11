@@ -141,6 +141,20 @@ export function DatePicker({
                                 )
                             })}
                         </div>
+
+                        <div className="mt-3 flex justify-end">
+                            <button
+                                type="button"
+                                disabled={!todayKey || (!!min && todayKey < min)}
+                                onClick={() => {
+                                    onChange(todayKey)
+                                    setOpen(false)
+                                }}
+                                className="rounded-md border border-gray-300 px-3 py-1 text-sm transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent"
+                            >
+                                Today
+                            </button>
+                        </div>
                     </PopoverPrimitive.Popup>
                 </PopoverPrimitive.Positioner>
             </PopoverPrimitive.Portal>
