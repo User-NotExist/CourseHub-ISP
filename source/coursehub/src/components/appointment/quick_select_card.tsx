@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { DatePicker } from "@/components/ui/date_picker"
 import { Input } from "@/components/ui/input"
 import { useTodayKey } from "@/components/calendar/course_calendar"
 import type { AppointmentSlot } from "@/lib/appointments"
@@ -172,11 +173,11 @@ export default function QuickSelectCard({
                     <div className="grid gap-4 md:grid-cols-3">
                         <div className="flex flex-col gap-1.5 text-sm font-medium">
                             <label htmlFor="qs-start">Start date</label>
-                            <Input id="qs-start" type="date" value={start} onChange={(e) => setStartPick(e.target.value)} disabled={saving} className="bg-white" />
+                            <DatePicker id="qs-start" value={start} onChange={setStartPick} disabled={saving} />
                         </div>
                         <div className="flex flex-col gap-1.5 text-sm font-medium">
                             <label htmlFor="qs-end">End date</label>
-                            <Input id="qs-end" type="date" value={end} min={start || undefined} onChange={(e) => setEndPick(e.target.value)} disabled={saving} className="bg-white" />
+                            <DatePicker id="qs-end" value={end} min={start || undefined} onChange={setEndPick} disabled={saving} />
                         </div>
                         <div className="flex flex-col gap-1.5 text-sm font-medium">
                             <label htmlFor="qs-action">Mark the range as</label>
