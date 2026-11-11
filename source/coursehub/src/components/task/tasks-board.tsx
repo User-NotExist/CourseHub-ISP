@@ -6,6 +6,18 @@ import { Edit, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } fr
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { useParams, useRouter } from "next/navigation"
+import {
+  DndContext,
+  DragOverlay,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core"
+import { DraggableTask } from "@/components/task/draggable_tasks"
+import { DroppableColumn } from "@/components/task/droppable_columns"
 
 type TaskStatus = "todo" | "in_progress" | "done"
 
@@ -89,12 +101,101 @@ function moveStatus(
   return STATUS_ORDER[nextIdx]
 }
 
+function TaskCard({
+  task,
+  courseId,
+  onMove,
+}: {
+  task: Task
+  courseId: string
+  onMove: (task: Task, status: TaskStatus) => void
+}) {
+  return (
+    <div className="bg-panel-surface rounded-2xl p-4 flex flex-col gap-2 transition hover:bg-panel-surface-strong">
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-panel-foreground font-semibold">{task.title}</h3>
+        {task.can_edit && (
+          <Link
+            href={`/courses/${courseId}/task/${task.task_id}/edit`}
+            className="bg-brand rounded-md p-1.5 shadow-sm hover:bg-brand-hover transition"
+            aria-label="Edit task"
+          >
+            <Edit className="size-4 text-brand-foreground" />
+          </Link>
+        )}
+      </div>
+      <p className="text-panel-muted text-sm">{task.description}</p>
+      <div className="text-sm text-panel-muted space-y-0.5">
+        <p>
+          <span className="font-semibold text-panel-foreground">Owner: </span>
+          {task.owner_email ?? "Unknown"}
+        </p>
+        <p>
+          <span className="font-semibold text-panel-foreground">Assignee: </span>
+          {task.assignees
+            .filter((assignee) => assignee.email.toLowerCase() !== task.owner_email?.toLowerCase())
+            .map((assignee) => assignee.email)
+            .join(", ") || "None"}
+        </p>
+      </div>
+      <p className="text-panel-foreground text-sm font-semibold">
+        Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}
+      </p>
+
+      {/* Move between columns */}
+      <div className="flex items-center gap-1 mt-1">
+        <button
+          onClick={() => onMove(task, moveStatus(task.status, "leftmost"))}
+          disabled={task.status === "todo" || !task.can_update_status}
+          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
+          aria-label="Move to first column"
+        >
+          <ChevronsLeft className="size-5" />
+        </button>
+        <button
+          onClick={() => onMove(task, moveStatus(task.status, "left"))}
+          disabled={task.status === "todo" || !task.can_update_status}
+          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
+          aria-label="Move left"
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+        <div className="flex-1" />
+        <button
+          onClick={() => onMove(task, moveStatus(task.status, "right"))}
+          disabled={task.status === "done" || !task.can_update_status}
+          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
+          aria-label="Move right"
+        >
+          <ChevronRight className="size-5" />
+        </button>
+        <button
+          onClick={() => onMove(task, moveStatus(task.status, "rightmost"))}
+          disabled={task.status === "done" || !task.can_update_status}
+          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
+          aria-label="Move to last column"
+        >
+          <ChevronsRight className="size-5" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function TasksBoard() {
   const { id: courseId } = useParams<{ id: string }>()
   const router = useRouter()
   const [course, setCourse] = useState<Course | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+
+  // Small activation distance / delay so clicking the edit link or the arrow
+  // buttons inside a card (and scrolling on touch screens) still works.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
+  )
 
   useEffect(() => {
     async function load() {
@@ -127,6 +228,12 @@ export default function TasksBoard() {
           const status = mine?.status ?? (assignees.length
             ? STATUS_ORDER[Math.min(...assignees.map((assignee) => STATUS_ORDER.indexOf(assignee.status)))]
             : "todo")
+
+            console.table(tasks.map(t => ({
+              id: t.task_id, can_update: t.can_update_status,
+              can_edit: t.can_edit, assignees: t.assignees.length, mine: t.my_assignee,
+            })))
+
           return {
             task_id: String(task.task_id),
             title: task.task_name,
@@ -137,7 +244,7 @@ export default function TasksBoard() {
             my_assignee: mine?.email ?? null,
             owner_email: task.task_owner_id === user.user_id ? user.email : (assignees[0]?.email ?? null),
             can_edit: task.can_edit,
-            can_update_status: !!mine || (task.can_edit && assignees.length > 0),
+            can_update_status: !!mine || task.can_edit,
           }
         }))
       } catch {
@@ -152,7 +259,10 @@ export default function TasksBoard() {
   // Assigned user moves only their own status; owner/lecturer (not assigned) moves everyone.
   async function updateTaskStatus(target: Task, status: TaskStatus) {
     const emails = target.my_assignee ? [target.my_assignee] : target.assignees.map((assignee) => assignee.email)
-    if (emails.length === 0) return
+    if (emails.length === 0) {
+      toast.error("Assign someone to this task before moving it (edit the task to add an assignee)")
+      return
+    }
     const prev = tasks
     setTasks((current) => current.map((task) => (
       task.task_id === target.task_id
@@ -181,6 +291,26 @@ export default function TasksBoard() {
     }
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveTaskId(String(event.active.id))
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveTaskId(null)
+    const { active, over } = event
+    if (!over) return
+
+    const target = over.id as TaskStatus
+    if (!STATUS_ORDER.includes(target)) return
+
+    const task = tasks.find((t) => t.task_id === String(active.id))
+    if (!task || task.status === target || !task.can_update_status) return
+
+    updateTaskStatus(task, target)
+  }
+
+  const activeTask = tasks.find((t) => t.task_id === activeTaskId) ?? null
+
   return (
     <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10 overflow-y-auto md:overflow-hidden h-screen scrollbar-none">
       {/* Page header */}
@@ -204,100 +334,58 @@ export default function TasksBoard() {
       </div>
 
       {/* Board */}
-      <div className="grid flex-1 grid-cols-1 gap-6 md:min-h-0 md:grid-cols-3 md:grid-rows-[minmax(0,1fr)]">
-        {STATUS_CONFIG.map(({ key, label }) => {
-          const columnTasks = tasks.filter((t) => t.status === key)
-          return (
-            <div
-              key={key}
-              className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-0 shadow-sm ring-1 ring-panel-border"
-            >
-              <h2 className="text-panel-foreground text-xl font-semibold bg-panel-surface-strong rounded-2xl px-5 py-2.5 w-fit">
-                {label}
-              </h2>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveTaskId(null)}
+      >
+        <div className="grid flex-1 grid-cols-1 gap-6 md:min-h-0 md:grid-cols-3 md:grid-rows-[minmax(0,1fr)]">
+          {STATUS_CONFIG.map(({ key, label }) => {
+            const columnTasks = tasks.filter((t) => t.status === key)
+            return (
+              <DroppableColumn
+                key={key}
+                id={key}
+                className="bg-panel rounded-3xl p-5 flex flex-col gap-4 min-h-0 shadow-sm ring-1 ring-panel-border"
+              >
+                <h2 className="text-panel-foreground text-xl font-semibold bg-panel-surface-strong rounded-2xl px-5 py-2.5 w-fit">
+                  {label}
+                </h2>
 
-              <div className="flex flex-1 flex-col gap-4 overflow-y-auto scrollbar-none">
-                {isLoading ? (
-                  <p className="text-panel-muted text-sm">Loading...</p>
-                ) : columnTasks.length === 0 ? (
-                  <p className="text-panel-muted text-sm">No tasks here yet.</p>
-                ) : (
-                  columnTasks.map((task) => (
-                    <div key={task.task_id} className="bg-panel-surface rounded-2xl p-4 flex flex-col gap-2 transition hover:bg-panel-surface-strong">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-panel-foreground font-semibold">{task.title}</h3>
-                        {task.can_edit && (
-                          <Link
-                            href={`/courses/${courseId}/task/${task.task_id}/edit`}
-                            className="bg-brand rounded-md p-1.5 shadow-sm hover:bg-brand-hover transition"
-                            aria-label="Edit task"
-                          >
-                            <Edit className="size-4 text-brand-foreground" />
-                          </Link>
-                        )}
-                      </div>
-                      <p className="text-panel-muted text-sm">{task.description}</p>
-                      <div className="text-sm text-panel-muted space-y-0.5">
-                        <p>
-                          <span className="font-semibold text-panel-foreground">Owner: </span>
-                          {task.owner_email ?? "Unknown"}
-                        </p>
-                        <p>
-                          <span className="font-semibold text-panel-foreground">Assignee: </span>
-                          {task.assignees
-                            .filter((assignee) => assignee.email.toLowerCase() !== task.owner_email?.toLowerCase())
-                            .map((assignee) => assignee.email)
-                            .join(", ") || "None"}
-                        </p>
-                      </div>
-                      <p className="text-panel-foreground text-sm font-semibold">
-                        Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}
-                      </p>
-
-                      {/* Move between columns */}
-                      <div className="flex items-center gap-1 mt-1">
-                        <button
-                          onClick={() => updateTaskStatus(task, moveStatus(key, "leftmost"))}
-                          disabled={key === "todo" || !task.can_update_status}
-                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
-                          aria-label="Move to first column"
-                        >
-                          <ChevronsLeft className="size-5" />
-                        </button>
-                        <button
-                          onClick={() => updateTaskStatus(task, moveStatus(key, "left"))}
-                          disabled={key === "todo" || !task.can_update_status}
-                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
-                          aria-label="Move left"
-                        >
-                          <ChevronLeft className="size-5" />
-                        </button>
-                        <div className="flex-1" />
-                        <button
-                          onClick={() => updateTaskStatus(task, moveStatus(key, "right"))}
-                          disabled={key === "done" || !task.can_update_status}
-                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
-                          aria-label="Move right"
-                        >
-                          <ChevronRight className="size-5" />
-                        </button>
-                        <button
-                          onClick={() => updateTaskStatus(task, moveStatus(key, "rightmost"))}
-                          disabled={key === "done" || !task.can_update_status}
-                          className="text-panel-muted hover:text-panel-foreground disabled:opacity-30"
-                          aria-label="Move to last column"
-                        >
-                          <ChevronsRight className="size-5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                <div className="flex flex-1 flex-col gap-4 overflow-y-auto scrollbar-none">
+                  {isLoading ? (
+                    <p className="text-panel-muted text-sm">Loading...</p>
+                  ) : columnTasks.length === 0 ? (
+                    <p className="text-panel-muted text-sm">No tasks here yet.</p>
+                  ) : (
+                    columnTasks.map((task) => (
+                      <DraggableTask
+                        key={task.task_id}
+                        id={task.task_id}
+                        disabled={!task.can_update_status}
+                      >
+                        <TaskCard
+                          task={task}
+                          courseId={courseId}
+                          onMove={updateTaskStatus}
+                        />
+                      </DraggableTask>
+                    ))
+                  )}
+                </div>
+              </DroppableColumn>
+            )
+          })}
+        </div>
+        <DragOverlay>
+          {activeTask ? (
+            <div className="cursor-grabbing rounded-2xl shadow-xl">
+              <TaskCard task={activeTask} courseId={courseId} onMove={() => {}} />
             </div>
-          )
-        })}
-      </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     </div>
   )
 }
