@@ -128,7 +128,7 @@ export default function AppointmentCalendar({
                                 onClick={() => onSelect?.(key)}
                                 className={`peer relative size-14 rounded-xl transition-all hover:scale-125 ${
                                     isToday ? "font-semibold text-brand" : ""
-                                } ${tint} ${isSelected ? (tint ? "ring-2 ring-brand" : "bg-brand/10 ring-2 ring-brand") : ""} ${
+                                } ${tint} ${isSelected && !tint ? "bg-brand/10" : ""} ${
                                     isHighlighted ? "scale-125" : ""
                                 }`}
                             >

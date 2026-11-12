@@ -32,8 +32,10 @@ export default function CourseCalendar({
     dueTasks = [],
     activities = [],
     highlightDate = null,
+    selectedDate,
 }: {
     onSelect?: (dateKey: string) => void
+    selectedDate?: string | null // date the page shows details for; passing it adds a ring + a "Today" button
     highlightDate?: string | null // date to shade + show popup (from hovering a list item)
     dueTasks?: { date: string; title: string }[] // date: "YYYY-MM-DD"
     activities?: { date: string; title: string; type: string }[] // type: "Activities" | "Milestones"
@@ -72,6 +74,13 @@ export default function CourseCalendar({
         setMonth(next.getMonth())
     }
 
+    // jump back to the current month and select today
+    const goToToday = () => {
+        const now = new Date()
+        setYear(now.getFullYear())
+        setMonth(now.getMonth())
+        onSelect?.(toDateKey(now.getFullYear(), now.getMonth(), now.getDate()))
+    }
 
     return (
         <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
@@ -102,6 +111,14 @@ export default function CourseCalendar({
                 <button onClick={() => shiftMonth(1)} aria-label="Next month" className="p-1">
                     <ChevronRight className="size-6" />
                 </button>
+                {selectedDate !== undefined && (
+                    <button
+                        onClick={goToToday}
+                        className="ml-2 shrink-0 rounded-md px-4 py-1 text-xl transition-colors hover:bg-gray-100"
+                    >
+                        Today
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-7 text-center text-lg">
@@ -113,6 +130,7 @@ export default function CourseCalendar({
                     const key = toDateKey(year, month, day)
                     const isToday = key === todayKey
                     const isHighlighted = key === highlightDate
+                    const isSelected = key === selectedDate
                     const dayTasks = tasksByDate[key] ?? []
                     const dayActivities = activitiesByDate[key] ?? []
                     const taskLines = Math.min(dayTasks.length, 4)
@@ -124,7 +142,7 @@ export default function CourseCalendar({
                                 isToday
                                     ? "rounded-xl font-semibold text-brand"
                                     : "rounded-xl"
-                            } ${isHighlighted ? "scale-125" : ""}`}
+                            } ${isSelected ? "bg-brand/10" : ""} ${isHighlighted ? "scale-125" : ""}`}
                         >
                             {isToday && <span className="absolute top-1.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-brand" />}
                             {day}
