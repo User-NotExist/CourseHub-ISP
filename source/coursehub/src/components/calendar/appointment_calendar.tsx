@@ -24,7 +24,7 @@ export default function AppointmentCalendar({
     onSelect,
 }: {
     slots: AppointmentSlot[]
-    selectedDate?: string | null // date the page is showing details for
+    selectedDate?: string | null // clicked date: grows, no popup
     highlightDate?: string | null // date to shade + show popup (from hovering a list item)
     onSelect?: (dateKey: string) => void
 }) {
@@ -108,8 +108,8 @@ export default function AppointmentCalendar({
                     if (day === null) return <span key={`empty-${i}`} className="border-b border-gray-200" />
                     const key = toDateKey(year, month, day)
                     const isToday = key === todayKey
-                    const isSelected = key === selectedDate
                     const isHighlighted = key === highlightDate
+                    const isSelected = key === selectedDate
                     const daySlots = slotsByDate[key] ?? []
                     const isPast = todayKey !== "" && key < todayKey
                     // fill the date by availability: green = a slot with seats left, red = every slot full,
@@ -128,8 +128,8 @@ export default function AppointmentCalendar({
                                 onClick={() => onSelect?.(key)}
                                 className={`peer relative size-14 rounded-xl transition-all hover:scale-125 ${
                                     isToday ? "font-semibold text-brand" : ""
-                                } ${tint} ${isSelected && !tint ? "bg-brand/10" : ""} ${
-                                    isHighlighted ? "scale-125" : ""
+                                } ${tint} ${
+                                    isHighlighted || isSelected ? "scale-125" : ""
                                 }`}
                             >
                                 {isToday && <span className="absolute top-1.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-brand" />}

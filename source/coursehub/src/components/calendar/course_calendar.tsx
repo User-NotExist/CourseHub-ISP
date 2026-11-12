@@ -142,7 +142,7 @@ export default function CourseCalendar({
                                 isToday
                                     ? "rounded-xl font-semibold text-brand"
                                     : "rounded-xl"
-                            } ${isSelected ? "bg-brand/10" : ""} ${isHighlighted ? "scale-125" : ""}`}
+                            } ${isHighlighted || isSelected ? "scale-125" : ""}`}
                         >
                             {isToday && <span className="absolute top-1.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-brand" />}
                             {day}
