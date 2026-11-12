@@ -1,19 +1,16 @@
-import os
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Cookie
-from jose import jwt, JWTError
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import User, Course, CourseMember, Announcement, Comments
+from auth.current_user import get_current_user
 
 # Staff (lecturer / TA) and admin endpoints, require authentication
 router = APIRouter(prefix="/course/{course_id}/announcements", tags=["announcement"])
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
 
 
 class AnnouncementCreate(BaseModel):
@@ -25,19 +22,6 @@ class CommentCreate(BaseModel):
     comment: str = Field(min_length=1)
 
 
-def get_current_user(access_token, db):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
-    return user
 
 
 # Returns "admin", "lecturer" or "ta". Admin overrides course membership.
