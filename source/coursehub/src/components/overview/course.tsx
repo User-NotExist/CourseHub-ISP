@@ -12,7 +12,8 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import CourseCalendar from "@/components/calendar/course_calendar"
+import CourseCalendar, { useTodayKey } from "@/components/calendar/course_calendar"
+import { formatLongDate } from "@/lib/appointments"
 import UpcomingLate from "@/components/calendar/upcoming_late"
 
 const subscribe = () => () => { };
@@ -42,6 +43,12 @@ type latest_announcement_props = {
     updatedAt: string,
 }
 
+const statusColor: Record<string, string> = {
+    "To-Do": "bg-gray-100 text-gray-700",
+    "In-Progress": "bg-amber-100 text-amber-700",
+    Done: "bg-green-100 text-green-700",
+}
+
 function getInitials(name: string) {
     return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("")
 }
@@ -66,6 +73,14 @@ export default function CoursePage() {
     const [myTasks, setMyTasks] = useState<my_tasks[]>([]);
     const [myActivities, setMyActivities] = useState<my_activities[]>([]);
     const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+    const [pickedDate, setPickedDate] = useState<string | null>(null);
+
+    // show today until a date is picked
+    const todayKey = useTodayKey();
+    const selectedDate = pickedDate ?? todayKey;
+    const dayTasks = myTasks.filter((t) => t.task_due_date === selectedDate);
+    const dayActivities = myActivities.filter((a) => a.activity_date === selectedDate);
+    const dayCount = dayTasks.length + dayActivities.length;
 
     const origin = useSyncExternalStore(
         subscribe,
@@ -236,11 +251,71 @@ export default function CoursePage() {
                 </Card>
             </div>
 
-            <CourseCalendar
-                dueTasks={myTasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))}
-                activities={myActivities.map((a) => ({ date: a.activity_date, title: a.activity_name, type: a.activity_type }))}
-                highlightDate={hoveredDate}
-            />
+            <div className="flex flex-row gap-6">
+                <div className="basis-2/3">
+                    <CourseCalendar
+                        dueTasks={myTasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))}
+                        activities={myActivities.map((a) => ({ date: a.activity_date, title: a.activity_name, type: a.activity_type }))}
+                        highlightDate={hoveredDate}
+                        selectedDate={selectedDate}
+                        onSelect={setPickedDate}
+                    />
+                </div>
+                <div className="relative basis-1/3 min-w-0">
+                    <Card className="absolute inset-0 flex flex-col bg-gray-100 shadow-lg p-7 gap-5 overflow-y-auto scrollbar-hidden">
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-xl font-bold">{selectedDate ? formatLongDate(selectedDate) : "\u00a0"}</h2>
+                            <p className="text-sm text-gray-500">
+                                {dayCount} {dayCount === 1 ? "item" : "items"} on this date
+                            </p>
+                        </div>
+
+                        {dayCount === 0 ? (
+                            <p className="py-6 text-center text-sm text-gray-500">Nothing on this date.</p>
+                        ) : (
+                            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto scrollbar-none">
+                                {dayActivities.map((a) => {
+                                    const isMilestone = a.activity_type === "Milestones";
+                                    return (
+                                        <button
+                                            key={`a${a.activity_id}`}
+                                            type="button"
+                                            onClick={() => router.push(`/courses/${courseId}/acmil/${a.activity_id}`)}
+                                            className="flex flex-col gap-1 rounded-xl bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md"
+                                        >
+                                            <span className="flex items-center gap-3">
+                                                <span className={`h-1.5 w-5 shrink-0 rounded-full ${isMilestone ? "bg-violet-500" : "bg-amber-500"}`} />
+                                                <span className="flex-1 truncate text-lg font-semibold">{a.activity_name}</span>
+                                            </span>
+                                            <span className="pl-8 text-sm text-gray-500">{isMilestone ? "Milestone" : "Activity"}</span>
+                                        </button>
+                                    );
+                                })}
+
+                                {dayTasks.map((t) => (
+                                    <button
+                                        key={`t${t.task_id}`}
+                                        type="button"
+                                        onClick={() => router.push(`/courses/${courseId}/task`)}
+                                        className="flex flex-col gap-1 rounded-xl bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md"
+                                    >
+                                        <span className="flex items-center gap-3">
+                                            <span className="h-1.5 w-5 shrink-0 rounded-full bg-green-500" />
+                                            <span className="flex-1 truncate text-lg font-semibold">{t.task_name}</span>
+                                            {t.status && (
+                                                <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-semibold ${statusColor[t.status] ?? "bg-gray-100 text-gray-700"}`}>
+                                                    {t.status}
+                                                </span>
+                                            )}
+                                        </span>
+                                        <span className="pl-8 text-sm text-gray-500">Task due</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </Card>
+                </div>
+            </div>
 
             <div className="flex flex-col w-full h-70 shrink-0 [&>div>div]:rounded-xl [&>div>div]:bg-gray-100 [&>div>div]:p-7 [&>div>div]:shadow-lg">
                 <UpcomingLate tasks={myTasks} activities={myActivities} onHoverDate={setHoveredDate} />
