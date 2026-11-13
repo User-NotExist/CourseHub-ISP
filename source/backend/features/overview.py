@@ -5,7 +5,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.models import User, Course, CourseMember, Task, Activity
+from db.models import User, Course, CourseMember, Task, Activity, AppointmentsAvailable
 from auth.permissions import course_role
 from auth.current_user import get_current_user
 
@@ -200,8 +200,9 @@ async def get_agenda(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    """Calendar data: activities/milestones of the user's courses + tasks assigned to them.
-    Admins get every task and activity of every (non-archived) course."""
+    """Calendar data: activities/milestones of the user's courses, tasks assigned to them
+    and booked consultation slots they host.
+    Admins get every task, activity and booked consultation of every (non-archived) course."""
     user = get_current_user(access_token, db)
 
     course_query = db.query(Course).filter(
@@ -214,7 +215,7 @@ async def get_agenda(
 
     course_names = {c.course_id: c.course_name for c in course_query.all()}
     if not course_names:
-        return {"is_admin": bool(user.is_admin), "tasks": [], "activities": []}
+        return {"is_admin": bool(user.is_admin), "tasks": [], "activities": [], "consultations": []}
     course_ids = list(course_names.keys())
     my_email = user.user_email.lower()
 
@@ -248,4 +249,31 @@ async def get_agenda(
         for a in db.query(Activity).filter(Activity.course_id.in_(course_ids), Activity.activity_date.isnot(None)).all()
     ]
 
-    return {"is_admin": bool(user.is_admin), "tasks": tasks, "activities": activities}
+    # consultation slots: only ones a student has booked, and (unless admin) only ones I host
+    consultations = []
+    slots = (
+        db.query(AppointmentsAvailable)
+        .filter(AppointmentsAvailable.course_id.in_(course_ids))
+        .order_by(AppointmentsAvailable.available_date, AppointmentsAvailable.start_time)
+        .all()
+    )
+    for slot in slots:
+        booked = len(slot.appointments)
+        if booked == 0:
+            continue
+        head = slot.appointment_head if isinstance(slot.appointment_head, dict) else {}
+        hosts = [str(e).lower() for e in (head.get("lecturer") or []) + (head.get("ta") or [])]
+        if not user.is_admin and slot.user_id != user.user_id and my_email not in hosts:
+            continue
+        consultations.append({
+            "available_id": slot.available_id,
+            "available_date": str(slot.available_date),
+            "start_time": slot.start_time.strftime("%H:%M"),
+            "end_time": slot.end_time.strftime("%H:%M"),
+            "booked": booked,
+            "max_bookings": slot.max_bookings,
+            "course_id": slot.course_id,
+            "course_name": course_names.get(slot.course_id, ""),
+        })
+
+    return {"is_admin": bool(user.is_admin), "tasks": tasks, "activities": activities, "consultations": consultations}

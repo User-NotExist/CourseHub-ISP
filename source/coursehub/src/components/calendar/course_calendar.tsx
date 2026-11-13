@@ -31,6 +31,7 @@ export default function CourseCalendar({
     onSelect,
     dueTasks = [],
     activities = [],
+    consultations,
     highlightDate = null,
     selectedDate,
 }: {
@@ -39,6 +40,7 @@ export default function CourseCalendar({
     highlightDate?: string | null // date to shade + show popup (from hovering a list item)
     dueTasks?: { date: string; title: string }[] // date: "YYYY-MM-DD"
     activities?: { date: string; title: string; type: string }[] // type: "Activities" | "Milestones"
+    consultations?: { date: string; title: string }[] // booked consultation slots; legend entry shows only when passed
 }) {
     // titles grouped by date
     const groupByDate = <T extends { date: string }>(items: T[]) => {
@@ -48,6 +50,7 @@ export default function CourseCalendar({
     }
     const tasksByDate = groupByDate(dueTasks)
     const activitiesByDate = groupByDate(activities)
+    const consultationsByDate = groupByDate(consultations ?? [])
     const activityColor = (type: string) => (type === "Milestones" ? "bg-violet-500" : "bg-amber-500")
 
     const today = new Date()
@@ -133,6 +136,7 @@ export default function CourseCalendar({
                     const isSelected = key === selectedDate
                     const dayTasks = tasksByDate[key] ?? []
                     const dayActivities = activitiesByDate[key] ?? []
+                    const dayConsultations = consultationsByDate[key] ?? []
                     const taskLines = Math.min(dayTasks.length, 4)
                     return (
                         <div key={key} className="group relative flex justify-center border-b border-gray-200 py-3">
@@ -161,9 +165,16 @@ export default function CourseCalendar({
                                         ))}
                                     </span>
                                 )}
+                                {dayConsultations.length > 0 && (
+                                    <span className="flex gap-0.5">
+                                        {dayConsultations.slice(0, 4).map((_, n) => (
+                                            <span key={n} className="h-1.5 w-5 rounded-full bg-sky-500" />
+                                        ))}
+                                    </span>
+                                )}
                             </span>
                         </button>
-                        {(dayTasks.length > 0 || dayActivities.length > 0) && (
+                        {(dayTasks.length > 0 || dayActivities.length > 0 || dayConsultations.length > 0) && (
                             <div className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-0 ${isHighlighted ? "flex" : "hidden"} w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand px-3 py-2 text-left text-sm text-brand-foreground shadow-lg peer-hover:flex`}>
                                 {dayTasks.map((t, n) => (
                                     <span key={`t${n}`} className="flex items-center gap-2 truncate">
@@ -175,6 +186,11 @@ export default function CourseCalendar({
                                         <span className={`h-1 w-3 shrink-0 rounded-full ${activityColor(a.type)}`} />{a.title}
                                     </span>
                                 ))}
+                                {dayConsultations.map((c, n) => (
+                                    <span key={`c${n}`} className="flex items-center gap-2 truncate">
+                                        <span className="h-1 w-3 shrink-0 rounded-full bg-sky-400" />{c.title}
+                                    </span>
+                                ))}
                             </div>
                         )}
                         </div>
@@ -182,10 +198,13 @@ export default function CourseCalendar({
                 })}
             </div>
 
-            <div className="flex gap-6 text-sm text-gray-500 pt-3 pl-2">
+            <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-500 pt-3 pl-2">
                 <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-green-500 font-bold" /> Task</span>
                 <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-amber-500 font-bold" /> Activity</span>
                 <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-violet-500 font-bold" /> Milestone</span>
+                {consultations && (
+                    <span className="flex items-center gap-1.5 font-bold text-lg"><span className="h-1.5 w-5 rounded-full bg-sky-500 font-bold" /> Consultation</span>
+                )}
             </div>
         </div>
     )
