@@ -1,10 +1,8 @@
-import os
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Cookie
 from fastapi.responses import RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
-from jose import jwt, JWTError
 from pydantic import BaseModel, Field
 from typing import Optional, Literal, List
 
@@ -17,11 +15,9 @@ import string, secrets
 from db.database import get_db
 from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments
 from auth.permissions import course_role, is_lecturer_or_admin
+from auth.current_user import get_current_user
 
 router = APIRouter(prefix="/course/{course_id}/tasks", tags=["task"])
-
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
 
 
 class TaskAssignee(BaseModel):
@@ -48,17 +44,7 @@ async def create_task(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course_role(course_id, user, db, detail="You are not a member of this course !")
 
@@ -90,17 +76,7 @@ async def display_me_tasks(
         access_token: Optional[str] = Cookie(None),
         db: Session = Depends(get_db)
     ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course_role(course_id, user, db, detail="You are not a member of this course !")
 
@@ -134,17 +110,7 @@ async def display_task(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
     if not task:
@@ -172,18 +138,7 @@ async def update_task_status(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        user_id = int(token_payload["sub"])
-    except (JWTError, KeyError, ValueError, TypeError):
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
     if not task:
@@ -229,17 +184,7 @@ async def edit_task(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
     if not task:
@@ -275,17 +220,7 @@ async def delete_task(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
     if not task:

@@ -5,9 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Cookie
 from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from authlib.integrations.starlette_client import OAuth
-from jose import jwt, JWTError
+from jose import jwt
 
 from db.database import get_db
+from auth.current_user import JWT_ALGORITHM, JWT_SECRET_KEY, get_current_user
 from db.models import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -17,8 +18,6 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_MINUTES = 60 * 24  # 1 day
 
 ALLOWED_DOMAIN = "ku.th"
@@ -98,19 +97,7 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/me")
 async def get_me(access_token: str = Cookie(None), db: Session = Depends(get_db)):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
-    try:
-        payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    user = db.query(User).filter(User.user_id == int(payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # print(user.user_email)
+    user = get_current_user(access_token, db)
     return {"user_id": user.user_id, "email": user.user_email, "name": user.name, "is_admin": bool(user.is_admin)}
 
 

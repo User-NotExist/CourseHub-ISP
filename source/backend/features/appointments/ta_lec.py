@@ -1,21 +1,16 @@
-import os
 from datetime import date, time
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Cookie
-from jose import jwt, JWTError
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import User, CourseMember, Appointments, AppointmentsAvailable
 from auth.permissions import STAFF_ROLES, course_role
+from auth.current_user import get_current_user
 
 router = APIRouter(prefix="/course/{course_id}/appointments", tags=["appointments"])
-
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
-
 
 class AppointmentHead(BaseModel):
     lecturer: List[str] = []
@@ -41,7 +36,6 @@ def validate_slot(payload: AppointmentAvailableCreate):
     if payload.max_bookings < 1:
         raise HTTPException(status_code=400, detail="Max bookings must be at least 1 !")
 
-
 def slot_to_dict(s: AppointmentsAvailable):
     return {
         "slot_owner_id": s.user_id,
@@ -64,17 +58,7 @@ async def create_appointment_available(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can create available dates !")
 
@@ -104,17 +88,7 @@ async def display_appointments_available(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view available dates !")
 
@@ -142,17 +116,7 @@ async def display_appointment_available(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view available dates !")
 
@@ -187,17 +151,7 @@ async def edit_appointment_available(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     slot = db.query(AppointmentsAvailable).filter(
         AppointmentsAvailable.available_id == available_id,
@@ -233,17 +187,7 @@ async def delete_appointment_available(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     slot = db.query(AppointmentsAvailable).filter(
         AppointmentsAvailable.available_id == available_id,

@@ -1,11 +1,9 @@
-import os
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Cookie
 from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from authlib.integrations.starlette_client import OAuth
-from jose import jwt, JWTError
 from pydantic import BaseModel, Field
 from typing import Optional, Literal
 
@@ -13,11 +11,10 @@ import string, secrets
 
 from db.database import get_db
 from db.models import User, Course, CourseMember, Task, Activity, Faq, Comments, ConsultationLogs, Appointments, AppointmentsAvailable, Announcement
+from auth.current_user import get_current_user
 
 router = APIRouter(prefix="/course", tags=["course"])
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
 
 
 def course_list_item(course, role):
@@ -51,37 +48,16 @@ def list_courses(user, db, archived):
     return [course_list_item(m.course, m.role) for m in memberships]
 
 
-
 @router.get("/display-course")
 async def display_me_courses(access_token: str = Cookie(None), db: Session = Depends(get_db)):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     return list_courses(user, db, archived=False)
 
 
 @router.get("/display-course-archived")
 async def display_archived_courses(access_token: str = Cookie(None), db: Session = Depends(get_db)):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     return list_courses(user, db, archived=True)
 
@@ -114,17 +90,7 @@ async def create_course(
     access_token: str = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course_id_here = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
 
@@ -163,22 +129,13 @@ async def create_course(
 
 
 def editable_course(course_id, access_token, db):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        user_id = int(token_payload["sub"])
-    except (JWTError, KeyError, ValueError, TypeError):
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+    user = get_current_user(access_token, db)
     # Serialize membership updates, including the last-lecturer check.
     course = db.query(Course).filter(Course.course_id == course_id).with_for_update().first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     membership = db.query(CourseMember).filter(
-        CourseMember.course_id == course_id, CourseMember.user_id == user_id,
+        CourseMember.course_id == course_id, CourseMember.user_id == user.user_id,
     ).first()
     if not user.is_admin and (not membership or membership.role != "lecturer"):
         raise HTTPException(status_code=403, detail="Only lecturers and administrators can edit this course")
@@ -249,17 +206,7 @@ async def delete_course(
     access_token: str = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course = db.query(Course).filter(Course.course_id == course_id).first()
     if not course:
@@ -292,17 +239,7 @@ async def delete_course(
 
 @router.patch("/set_course_status/{course_id}")
 async def set_course_status(payload: CourseStatusForm, course_id: str, access_token: str = Cookie(None), db: Session = Depends(get_db)):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course = db.query(Course).filter(Course.course_id == course_id).first()
     if not course:
@@ -330,16 +267,8 @@ STAFF_ROLES = ("lecturer", "ta")
 async def check_staff_access(course_id: str, access_token: str = Cookie(None), db: Session = Depends(get_db)):
     """Gate for the staff pages (/courses/{id}/*): 404 if the course doesn't
     exist, 403 unless the user is a lecturer/TA of it or an admin."""
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        user_id = int(token_payload["sub"])
-    except (JWTError, KeyError, ValueError, TypeError):
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+    user = get_current_user(access_token, db)
+    user_id = user.user_id
     course = db.query(Course).filter(Course.course_id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")

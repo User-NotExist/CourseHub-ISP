@@ -1,20 +1,17 @@
-import os
 from datetime import date, time
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Cookie
-from jose import jwt, JWTError
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import User, CourseMember, ConsultationLogs
 from auth.permissions import STAFF_ROLES, MANAGER_ROLES, course_role, is_lecturer_or_admin
+from auth.current_user import get_current_user
 
 router = APIRouter(prefix="/course/{course_id}/consultation_logs", tags=["consul_logs"])
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
 
 
 class ConsultationLogCreate(BaseModel):
@@ -28,6 +25,8 @@ class ConsultationLogCreate(BaseModel):
     end_time: Optional[time] = None
 
 
+
+
 # Lecturer, TA or admin can create
 @router.post("/create")
 async def create_consultation_log(
@@ -36,17 +35,7 @@ async def create_consultation_log(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can create consultation logs !")
 
@@ -87,17 +76,7 @@ async def display_consultation_logs(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     role = course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view consultation logs !")
 
@@ -136,17 +115,7 @@ async def display_consultation_log(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     role = course_role(course_id, user, db, roles=STAFF_ROLES, detail="Only lecturer, TA or admin can view consultation logs !")
 
@@ -182,17 +151,7 @@ async def edit_consultation_log(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     log = db.query(ConsultationLogs).filter(
         ConsultationLogs.consultation_id == consultation_id,
@@ -239,17 +198,7 @@ async def delete_consultation_log(
     access_token: Optional[str] = Cookie(None),
     db: Session = Depends(get_db),
 ):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
+    user = get_current_user(access_token, db)
 
     log = db.query(ConsultationLogs).filter(
         ConsultationLogs.consultation_id == consultation_id,

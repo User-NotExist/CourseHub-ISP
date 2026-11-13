@@ -1,20 +1,17 @@
-import os
 from datetime import date, datetime, time
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException
-from jose import JWTError, jwt
 from pydantic import AliasPath, BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import Activity, Course, CourseMember, User
 from auth.permissions import course_role
+from auth.current_user import get_current_user
 
 router = APIRouter(prefix="/course/{course_id}/activities", tags=["activity"])
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
 ActivityType = Literal["Activities", "Milestones"]
 
 
@@ -69,17 +66,7 @@ class ActivityResponse(BaseModel):
 
 
 def activity_member(course_id: str, access_token: Optional[str], db: Session):
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    try:
-        payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        user_id = int(payload["sub"])
-    except (JWTError, KeyError, ValueError, TypeError):
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+    user = get_current_user(access_token, db)
     course = db.query(Course).filter(Course.course_id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")

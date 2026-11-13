@@ -1,37 +1,19 @@
-import os
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Cookie
-from jose import jwt, JWTError
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from db.database import get_db
 from db.models import User, Course, CourseMember, Task, Activity
 from auth.permissions import course_role
+from auth.current_user import get_current_user
 
 router = APIRouter(prefix="/course/{course_id}/overview", tags=["overview"])
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
 
 STAFF_ROLES = ["lecturer", "ta"]
 ROLE_LABELS = {"lecturer": "Lecturer", "ta": "Teaching Assistant"}
-
-
-def get_current_user(access_token: Optional[str], db: Session) -> User:
-    if not access_token:
-        raise HTTPException(status_code=401, detail="Not authenticated !")
-
-    try:
-        token_payload = jwt.decode(access_token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token !")
-
-    user = db.query(User).filter(User.user_id == int(token_payload["sub"])).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found !")
-    return user
 
 
 def require_member(db: Session, user: User, course_id: str, roles: Optional[list] = None) -> str:
