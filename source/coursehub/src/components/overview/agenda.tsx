@@ -30,7 +30,24 @@ type AgendaActivity = {
     course_name: string
 }
 
-type AgendaData = { is_admin: boolean; tasks: AgendaTask[]; activities: AgendaActivity[] }
+// a consultation slot at least one student has booked
+type AgendaConsultation = {
+    available_id: number
+    available_date: string
+    start_time: string // "HH:MM"
+    end_time: string
+    booked: number
+    max_bookings: number
+    course_id: string
+    course_name: string
+}
+
+type AgendaData = {
+    is_admin: boolean
+    tasks: AgendaTask[]
+    activities: AgendaActivity[]
+    consultations: AgendaConsultation[]
+}
 
 const statusColor: Record<string, string> = {
     "To-Do": "text-gray-500",
@@ -47,7 +64,7 @@ export default function Agenda() {
     const router = useRouter()
     const todayKey = useTodayKey()
 
-    const [data, setData] = useState<AgendaData>({ is_admin: false, tasks: [], activities: [] })
+    const [data, setData] = useState<AgendaData>({ is_admin: false, tasks: [], activities: [], consultations: [] })
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [pickedDate, setPickedDate] = useState<string | null>(null)
@@ -62,6 +79,7 @@ export default function Agenda() {
                     is_admin: Boolean(json.is_admin),
                     tasks: json.tasks ?? [],
                     activities: json.activities ?? [],
+                    consultations: json.consultations ?? [],
                 })
             } catch (err) {
                 console.error(err)
@@ -82,7 +100,15 @@ export default function Agenda() {
         .filter((a) => a.activity_date === selectedDate)
         .sort((a, b) => (a.activity_time ?? "").localeCompare(b.activity_time ?? ""))
 
+<<<<<<< Updated upstream:source/coursehub/src/components/overview/agenda.tsx
     const openCourse = (course_id: string) => router.push(`/courses/${course_id}/dashboard`)
+=======
+    const dayConsultations = data.consultations
+        .filter((c) => c.available_date === selectedDate)
+        .sort((a, b) => a.start_time.localeCompare(b.start_time))
+
+    const openCourse = (course_id: string) => router.push(`/courses/${course_id}/main`)
+>>>>>>> Stashed changes:source/coursehub/src/components/agenda.tsx
 
     return (
         <div className="flex flex-col h-screen w-max pt-7 pb-6 overflow-y-auto scrollbar-none gap-4 xl:w-270 lg:w-200 md:w-150 sm:w-100 min-w-90">
@@ -112,6 +138,10 @@ export default function Agenda() {
                             title: a.activity_name,
                             type: a.activity_type,
                         }))}
+                        consultations={data.consultations.map((c) => ({
+                            date: c.available_date,
+                            title: `Consultation ${c.start_time}-${c.end_time}`,
+                        }))}
                     />
 
                     <div className="flex flex-col gap-3 rounded-xl bg-[#E8E8E8] p-6 drop-shadow-md">
@@ -119,7 +149,7 @@ export default function Agenda() {
                             {selectedDate ? formatDate(selectedDate) : ""}
                         </h2>
 
-                        {dayTasks.length === 0 && dayActivities.length === 0 ? (
+                        {dayTasks.length === 0 && dayActivities.length === 0 && dayConsultations.length === 0 ? (
                             <p className="py-6 text-center text-sm text-gray-500">Nothing on this day.</p>
                         ) : (
                             <div className="flex flex-col gap-2 overflow-y-auto scrollbar-none">
@@ -137,6 +167,22 @@ export default function Agenda() {
                                         <span className="pl-8 text-sm text-gray-500 truncate">
                                             {a.activity_type === "Milestones" ? "Milestone" : "Activity"} · {a.course_name}
                                         </span>
+                                    </button>
+                                ))}
+
+                                {dayConsultations.map((c) => (
+                                    <button
+                                        key={`c${c.available_id}`}
+                                        onClick={() => router.push(`/courses/${c.course_id}/consultation/appointments`)}
+                                        className="flex flex-col gap-1 rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
+                                    >
+                                        <span className="flex items-center gap-3">
+                                            <span className="h-1.5 w-5 shrink-0 rounded-full bg-sky-500" />
+                                            <span className="flex-1 truncate font-medium">Consultation</span>
+                                            <span className="text-sm text-gray-500">{c.start_time}-{c.end_time}</span>
+                                        </span>
+                                        <span className="pl-8 text-sm text-gray-500 truncate">Consultation · {c.course_name}</span>
+                                        <span className="pl-8 text-xs text-gray-500">{c.booked}/{c.max_bookings} booked</span>
                                     </button>
                                 ))}
 
