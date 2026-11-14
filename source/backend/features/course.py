@@ -62,15 +62,16 @@ async def display_archived_courses(access_token: str = Cookie(None), db: Session
     return list_courses(user, db, archived=True)
 
 
+class MemberEdit(BaseModel):
+    email: str
+    role: Literal["lecturer", "ta"]
+
+
 class CourseCreate(BaseModel):
     course_name: str
     course_description: Optional[str] = None
     course_thumbnail: Optional[str] = None
-
-
-class MemberEdit(BaseModel):
-    email: str
-    role: Literal["lecturer", "ta"]
+    members: list[MemberEdit] = []
 
 
 class CourseEdit(BaseModel):
@@ -92,6 +93,28 @@ async def create_course(
 ):
     user = get_current_user(access_token, db)
 
+    # Fix #93: validate every member before creating anything (SQD-1: validate, then insert).
+    # If any email is not registered, nothing is created and all invalid emails are reported.
+    creator_email = user.user_email.strip().lower()
+    seen = set()
+    requested = []
+    unregistered = []
+    for member in payload.members:
+        email = member.email.strip().lower()
+        if email == creator_email:
+            continue  # the creator is always added as lecturer below
+        if email in seen:
+            raise HTTPException(status_code=422, detail="Each user can only be added once")
+        seen.add(email)
+        member_user = db.query(User).filter(User.user_email == email).first()
+        if not member_user:
+            unregistered.append(email)
+            continue
+        requested.append((member_user, member.role))
+
+    if unregistered:
+        raise HTTPException(status_code=422, detail=f"No registered user found for {', '.join(unregistered)}")
+
     course_id_here = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
 
     lecturer_unq = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(10))
@@ -109,16 +132,15 @@ async def create_course(
         course_status="online"
     )
     db.add(new_course)
+    db.flush()
+
+    # Creator and members are saved in the same transaction as the course
+    db.add(CourseMember(user_id=user.user_id, course_id=new_course.course_id, role="lecturer"))
+    for member_user, role in requested:
+        db.add(CourseMember(user_id=member_user.user_id, course_id=new_course.course_id, role=role))
+
     db.commit()
     db.refresh(new_course)
-
-    membership = CourseMember(
-        user_id=user.user_id,
-        course_id=new_course.course_id,
-        role="lecturer",
-    )
-    db.add(membership)
-    db.commit()
 
     return {
         "course_id": new_course.course_id,
