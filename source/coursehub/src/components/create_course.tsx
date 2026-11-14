@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
-import { useRouter, redirect } from "next/navigation"
+import { redirect } from "next/navigation"
 
 import Image from "next/image"
 
@@ -44,6 +44,9 @@ const vars_: Variants[] = [
 
 const DESCRIPTION_MAX_LENGTH = 70
 
+// Prefix of the backend error when some member emails are not registered (#93)
+const UNREGISTERED_PREFIX = "No registered user found for "
+
 const roles = ["lecturer", "ta"] as const
 type Role = typeof roles[number]
 const roleLabels: Record<Role, string> = { lecturer: "Lecturer", ta: "TA" }
@@ -63,8 +66,6 @@ function RolePicker({ value, onChange, label, disabled }: {
 }
 
 export default function CreateCourse() {
-    const router = useRouter()
-
     const [courseName, setCourseName] = useState("")
     const [courseDescription, setCourseDescription] = useState("")
     const [selectedVariant, setSelectedVariant] = useState<Variants | null>(vars_[0])
@@ -72,6 +73,7 @@ export default function CreateCourse() {
     const [members, setMembers] = useState<Member[]>([])
     const [memberEmail, setMemberEmail] = useState("")
     const [memberRole, setMemberRole] = useState<Role>("ta")
+    const [invalidEmails, setInvalidEmails] = useState<string[]>([])
 
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -88,6 +90,11 @@ export default function CreateCourse() {
         setMemberEmail("")
     }
 
+    const removeMember = (email: string) => {
+        setMembers(members.filter((item) => item.email !== email))
+        setInvalidEmails(invalidEmails.filter((item) => item !== email))
+    }
+
     const handleCreate = async () => {
         const toastId = toast.loading("Creating course...", {position: "top-right"})
         try {
@@ -99,7 +106,10 @@ export default function CreateCourse() {
             }
 
             setIsLoading(true)
+            setInvalidEmails([])
 
+            // Members are sent together with the course, so the backend validates
+            // every email before creating anything (#93)
             const res = await fetch(`/api_course/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -107,48 +117,25 @@ export default function CreateCourse() {
                     course_name: courseName,
                     course_description: courseDescription,
                     course_thumbnail: selectedVariant?.value,
+                    members,
                 }),
             })
 
             if (!res.ok) {
                 const errorData = await res.json().catch(() => ({}))
-                toast.error(typeof errorData.detail === "string" ? errorData.detail : `Failed to create course: ${res.status}`, { id: toastId })
+                const detail = typeof errorData.detail === "string" ? errorData.detail : `Failed to create course: ${res.status}`
+                if (detail.startsWith(UNREGISTERED_PREFIX)) {
+                    // Keep the form and mark the emails that need fixing
+                    setInvalidEmails(detail.slice(UNREGISTERED_PREFIX.length).split(", "))
+                    toast.error(`${detail}. Remove these emails and try again.`, { id: toastId })
+                } else {
+                    toast.error(detail, { id: toastId })
+                }
                 setIsLoading(false)
                 return
             }
 
             const data = await res.json()
-
-            // Add TA / lecturer members using the edit route (creator stays lecturer)
-            if (members.length > 0) {
-                const meRes = await fetch("/api_auth/me", { credentials: "include" })
-                const me = await meRes.json().catch(() => ({}))
-                const myEmail = String(me.email ?? "").toLowerCase()
-
-                const editRes = await fetch("/api_course/edit", {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        course_id: data.course_id,
-                        course_name: courseName.trim(),
-                        course_description: courseDescription.trim(),
-                        members: [
-                            { email: myEmail, role: "lecturer" },
-                            ...members.filter((member) => member.email !== myEmail),
-                        ],
-                    }),
-                })
-
-                if (!editRes.ok) {
-                    const errorData = await editRes.json().catch(() => ({}))
-                    const detail = typeof errorData.detail === "string" ? errorData.detail : "Failed to add members"
-                    toast.error(`Course created, but members were not added: ${detail}`, { id: toastId })
-                    setTimeout(() => {
-                        router.push(`/courses/${data.course_id}/edit`)
-                    }, 1500)
-                    return
-                }
-            }
 
             toast.success(`Course ${data.course_name} created successfully.`, { id: toastId })
             setTimeout(() => {
@@ -250,7 +237,12 @@ export default function CreateCourse() {
                             <ul className="divide-y rounded-lg border px-3 mt-3">
                                 {members.map((member) => (
                                     <li key={member.email} className="flex items-center gap-2 py-2">
-                                        <p className="min-w-0 flex-1 break-all text-sm">{member.email}</p>
+                                        <p className="min-w-0 flex-1 break-all text-sm">
+                                            {member.email}
+                                            {invalidEmails.includes(member.email) && (
+                                                <span className="ml-2 text-xs font-medium text-destructive">Not registered</span>
+                                            )}
+                                        </p>
                                         <RolePicker
                                             value={member.role}
                                             label={`Role for ${member.email}`}
@@ -262,7 +254,7 @@ export default function CreateCourse() {
                                             size="icon"
                                             aria-label={`Remove ${member.email}`}
                                             disabled={isLoading}
-                                            onClick={() => setMembers(members.filter((item) => item.email !== member.email))}
+                                            onClick={() => removeMember(member.email)}
                                         >
                                             <Trash2 className="size-4 text-destructive" />
                                         </Button>
