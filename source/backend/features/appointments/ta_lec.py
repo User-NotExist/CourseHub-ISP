@@ -30,6 +30,10 @@ def validate_slot(payload: AppointmentAvailableCreate):
     if not payload.appointment_head.lecturer and not payload.appointment_head.ta:
         raise HTTPException(status_code=400, detail="At least one lecturer or TA is required !")
 
+    # Fix #122: slots cannot be created or moved to a date that has already passed
+    if payload.available_date < date.today():
+        raise HTTPException(status_code=400, detail="This date has already passed !")
+
     if payload.end_time <= payload.start_time:
         raise HTTPException(status_code=400, detail="End time must be after start time !")
 
