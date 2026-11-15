@@ -217,7 +217,7 @@ export default function CoursePage() {
                         </InputGroup>
 
                         <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10 font-lg font-bold">open</Button>
-                        <Button onClick={() => router.push(`/courses/${courseId}/edit`)} variant="outline" className="px-15 font-lg font-bold">
+                        <Button onClick={() => router.push(`/courses/${courseId}/edit?from=dashboard`)} variant="outline" className="px-15 font-lg font-bold">
                             Edit Course
                         </Button>
                     </div>
