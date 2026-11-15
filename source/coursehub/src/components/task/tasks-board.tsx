@@ -91,7 +91,7 @@ const STATUS_ORDER: TaskStatus[] = ["todo", "in_progress", "done"]
 // SRS-12: a task that is not done is "at risk" when it is overdue or due within this many days
 const AT_RISK_DAYS = 2
 
-type TaskRisk = "overdue" | "due_soon" | null
+type TaskRisk = "overdue" | "at_risk" | null
 
 // Whole days from today until the due date (negative when overdue), using local dates.
 function daysUntilDue(dueDate: string): number {
@@ -106,7 +106,7 @@ function getTaskRisk(task: Task): TaskRisk {
   if (task.status === "done" || !task.due_date) return null
   const days = daysUntilDue(task.due_date)
   if (days < 0) return "overdue"
-  if (days <= AT_RISK_DAYS) return "due_soon"
+  if (days <= AT_RISK_DAYS) return "at_risk"
   return null
 }
 
@@ -148,18 +148,19 @@ function TaskCard({
         {task.can_edit && (
           <Link
             href={`/courses/${courseId}/task/${task.task_id}/edit`}
-            className="bg-brand rounded-md p-1.5 shadow-sm hover:bg-brand-hover transition"
+            className="bg-white rounded-md p-1.5 shadow-sm ring-1 ring-neutral-300 hover:bg-neutral-100 transition"
             aria-label="Edit task"
           >
-            <Edit className="size-4 text-brand-foreground" />
+            <Edit className="size-4 text-neutral-900" />
           </Link>
         )}
       </div>
+      <p className="text-panel-muted text-sm">{task.description}</p>
       {(risk || unassigned) && (
         <div className="flex flex-wrap gap-1">
           {risk && (
             <span className="rounded-full bg-panel-danger px-2 py-0.5 text-xs font-semibold text-white">
-              {risk === "overdue" ? "Overdue" : "Due soon"}
+              {risk === "overdue" ? "Overdue" : "At risk"}
             </span>
           )}
           {unassigned && (
@@ -169,7 +170,6 @@ function TaskCard({
           )}
         </div>
       )}
-      <p className="text-panel-muted text-sm">{task.description}</p>
       <div className="text-sm text-panel-muted space-y-0.5">
         <p>
           <span className="font-semibold text-panel-foreground">Owner: </span>
@@ -371,7 +371,7 @@ export default function TasksBoard() {
           <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-panel-muted">
             <span className="flex items-center gap-2">
               <span className="size-3 rounded-sm bg-danger-soft border-2 border-panel-danger" />
-              Overdue or due within {AT_RISK_DAYS} days
+              At risk (due within {AT_RISK_DAYS} days) or overdue
             </span>
             <span className="flex items-center gap-2">
               <span className="size-3 rounded-sm bg-neutral-200 border border-neutral-400" />
