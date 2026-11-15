@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Edit, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
+import { Edit, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { useParams, useRouter } from "next/navigation"
 import {
   DndContext,
@@ -189,6 +190,8 @@ export default function TasksBoard() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+  const [taskQuery, setTaskQuery] = useState("")
+  const [assigneeFilter, setAssigneeFilter] = useState("")
 
   // Small activation distance / delay so clicking the edit link or the arrow
   // buttons inside a card (and scrolling on touch screens) still works.
@@ -310,6 +313,13 @@ export default function TasksBoard() {
   }
 
   const activeTask = tasks.find((t) => t.task_id === activeTaskId) ?? null
+  const query = taskQuery.trim().toLowerCase()
+  const isFiltering = !!query || !!assigneeFilter
+  const assigneeOptions = Array.from(new Set(tasks.flatMap((t) => t.assignees.map((a) => a.email.toLowerCase())))).sort()
+  const visibleTasks = tasks.filter((t) => (
+    (!query || t.title.toLowerCase().includes(query) || t.description.toLowerCase().includes(query)) &&
+    (!assigneeFilter || t.assignees.some((a) => a.email.toLowerCase() === assigneeFilter))
+  ))
 
   return (
     <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10 overflow-y-auto md:overflow-hidden h-screen scrollbar-none">
@@ -333,6 +343,32 @@ export default function TasksBoard() {
         </Button>
       </div>
 
+      {/* Search */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            aria-label="Search tasks"
+            placeholder="Search tasks by name or description"
+            value={taskQuery}
+            onChange={(event) => setTaskQuery(event.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <select
+          aria-label="Filter by assignee"
+          value={assigneeFilter}
+          onChange={(event) => setAssigneeFilter(event.target.value)}
+          className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-64"
+        >
+          <option value="">All assignees</option>
+          {assigneeOptions.map((assigneeEmail) => (
+            <option key={assigneeEmail} value={assigneeEmail}>{assigneeEmail}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Board */}
       <DndContext
         sensors={sensors}
@@ -342,7 +378,7 @@ export default function TasksBoard() {
       >
         <div className="grid flex-1 grid-cols-1 gap-6 md:min-h-0 md:grid-cols-3 md:grid-rows-[minmax(0,1fr)]">
           {STATUS_CONFIG.map(({ key, label }) => {
-            const columnTasks = tasks.filter((t) => t.status === key)
+            const columnTasks = visibleTasks.filter((t) => t.status === key)
             return (
               <DroppableColumn
                 key={key}
@@ -357,7 +393,7 @@ export default function TasksBoard() {
                   {isLoading ? (
                     <p className="text-panel-muted text-sm">Loading...</p>
                   ) : columnTasks.length === 0 ? (
-                    <p className="text-panel-muted text-sm">No tasks here yet.</p>
+                    <p className="text-panel-muted text-sm">{isFiltering ? "No matching tasks." : "No tasks here yet."}</p>
                   ) : (
                     columnTasks.map((task) => (
                       <DraggableTask

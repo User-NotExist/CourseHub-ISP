@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
-import { Archive, Loader2, Plus, Trash2, Users } from "lucide-react"
+import { Archive, Loader2, Plus, Search, Trash2, Users } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -40,6 +40,7 @@ export default function EditCoursePage() {
     const [course, setCourse] = useState<Course | null>(null)
     const [original, setOriginal] = useState("")
     const [error, setError] = useState("")
+    const [memberQuery, setMemberQuery] = useState("")
     const [reload, setReload] = useState(0)
     const [saving, setSaving] = useState(false)
     const [email, setEmail] = useState("")
@@ -87,6 +88,7 @@ export default function EditCoursePage() {
         }
         setCourse({ ...course, members: [...course.members, { email: normalized, name: "", role }] })
         setEmail("")
+        setMemberQuery("")
     }
 
     async function save(event: FormEvent) {
@@ -139,6 +141,8 @@ export default function EditCoursePage() {
     if (!course) return <div role="status" className="flex min-h-64 items-center gap-2"><Loader2 className="size-5 animate-spin" />Loading course…</div>
 
     const lastLecturer = (member: Member) => member.role === "lecturer" && course.members.filter((item) => item.role === "lecturer").length === 1
+    const query = memberQuery.trim().toLowerCase()
+    const visibleMembers = query ? course.members.filter((member) => member.email.toLowerCase().includes(query) || member.name.toLowerCase().includes(query)) : course.members
     const back = () => dirty ? setLeaving(true) : router.push(backUrl)
 
     return (
@@ -181,8 +185,16 @@ export default function EditCoursePage() {
                         </div>
                         <p id="member-hint" className="text-xs text-muted-foreground">Use the email of a registered CourseHub user. Changes take effect when you save.</p>
                     </form>
-                    <ul className="divide-y rounded-lg border px-4">
-                        {course.members.map((member) => (
+                    <div className="space-y-2">
+                        <div className="relative">
+                            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input type="search" aria-label="Search members" placeholder="Search members by name or email" value={memberQuery} onChange={(event) => setMemberQuery(event.target.value)} className="pl-9" />
+                        </div>
+                        {query && <p role="status" className="text-xs text-muted-foreground">Showing {visibleMembers.length} of {course.members.length} members</p>}
+                    </div>
+                    <ul className="max-h-96 divide-y overflow-y-auto rounded-lg border px-4">
+                        {visibleMembers.length === 0 && <li className="py-6 text-center text-sm text-muted-foreground">No members match &ldquo;{memberQuery.trim()}&rdquo;</li>}
+                        {visibleMembers.map((member) => (
                             <li key={member.email} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
                                 <div className="min-w-0 flex-1"><p className="break-words font-medium">{member.name || member.email}</p>{member.name && <p className="break-all text-sm text-muted-foreground">{member.email}</p>}{lastLecturer(member) && <p className="text-xs text-muted-foreground">Last lecturer</p>}</div>
                                 <div className="flex items-center gap-2">
