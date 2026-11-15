@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
-import { Archive, ArrowLeft, Loader2, Plus, Trash2, Users } from "lucide-react"
+import { Archive, Loader2, Plus, Trash2, Users } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -143,7 +143,6 @@ export default function EditCoursePage() {
 
     return (
         <main className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8">
-            <Button variant="ghost" onClick={back} disabled={saving}><ArrowLeft />{backUrl === "/courses" ? "Back to courses" : "Back to Course Dashboard"}</Button>
             <header><h1 className="text-3xl font-bold">Edit course</h1><p className="mt-2 text-muted-foreground">Update course details and manage who has access.</p></header>
             <form id="course-details" onSubmit={save}>
                 <Card>
