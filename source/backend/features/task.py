@@ -112,6 +112,9 @@ async def display_task(
 ):
     user = get_current_user(access_token, db)
 
+    # Fix #106: only course members (or admins) can read task details
+    course_role(course_id, user, db, detail="You are not a member of this course !")
+
     task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
