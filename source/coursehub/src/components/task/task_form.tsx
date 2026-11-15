@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Loader2, Plus, Trash2, Users } from "lucide-react"
+import { ArrowLeft, Loader2, Plus, Search, Trash2, Users } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +35,7 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
     const [reload, setReload] = useState(0)
     const [saving, setSaving] = useState(false)
     const [email, setEmail] = useState("")
+    const [assigneeQuery, setAssigneeQuery] = useState("")
     const [removing, setRemoving] = useState<Assignee | null>(null)
     // Email of the task owner when the current user is the owner. This assignee cannot be removed.
     const [ownerEmail, setOwnerEmail] = useState("")
@@ -121,6 +122,7 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
         // New assignees start as To-Do. Existing assignees keep their current status.
         setTask({ ...task, task_assignee: [...task.task_assignee, { task_assignee_gmail: normalized, status: "To-Do" }] })
         setEmail("")
+        setAssigneeQuery("")
     }
 
     async function save(event: FormEvent) {
@@ -198,6 +200,8 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
     const nameFor = (assigneeEmail: string) => members?.find((member) => member.email.toLowerCase() === assigneeEmail.toLowerCase())?.name ?? ""
     // The owner stays in task_assignee (so they can move the task) but is shown in its own section.
     const others = task.task_assignee.filter((assignee) => assignee.task_assignee_gmail.toLowerCase() !== ownerEmail)
+    const query = assigneeQuery.trim().toLowerCase()
+    const visibleOthers = query ? others.filter((assignee) => assignee.task_assignee_gmail.toLowerCase().includes(query) || nameFor(assignee.task_assignee_gmail).toLowerCase().includes(query)) : others
 
     return (
         <main className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8 overflow-y-auto h-screen scrollbar-none">
@@ -236,11 +240,21 @@ export default function TaskForm({ mode }: { mode: "create" | "edit" }) {
                         </div>
                         <p id="assignee-hint" className="text-xs text-muted-foreground">Use the email of a member of this course.</p>
                     </form>
+                    {others.length > 0 && (
+                        <div className="space-y-2">
+                            <div className="relative">
+                                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input type="search" aria-label="Search assigned users" placeholder="Search assigned users by name or email" value={assigneeQuery} onChange={(event) => setAssigneeQuery(event.target.value)} className="pl-9" />
+                            </div>
+                            {query && <p role="status" className="text-xs text-muted-foreground">Showing {visibleOthers.length} of {others.length} assigned users</p>}
+                        </div>
+                    )}
                     {others.length === 0 ? (
                         <p className="text-sm text-muted-foreground">No one is assigned yet.</p>
                     ) : (
-                        <ul className="divide-y rounded-lg border px-4">
-                            {others.map((assignee) => (
+                        <ul className="max-h-96 divide-y overflow-y-auto rounded-lg border px-4">
+                            {visibleOthers.length === 0 && <li className="py-6 text-center text-sm text-muted-foreground">No assigned users match &ldquo;{assigneeQuery.trim()}&rdquo;</li>}
+                            {visibleOthers.map((assignee) => (
                                 <li key={assignee.task_assignee_gmail} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
                                     <div className="min-w-0 flex-1"><p className="break-words font-medium">{nameFor(assignee.task_assignee_gmail) || assignee.task_assignee_gmail}</p>{nameFor(assignee.task_assignee_gmail) && <p className="break-all text-sm text-muted-foreground">{assignee.task_assignee_gmail}</p>}</div>
                                     <Button variant="ghost" size="icon" aria-label={`Remove ${assignee.task_assignee_gmail}`} disabled={saving} onClick={() => setRemoving(assignee)}><Trash2 className="size-4 text-destructive" /></Button>
