@@ -140,6 +140,9 @@ async def update_task_status(
 ):
     user = get_current_user(access_token, db)
 
+    # Users removed from the course can no longer update task status
+    course_role(course_id, user, db, detail="You are not a member of this course !")
+
     task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
@@ -186,6 +189,9 @@ async def edit_task(
 ):
     user = get_current_user(access_token, db)
 
+    # Users removed from the course can no longer edit tasks
+    course_role(course_id, user, db, detail="You are not a member of this course !")
+
     task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found !")
@@ -221,6 +227,9 @@ async def delete_task(
     db: Session = Depends(get_db),
 ):
     user = get_current_user(access_token, db)
+
+    # Users removed from the course can no longer delete tasks
+    course_role(course_id, user, db, detail="You are not a member of this course !")
 
     task = db.query(Task).filter(Task.task_id == task_id, Task.course_id == course_id).first()
     if not task:
