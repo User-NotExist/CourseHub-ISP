@@ -191,6 +191,7 @@ export default function TasksBoard() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
   const [taskQuery, setTaskQuery] = useState("")
+  const [assigneeFilter, setAssigneeFilter] = useState("")
 
   // Small activation distance / delay so clicking the edit link or the arrow
   // buttons inside a card (and scrolling on touch screens) still works.
@@ -313,10 +314,12 @@ export default function TasksBoard() {
 
   const activeTask = tasks.find((t) => t.task_id === activeTaskId) ?? null
   const query = taskQuery.trim().toLowerCase()
-  const isFiltering = !!query
-  const visibleTasks = query
-    ? tasks.filter((t) => t.title.toLowerCase().includes(query) || t.description.toLowerCase().includes(query))
-    : tasks
+  const isFiltering = !!query || !!assigneeFilter
+  const assigneeOptions = Array.from(new Set(tasks.flatMap((t) => t.assignees.map((a) => a.email.toLowerCase())))).sort()
+  const visibleTasks = tasks.filter((t) => (
+    (!query || t.title.toLowerCase().includes(query) || t.description.toLowerCase().includes(query)) &&
+    (!assigneeFilter || t.assignees.some((a) => a.email.toLowerCase() === assigneeFilter))
+  ))
 
   return (
     <div className="flex w-full flex-1 min-w-0 flex-col p-6 md:p-10 overflow-y-auto md:overflow-hidden h-screen scrollbar-none">
@@ -353,6 +356,17 @@ export default function TasksBoard() {
             className="pl-9"
           />
         </div>
+        <select
+          aria-label="Filter by assignee"
+          value={assigneeFilter}
+          onChange={(event) => setAssigneeFilter(event.target.value)}
+          className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-64"
+        >
+          <option value="">All assignees</option>
+          {assigneeOptions.map((assigneeEmail) => (
+            <option key={assigneeEmail} value={assigneeEmail}>{assigneeEmail}</option>
+          ))}
+        </select>
       </div>
 
       {/* Board */}
