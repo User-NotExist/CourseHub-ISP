@@ -135,7 +135,7 @@ export default function EditCoursePage() {
         }
     }
 
-    if (error) return <div className="mx-auto w-full max-w-3xl p-8"><p role="alert" className="mb-4 text-destructive">{error}</p><Button onClick={() => { setError(""); setReload((value) => value + 1) }}>Try again</Button><Button variant="ghost" onClick={() => router.push(backUrl)}>Back to courses</Button></div>
+    if (error) return <div className="mx-auto w-full max-w-3xl p-8"><p role="alert" className="mb-4 text-destructive">{error}</p><Button onClick={() => { setError(""); setReload((value) => value + 1) }}>Try again</Button><Button variant="ghost" onClick={() => router.push(backUrl)}>{backUrl === "/courses" ? "Back to courses" : "Back to Course Dashboard"}</Button></div>
     if (!course) return <div role="status" className="flex min-h-64 items-center gap-2"><Loader2 className="size-5 animate-spin" />Loading course…</div>
 
     const lastLecturer = (member: Member) => member.role === "lecturer" && course.members.filter((item) => item.role === "lecturer").length === 1
@@ -143,7 +143,7 @@ export default function EditCoursePage() {
 
     return (
         <main className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8">
-            <Button variant="ghost" onClick={back} disabled={saving}><ArrowLeft />{backUrl === "/courses" ? "Back to courses" : "Back to course"}</Button>
+            <Button variant="ghost" onClick={back} disabled={saving}><ArrowLeft />{backUrl === "/courses" ? "Back to courses" : "Back to Course Dashboard"}</Button>
             <header><h1 className="text-3xl font-bold">Edit course</h1><p className="mt-2 text-muted-foreground">Update course details and manage who has access.</p></header>
             <form id="course-details" onSubmit={save}>
                 <Card>
