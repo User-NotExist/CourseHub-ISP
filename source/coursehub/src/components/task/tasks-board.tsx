@@ -89,6 +89,28 @@ const STATUS_CONFIG: { key: TaskStatus; label: string }[] = [
 
 const STATUS_ORDER: TaskStatus[] = ["todo", "in_progress", "done"]
 
+// SRS-12: a task that is not done is "at risk" when it is overdue or due within this many days
+const AT_RISK_DAYS = 2
+
+type TaskRisk = "overdue" | "at_risk" | null
+
+// Whole days from today until the due date (negative when overdue), using local dates.
+function daysUntilDue(dueDate: string): number {
+  const [year, month, day] = dueDate.slice(0, 10).split("-").map(Number)
+  const due = new Date(year, month - 1, day)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return Math.round((due.getTime() - today.getTime()) / 86_400_000)
+}
+
+function getTaskRisk(task: Task): TaskRisk {
+  if (task.status === "done" || !task.due_date) return null
+  const days = daysUntilDue(task.due_date)
+  if (days < 0) return "overdue"
+  if (days <= AT_RISK_DAYS) return "at_risk"
+  return null
+}
+
 // Moves a task one column left/right, or jumps to the first/last column.
 function moveStatus(
   current: TaskStatus,
@@ -111,21 +133,44 @@ function TaskCard({
   courseId: string
   onMove: (task: Task, status: TaskStatus) => void
 }) {
+  // SRS-12: highlight at-risk tasks (red) and tasks without an assignee (dark tone)
+  const risk = getTaskRisk(task)
+  const unassigned = task.assignees.length === 0
+  const cardTone = risk
+    ? "bg-danger-soft border-2 border-panel-danger"
+    : unassigned
+      ? "bg-neutral-200 border border-neutral-400"
+      : "bg-panel-surface hover:bg-panel-surface-strong"
+
   return (
-    <div className="bg-panel-surface rounded-2xl p-4 flex flex-col gap-2 transition hover:bg-panel-surface-strong">
+    <div className={`${cardTone} rounded-2xl p-4 flex flex-col gap-2 transition`}>
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-panel-foreground font-semibold">{task.title}</h3>
         {task.can_edit && (
           <Link
             href={`/courses/${courseId}/task/${task.task_id}/edit`}
-            className="bg-brand rounded-md p-1.5 shadow-sm hover:bg-brand-hover transition"
+            className="bg-white rounded-md p-1.5 shadow-sm ring-1 ring-neutral-300 hover:bg-neutral-100 transition"
             aria-label="Edit task"
           >
-            <Edit className="size-4 text-brand-foreground" />
+            <Edit className="size-4 text-neutral-900" />
           </Link>
         )}
       </div>
       <p className="text-panel-muted text-sm">{task.description}</p>
+      {(risk || unassigned) && (
+        <div className="flex flex-wrap gap-1">
+          {risk && (
+            <span className="rounded-full bg-panel-danger px-2 py-0.5 text-xs font-semibold text-white">
+              {risk === "overdue" ? "Overdue" : "At risk"}
+            </span>
+          )}
+          {unassigned && (
+            <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-xs font-semibold text-white">
+              Unassigned
+            </span>
+          )}
+        </div>
+      )}
       <div className="text-sm text-panel-muted space-y-0.5">
         <p>
           <span className="font-semibold text-panel-foreground">Owner: </span>
@@ -332,6 +377,17 @@ export default function TasksBoard() {
           <p className="mt-2 text-lg font-semibold text-neutral-900">
             {course?.course_name ?? (isLoading ? "Loading..." : "Untitled course")}
           </p>
+          {/* SRS-12 legend */}
+          <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-panel-muted">
+            <span className="flex items-center gap-2">
+              <span className="size-3 rounded-sm bg-danger-soft border-2 border-panel-danger" />
+              At risk (due within {AT_RISK_DAYS} days) or overdue
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="size-3 rounded-sm bg-neutral-200 border border-neutral-400" />
+              No assignee
+            </span>
+          </div>
         </div>
         <Button
           type="button"
