@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState, type FormEvent } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Archive, ArrowLeft, Loader2, Plus, Trash2, Users } from "lucide-react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { Archive, Loader2, Plus, Trash2, Users } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +35,8 @@ function RolePicker({ value, onChange, label, disabled }: {
 export default function EditCoursePage() {
     const { id } = useParams<{ id: string }>()
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const backUrl = searchParams.get("from") === "dashboard" ? `/courses/${id}/dashboard` : "/courses"
     const [course, setCourse] = useState<Course | null>(null)
     const [original, setOriginal] = useState("")
     const [error, setError] = useState("")
@@ -104,7 +106,7 @@ export default function EditCoursePage() {
             if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Unable to save changes. Please try again.")
             toast.success("Course updated successfully")
             setOriginal(JSON.stringify(course))
-            router.push("/courses")
+            router.push(backUrl)
             router.refresh()
         } catch (err) {
             toast.error(err instanceof Error ? err.message : "Unable to save changes")
@@ -133,15 +135,14 @@ export default function EditCoursePage() {
         }
     }
 
-    if (error) return <div className="mx-auto w-full max-w-3xl p-8"><p role="alert" className="mb-4 text-destructive">{error}</p><Button onClick={() => { setError(""); setReload((value) => value + 1) }}>Try again</Button><Button variant="ghost" onClick={() => router.push("/courses")}>Back to courses</Button></div>
+    if (error) return <div className="mx-auto w-full max-w-3xl p-8"><p role="alert" className="mb-4 text-destructive">{error}</p><Button onClick={() => { setError(""); setReload((value) => value + 1) }}>Try again</Button><Button variant="ghost" onClick={() => router.push(backUrl)}>{backUrl === "/courses" ? "Back to courses" : "Back to Course Dashboard"}</Button></div>
     if (!course) return <div role="status" className="flex min-h-64 items-center gap-2"><Loader2 className="size-5 animate-spin" />Loading course…</div>
 
     const lastLecturer = (member: Member) => member.role === "lecturer" && course.members.filter((item) => item.role === "lecturer").length === 1
-    const back = () => dirty ? setLeaving(true) : router.push("/courses")
+    const back = () => dirty ? setLeaving(true) : router.push(backUrl)
 
     return (
         <main className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8">
-            <Button variant="ghost" onClick={back} disabled={saving}><ArrowLeft />Back to courses</Button>
             <header><h1 className="text-3xl font-bold">Edit course</h1><p className="mt-2 text-muted-foreground">Update course details and manage who has access.</p></header>
             <form id="course-details" onSubmit={save}>
                 <Card>
@@ -205,7 +206,7 @@ export default function EditCoursePage() {
                 <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Archive this course?</AlertDialogTitle><AlertDialogDescription>It will be hidden from all members&apos; course lists. Unsaved changes on this page will be lost.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={archiving}>Cancel</AlertDialogCancel><AlertDialogAction variant="destructive" onClick={() => void archiveCourse()} disabled={archiving}>{archiving && <Loader2 className="size-4 animate-spin" />}Archive</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
             </AlertDialog>
             <AlertDialog open={leaving} onOpenChange={setLeaving}>
-                <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle><AlertDialogDescription>Your course and member changes have not been saved.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Keep editing</AlertDialogCancel><AlertDialogAction onClick={() => router.push("/courses")}>Discard changes</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle><AlertDialogDescription>Your course and member changes have not been saved.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Keep editing</AlertDialogCancel><AlertDialogAction onClick={() => router.push(backUrl)}>Discard changes</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
             </AlertDialog>
         </main>
     )
