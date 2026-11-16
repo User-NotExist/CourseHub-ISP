@@ -127,7 +127,7 @@ export default function Agenda() {
                 <div className="grid gap-6 lg:grid-cols-[3fr_2fr] shrink-0">
                     <CourseCalendar
                         onSelect={setPickedDate}
-                        highlightDate={pickedDate}
+                        selectedDate={pickedDate}
                         dueTasks={data.tasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))}
                         activities={data.activities.map((a) => ({
                             date: a.activity_date,
@@ -140,20 +140,23 @@ export default function Agenda() {
                         }))}
                     />
 
-                    <div className="flex flex-col gap-3 rounded-xl bg-[#E8E8E8] p-6 drop-shadow-md">
-                        <h2 className="text-lg font-bold">
+                    {/* on lg the box is taken out of flow so the calendar alone sets the row height,
+                        and the list scrolls inside it; when stacked it is capped by viewport height */}
+                    <div className="relative">
+                    <div className="flex max-h-[70vh] flex-col gap-3 rounded-xl bg-[#E8E8E8] p-6 drop-shadow-md lg:absolute lg:inset-0 lg:max-h-none">
+                        <h2 className="shrink-0 text-lg font-bold">
                             {selectedDate ? formatDate(selectedDate) : ""}
                         </h2>
 
                         {dayTasks.length === 0 && dayActivities.length === 0 && dayConsultations.length === 0 ? (
                             <p className="py-6 text-center text-sm text-gray-500">Nothing on this day.</p>
                         ) : (
-                            <div className="flex flex-col gap-2 overflow-y-auto scrollbar-none">
+                            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto scrollbar-none">
                                 {dayActivities.map((a) => (
                                     <button
                                         key={`a${a.activity_id}`}
                                         onClick={() => openCourse(a.course_id)}
-                                        className="flex flex-col gap-1 rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
+                                        className="flex shrink-0 flex-col gap-1 rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
                                     >
                                         <span className="flex items-center gap-3">
                                             <span className={`h-1.5 w-5 shrink-0 rounded-full ${a.activity_type === "Milestones" ? "bg-violet-500" : "bg-amber-500"}`} />
@@ -170,7 +173,7 @@ export default function Agenda() {
                                     <button
                                         key={`c${c.available_id}`}
                                         onClick={() => router.push(`/courses/${c.course_id}/consultation/appointments`)}
-                                        className="flex flex-col gap-1 rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
+                                        className="flex shrink-0 flex-col gap-1 rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
                                     >
                                         <span className="flex items-center gap-3">
                                             <span className="h-1.5 w-5 shrink-0 rounded-full bg-sky-500" />
@@ -186,7 +189,7 @@ export default function Agenda() {
                                     <button
                                         key={`t${t.task_id}`}
                                         onClick={() => openCourse(t.course_id)}
-                                        className="flex flex-col gap-1 rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
+                                        className="flex shrink-0 flex-col gap-1 rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md"
                                     >
                                         <span className="flex items-center gap-3">
                                             <span className="h-1.5 w-5 shrink-0 rounded-full bg-green-500" />
@@ -212,6 +215,7 @@ export default function Agenda() {
                                 ))}
                             </div>
                         )}
+                    </div>
                     </div>
                 </div>
             )}
