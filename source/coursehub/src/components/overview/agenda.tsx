@@ -127,7 +127,7 @@ export default function Agenda() {
                 <div className="grid gap-6 lg:grid-cols-[3fr_2fr] shrink-0">
                     <CourseCalendar
                         onSelect={setPickedDate}
-                        highlightDate={pickedDate}
+                        selectedDate={pickedDate}
                         dueTasks={data.tasks.map((t) => ({ date: t.task_due_date, title: t.task_name }))}
                         activities={data.activities.map((a) => ({
                             date: a.activity_date,

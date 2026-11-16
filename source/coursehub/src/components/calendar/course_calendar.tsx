@@ -175,7 +175,10 @@ export default function CourseCalendar({
                             </span>
                         </button>
                         {(dayTasks.length > 0 || dayActivities.length > 0 || dayConsultations.length > 0) && (
-                            <div className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-0 ${isHighlighted ? "flex" : "hidden"} w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand px-3 py-2 text-left text-sm text-brand-foreground shadow-lg peer-hover:flex`}>
+                            <div className={`pointer-events-none absolute bottom-full left-1/2 z-20 mb-0 ${
+                                // the selected date's details are already shown by the page, so no hover popup for it
+                                isHighlighted ? "flex" : isSelected ? "hidden" : "hidden peer-hover:flex"
+                            } w-max max-w-56 -translate-x-1/2 flex-col gap-1 rounded-lg bg-brand px-3 py-2 text-left text-sm text-brand-foreground shadow-lg`}>
                                 {dayTasks.map((t, n) => (
                                     <span key={`t${n}`} className="flex items-center gap-2 truncate">
                                         <span className="h-1 w-3 shrink-0 rounded-full bg-green-400" />{t.title}
