@@ -3,6 +3,7 @@
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
+import LoadingScreen from "@/components/loading-screen";
 import {
     InputGroup,
     InputGroupAddon,
@@ -61,6 +62,7 @@ function formatDate(value: string) {
 
 export default function CoursePage() {
     const [copied, setCopied] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
     const { id: courseId } = useParams<{ id: string }>();
 
@@ -98,30 +100,42 @@ export default function CoursePage() {
 
     useEffect(() => {
         const get_course_details = async () => {
-            const response = await fetch(`/api_course/get_details/get_detail?course_id=${courseId}`);
-            if (response.ok) {
-                const data = await response.json();
-                setCourseTitle(data.title);
-                setCourseDescription(data.description);
-            }
-            else {
+            try {
+                const response = await fetch(`/api_course/get_details/get_detail?course_id=${courseId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setCourseTitle(data.title);
+                    setCourseDescription(data.description);
+                }
+                else {
+                    setCourseTitle("Error loading title");
+                    setCourseDescription("Error loading description");
+                }
+            } catch (error) {
+                console.error("Error fetching course details:", error);
                 setCourseTitle("Error loading title");
                 setCourseDescription("Error loading description");
             }
         };
 
         const get_course_numbers = async () => {
-            const response = await fetch(`/api_course/get_details/get_numbers?course_id=${courseId}`);
-            if (response.ok) {
-                const data = await response.json();
+            try {
+                const response = await fetch(`/api_course/get_details/get_numbers?course_id=${courseId}`);
+                if (response.ok) {
+                    const data = await response.json();
 
-                const totalLecturerStr = data.num_lec.toString()
-                const totalTaStr = data.num_ta.toString()
+                    const totalLecturerStr = data.num_lec.toString()
+                    const totalTaStr = data.num_ta.toString()
 
-                setTotalLecturer(totalLecturerStr);
-                setTotalTA(totalTaStr);
-            }
-            else {
+                    setTotalLecturer(totalLecturerStr);
+                    setTotalTA(totalTaStr);
+                }
+                else {
+                    setTotalLecturer("0");
+                    setTotalTA("0");
+                }
+            } catch (error) {
+                console.error("Error fetching course numbers:", error);
                 setTotalLecturer("0");
                 setTotalTA("0");
             }
@@ -176,12 +190,16 @@ export default function CoursePage() {
             }
         }
 
-        get_course_details();
-        get_course_numbers();
-        get_my_tasks();
-        get_my_activities();
-        get_latest_announcement();
+        Promise.all([
+            get_course_details(),
+            get_course_numbers(),
+            get_my_tasks(),
+            get_my_activities(),
+            get_latest_announcement(),
+        ]).finally(() => setIsLoading(false));
     }, [courseId]);
+
+    if (isLoading) return <LoadingScreen />
 
     return (
         <div className="flex w-full min-w-0 flex-col md:p-10 overflow-y-auto gap-8 scrollbar-none">
