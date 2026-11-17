@@ -1,11 +1,19 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useTodayKey } from "@/components/calendar/course_calendar"
 
-type Task = { task_id: number; task_name: string; task_due_date: string; status?: string }
-type Activity = { activity_id: number; activity_name: string; activity_type: string; activity_date: string }
+type Task = { task_id: number; task_name: string; task_due_date: string; status?: string; course_id?: string; course_name?: string }
+type Activity = { activity_id: number; activity_name: string; activity_type: string; activity_date: string; course_id?: string; course_name?: string }
 
-type Item = { id: string; title: string; date: string; kind: "Task" | "Activity" | "Milestone" }
+type Item = {
+    id: string
+    title: string
+    date: string
+    kind: "Task" | "Activity" | "Milestone"
+    courseId?: string
+    courseName?: string
+}
 
 const kindColor: Record<Item["kind"], string> = {
     Task: "bg-green-500",
@@ -36,17 +44,27 @@ function isValidDate(date: string) {
 function Row({
     item, note, noteClass, onHover,
 }: { item: Item; note: string; noteClass: string; onHover?: (date: string | null) => void }) {
+    const router = useRouter()
+    const clickable = !!item.courseId
+
     return (
-        <div
+        <button
+            type="button"
+            disabled={!clickable}
+            onClick={() => clickable && router.push(`/courses/${item.courseId}/dashboard`)}
             onMouseEnter={() => onHover?.(item.date)}
             onMouseLeave={() => onHover?.(null)}
-            className="flex items-center gap-3 rounded-lg bg-white px-4 py-3 transition-shadow hover:shadow-md"
+            title={item.courseName ? `Go to ${item.courseName}` : undefined}
+            className={`flex w-full items-center gap-3 rounded-lg bg-white px-4 py-3 text-left transition-shadow hover:shadow-md ${clickable ? "cursor-pointer" : "cursor-default"}`}
         >
             <span className={`h-1.5 w-5 shrink-0 rounded-full ${kindColor[item.kind]}`} />
-            <span className="flex-1 truncate font-medium">{item.title}</span>
+            <span className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate font-medium">{item.title}</span>
+                {item.courseName && <span className="truncate text-xs text-gray-500">{item.courseName}</span>}
+            </span>
             <span className="text-sm text-gray-500">{formatDate(item.date)}</span>
             <span className={`w-24 text-right text-sm font-semibold ${noteClass}`}>{note}</span>
-        </div>
+        </button>
     )
 }
 
@@ -63,7 +81,7 @@ export default function UpcomingLate({
     const openTasks = todayKey ? tasks.filter((t) => isValidDate(t.task_due_date) && t.status !== "Done") : []
 
     const upcoming: Item[] = [
-        ...openTasks.map((t) => ({ id: `t${t.task_id}`, title: t.task_name, date: t.task_due_date, kind: "Task" as const })),
+        ...openTasks.map((t) => ({ id: `t${t.task_id}`, title: t.task_name, date: t.task_due_date, kind: "Task" as const, courseId: t.course_id, courseName: t.course_name })),
         ...activities
             .filter((a) => isValidDate(a.activity_date))
             .map((a) => ({
@@ -71,6 +89,8 @@ export default function UpcomingLate({
                 title: a.activity_name,
                 date: a.activity_date,
                 kind: a.activity_type === "Milestones" ? ("Milestone" as const) : ("Activity" as const),
+                courseId: a.course_id,
+                courseName: a.course_name,
             })),
     ]
         .filter((it) => {
@@ -81,7 +101,7 @@ export default function UpcomingLate({
 
     const late: Item[] = openTasks
         .filter((t) => t.task_due_date < todayKey)
-        .map((t) => ({ id: `t${t.task_id}`, title: t.task_name, date: t.task_due_date, kind: "Task" as const }))
+        .map((t) => ({ id: `t${t.task_id}`, title: t.task_name, date: t.task_due_date, kind: "Task" as const, courseId: t.course_id, courseName: t.course_name }))
         .sort((a, b) => a.date.localeCompare(b.date))
 
     const upcomingNote = (date: string) => {

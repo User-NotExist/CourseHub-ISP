@@ -68,6 +68,8 @@ export default function CoursePage() {
 
     const [courseTitle, setCourseTitle] = useState("Loading Title...");
     const [courseDescription, setCourseDescription] = useState("Loading Description...");
+    const [myRole, setMyRole] = useState<string | null>(null);
+    const canEditCourse = myRole === "lecturer" || myRole === "admin";
     const [totalLecturer, setTotalLecturer] = useState<string>("N/A");
     const [totalTA, setTotalTA] = useState<string>("N/A");
 
@@ -106,6 +108,7 @@ export default function CoursePage() {
                     const data = await response.json();
                     setCourseTitle(data.title);
                     setCourseDescription(data.description);
+                    setMyRole(data.role ?? null);
                 }
                 else {
                     setCourseTitle("Error loading title");
@@ -216,8 +219,8 @@ export default function CoursePage() {
             <div className="">
                 <div className="flex flex-col items-start justify-center gap-1 w-full pb-4">
                     <h1>Student URL</h1>
-                    <div className="flex flex-row items-center justify-center gap-2 w-full">
-                        <InputGroup className="bg-background">
+                    <div className="flex flex-row items-center gap-2 w-full">
+                        <InputGroup className="flex-1 bg-background">
                             <InputGroupInput aria-label="Link" readOnly type="url" value={courseUrl} />
                             <InputGroupAddon align="inline-end">
                                 <InputGroupButton
@@ -235,9 +238,11 @@ export default function CoursePage() {
                         </InputGroup>
 
                         <Button onClick={() => window.open(courseUrl, "_blank")} className="px-10 font-lg font-bold">open</Button>
-                        <Button onClick={() => router.push(`/courses/${courseId}/edit?from=dashboard`)} variant="outline" className="px-15 font-lg font-bold">
-                            Edit Course
-                        </Button>
+                        {canEditCourse && (
+                            <Button onClick={() => router.push(`/courses/${courseId}/edit?from=dashboard`)} variant="outline" className="px-15 font-lg font-bold">
+                                Edit Course
+                            </Button>
+                        )}
                     </div>
                 </div>
 

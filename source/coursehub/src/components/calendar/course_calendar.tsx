@@ -117,7 +117,7 @@ export default function CourseCalendar({
                 {selectedDate !== undefined && (
                     <button
                         onClick={goToToday}
-                        className="ml-2 shrink-0 rounded-md px-4 py-1 text-xl transition-colors hover:bg-gray-100"
+                        className="ml-2 shrink-0 rounded-md border border-gray-300 px-4 py-1 text-xl transition-colors hover:bg-gray-100"
                     >
                         Today
                     </button>

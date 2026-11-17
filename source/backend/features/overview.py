@@ -44,13 +44,13 @@ async def get_title_description(
     db: Session = Depends(get_db),
 ):
     user = get_current_user(access_token, db)
-    require_member(db, user, course_id, STAFF_ROLES)
+    role = require_member(db, user, course_id, STAFF_ROLES)
 
     course = db.query(Course).filter(Course.course_id == course_id).first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found !")
 
-    return {"title": course.course_name, "description": course.course_description}
+    return {"title": course.course_name, "description": course.course_description, "role": role}
 
 
 @router.get("/get_self_tasks_in_this_course")
