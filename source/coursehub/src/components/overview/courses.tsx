@@ -6,8 +6,9 @@ import Image from "next/image"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Edit, Loader2, Search } from "lucide-react"
+import { Edit, Search } from "lucide-react"
 import UpcomingLate from "@/components/calendar/upcoming_late"
+import LoadingScreen from "@/components/loading-screen"
 
 type Course = {
     course_id: string
@@ -43,6 +44,7 @@ type OverviewActivity = {
 export default function CoursesPage() {
     const [courses, setCourses] = useState<Course[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isOverviewLoading, setIsOverviewLoading] = useState(true)
     const [search, setSearch] = useState("")
     const [overviewTasks, setOverviewTasks] = useState<OverviewTask[]>([])
     const [overviewActivities, setOverviewActivities] = useState<OverviewActivity[]>([])
@@ -80,6 +82,8 @@ export default function CoursesPage() {
                 console.error(error)
                 setOverviewTasks([])
                 setOverviewActivities([])
+            } finally {
+                setIsOverviewLoading(false)
             }
         }
 
@@ -90,6 +94,8 @@ export default function CoursesPage() {
     const filteredCourses = courses.filter((course) =>
         course.course_name.toLowerCase().includes(q) || (course.course_description ?? "").toLowerCase().includes(q)
     )
+
+    if (isLoading || isOverviewLoading) return <LoadingScreen />
 
     const handle_view = (course_id: string) => {
         router.push(`/courses/${course_id}/dashboard`)
@@ -117,11 +123,7 @@ export default function CoursesPage() {
                 <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2" />
             </div>
 
-            {isLoading ? (
-                <div className="flex items-center justify-center py-10">
-                    <Loader2 className="animate-spin mt-10" size={45} />
-                </div>
-            ) : filteredCourses.length > 0 ? (
+            {filteredCourses.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5 w-full pb-6">
                     {filteredCourses.map((course) => (
                         <div key={course.course_id} className="pb-4 bg-[#006C67] rounded-xl drop-shadow-lg">
