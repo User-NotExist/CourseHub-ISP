@@ -142,7 +142,7 @@ export default function CoursesPage() {
 
                             <div className="px-5 flex flex-row justify-between items-center mt-4">
                                 <div className="flex items-center">
-                                    {(course.role === "lecturer" || course.can_edit) && <Button aria-label={`Edit ${course.course_name}`} onClick={() => router.push(`/courses/${course.course_id}/edit`)} ><Edit /></Button>}
+                                    {course.can_edit && <Button aria-label={`Edit ${course.course_name}`} onClick={() => router.push(`/courses/${course.course_id}/edit`)} ><Edit /></Button>}
                                 </div>
 
                                 <Button onClick={() => handle_view(course.course_id)} className="w-25">View</Button>
