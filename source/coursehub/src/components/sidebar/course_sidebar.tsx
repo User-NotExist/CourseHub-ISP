@@ -28,6 +28,7 @@ import UserAvatar from "@/components/user_avatar"
 
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
+import Image from "next/image"
 
 export default function CourseSidebar() {
     const params = useParams()
@@ -63,9 +64,18 @@ export default function CourseSidebar() {
         <div className="bg-[#006C67] flex flex-col justify-between w-65 h-screen sticky top-0 shrink-0 overflow-y-auto text-white">
             <div>
                 <div className="p-6">
-                    <h1 className="text-2xl font-bold border-white/30 pb-3">CourseHub</h1>
-                    <div className="flex flex-col items-center justify-center pt-2">
-                        <div className="bg-white w-max px-28 h-[1px]" />
+                    <div className="flex flex-row items-center gap-3">
+                        <Image
+                            src="/app_icon.png"
+                            alt="app-icon"
+                            loading="eager"
+                            width={44}
+                            height={44}
+                        />
+                        <h1 className="text-2xl font-bold border-white/30">CourseHub</h1>
+                    </div>
+                    <div className="flex flex-col items-center justify-center pt-4">
+                        <div className="bg-white w-max px-28 h-[1.3px] rounded-full" />
                     </div>
                 </div>
 
