@@ -2,7 +2,7 @@
 
 A platform that centralizes course tasks, announcements, and FAQs to keep lecturers and TAs in sync.
 
-# group Members
+# Group Members
 - Krittitee Chaisang 6810545441 [Kongbeng-21](https://github.com/Kongbeng-21)
 - Pasin Makcharoen 6810545794 [Pasin0931](https://github.com/Pasin0931)
 - Phirawit Sommaichaiya 6810545832 [FeuxFollet](https://github.com/FeuxFollet)
