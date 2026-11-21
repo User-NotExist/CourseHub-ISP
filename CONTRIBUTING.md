@@ -2,9 +2,9 @@
 
 ## Project structure
 
-- `course/backend/` — Python API service
-- `course/coursehub/` — Next.js frontend app
-- `course/docker-compose.yml` — Container setup for deployment
+- `source/backend/` — Python API service
+- `source/coursehub/` — Next.js frontend app
+- `source/docker-compose.yml` — Container setup for deployment
 - `Jenkinsfile` — Instructions for deployment pipeline
 - `README.md` — project information.
 
@@ -37,7 +37,7 @@ Adding `--volumes` deletes the dependency/cache volumes.
 ### Backend
 
 ```bash
-cd course/backend
+cd source/backend
 python -m venv venv
 
 # Windows PowerShell
@@ -53,7 +53,7 @@ python -m uvicorn main:app --reload
 ### Frontend
 
 ```bash
-cd course/coursehub
+cd source/coursehub
 npm install
 npm run dev
 ```
